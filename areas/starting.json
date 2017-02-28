@@ -1,0 +1,67 @@
+{
+    "name": "Mud School",
+    "rooms": [
+        {
+            "id": 1,
+            "name": "Blue",
+            "description": "This is a blue room.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 2
+                },
+                {
+                    "direction": "south",
+                    "room_id": 3
+                }
+            ],
+            "items": [1]
+        },
+        {
+            "id": 2,
+            "name": "Red",
+            "description": "This is a red room.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "room_id": 1
+                },
+                {
+                    "direction": "south",
+                    "room_id": 4
+                }
+            ],
+            "items": [2]
+        },
+        {
+            "id": 3,
+            "name": "Yellow",
+            "description": "This is a yellow room.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "room_id": 1
+                },
+                {
+                    "direction": "east",
+                    "room_id": 4
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Green",
+            "description": "This is a green room.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "room_id": 2
+                },
+                {
+                    "direction": "west",
+                    "room_id": 3
+                }
+            ]
+        }
+    ]
+}
