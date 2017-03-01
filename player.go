@@ -24,7 +24,7 @@ type PlayerDatabase []Player
 type Player struct {
 	//Player information
 	Entity
-	inventory []int
+	inventory []Item
 	Room      int
 	exitVerb  string
 
@@ -36,8 +36,8 @@ type Player struct {
 	m_request *Connection
 }
 
-func NewPlayer(c *Connection) Player {
-	p := Player{
+func NewPlayer(c *Connection) *Player {
+	p := &Player{
 		m_request: c,
 
 		hitpoints: DEFAULT_HITPOINTS,
@@ -47,9 +47,22 @@ func NewPlayer(c *Connection) Player {
 		Room:     3,
 		exitVerb: "jaunt",
 
-		inventory: []int{1, 2},
+		inventory: []Item{},
 	}
 	return p
+}
+
+func (p *Player) AddItem(item Item) {
+	p.inventory = append(p.inventory, item)
+}
+
+func (p *Player) RemoveItem(item Item) {
+	for k, i := range p.inventory {
+		if i.Id == item.Id {
+			p.inventory = append(p.inventory[:k], p.inventory[k+1:]...)
+			return
+		}
+	}
 }
 
 func (p *Player) SetRoom(room int) {

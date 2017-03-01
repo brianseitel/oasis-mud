@@ -36,31 +36,45 @@ func (rdb *RoomDatabase) FindRoom(r int) Room {
 			return v
 		}
 	}
-
 	return Room{}
 }
 
-func (r *Room) Display(c Connection) {
-	for _, v := range r.ItemIds {
-		r.Items = append(r.Items, FindItem(v))
-	}
-
+func (r Room) Display(c Connection) {
 	tmpl := `{{ .Name }}
 {{ .Description }}
-{{ if .Items }}
-{{ range .Items }}There is a {{ .Name }} on the floor.
-{{end}}
-{{ end }}
-{{ if .Exits }}
-Exits: {{ range .Exits }}{{ .Dir }} {{ end }}
-{{ end }}`
+{{ if .Items }}{{ range .Items }}There is a {{ .Name }} on the floor.
+{{ end }}{{ end }}
+{{ if .Exits }}Exits: {{ range .Exits }}{{ .Dir }} {{ end }}{{ end }}`
 
 	t := template.Must(template.New("room").Parse(tmpl))
 
 	_ = t.Execute(c.conn, r)
 }
 
+func (rdb *RoomDatabase) RemoveItem(room Room, item Item) {
+	for key, r := range rdb.Rooms {
+		if r.Id == room.Id {
+			for k, i := range room.Items {
+				if i.Id == item.Id {
+					rdb.Rooms[key].Items = append(room.Items[:k], room.Items[k+1:]...)
+					return
+				}
+			}
+		}
+	}
+}
+
+func (rdb *RoomDatabase) AddItem(room Room, item Item) {
+	for key, r := range rdb.Rooms {
+		if r.Id == room.Id {
+			rdb.Rooms[key].Items = append(rdb.Rooms[key].Items, item)
+			return
+		}
+	}
+}
+
 func NewRoomDatabase() *RoomDatabase {
+	dbItems = NewItemDatabase()
 	areaFiles, _ := filepath.Glob("./areas/*.json")
 
 	rooms := &RoomDatabase{}
@@ -74,6 +88,9 @@ func NewRoomDatabase() *RoomDatabase {
 		json.Unmarshal(file, &area)
 
 		for _, room := range area.Rooms {
+			for _, v := range room.ItemIds {
+				room.Items = append(room.Items, FindItem(v))
+			}
 			rooms.Rooms = append(rooms.Rooms, room)
 		}
 	}

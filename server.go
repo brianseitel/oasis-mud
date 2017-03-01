@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+var dbCommands *CommandDatabase
 var dbItems *ItemDatabase
 var dbRooms *RoomDatabase
 var activePlayers []Player
@@ -17,7 +18,7 @@ type Connection struct {
 	conn    net.Conn
 	buffer  *bufio.ReadWriter
 	handler Handler
-	player  Player
+	player  *Player
 }
 
 type Server struct {
@@ -29,9 +30,7 @@ type Server struct {
 
 func (server *Server) Handle(c *Connection) {
 	c.player = NewPlayer(c)
-	activePlayers = append(activePlayers, c.player)
-	dbRooms = NewRoomDatabase()
-	dbItems = NewItemDatabase()
+	activePlayers = append(activePlayers, *c.player)
 	room := dbRooms.FindRoom(c.player.Room)
 	room.Display(*c)
 	for {
@@ -48,50 +47,15 @@ func (server *Server) Handle(c *Connection) {
 			cmd := parts[0]
 			line := strings.Join(parts[1:], " ")
 
-			switch cmd {
-			case "new":
-				c.SendString("Fresh blood!")
-			case "quit":
+			if cmd == "quit" {
 				c.SendString("Seeya!" + newline)
 				c.conn.Close()
 				return
-			case "say":
-				cmd := new(SayCommand)
-				cmd.Handle(c, line)
-			case "inv":
-				cmd := new(InventoryCommand)
-				cmd.Handle(c)
-			case "n", "north":
-				cmd := new(MoveCommand)
-				cmd.Handle(c, "north", room)
-				room := dbRooms.FindRoom(c.player.Room)
-				room.Display(*c)
-			case "e", "east":
-				cmd := new(MoveCommand)
-				cmd.Handle(c, "east", room)
-				room := dbRooms.FindRoom(c.player.Room)
-				room.Display(*c)
-			case "w", "west":
-				cmd := new(MoveCommand)
-				cmd.Handle(c, "west", room)
-				room := dbRooms.FindRoom(c.player.Room)
-				room.Display(*c)
-			case "s", "south":
-				cmd := new(MoveCommand)
-				cmd.Handle(c, "south", room)
-				room := dbRooms.FindRoom(c.player.Room)
-				room.Display(*c)
-			case "u", "up":
-				cmd := new(MoveCommand)
-				cmd.Handle(c, "up", room)
-				room := dbRooms.FindRoom(c.player.Room)
-				room.Display(*c)
-			case "d", "down":
-				cmd := new(MoveCommand)
-				cmd.Handle(c, "down", room)
-				room := dbRooms.FindRoom(c.player.Room)
-				room.Display(*c)
-			default:
+			}
+
+			if command, ok := dbCommands.Lookup(cmd); ok {
+				command.Handle(c, line)
+			} else {
 				c.SendString("I'm sorry. I don't know what you mean." + newline)
 			}
 		}
@@ -103,6 +67,10 @@ func (server *Server) Logger() *log.Logger {
 }
 
 func (server *Server) Serve() {
+	dbItems = NewItemDatabase()
+	dbRooms = NewRoomDatabase()
+	dbCommands = NewCommandDatabase()
+
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", server.port))
 	if err != nil {
 		server.log.Printf("cannot start server: %s\n", err)
