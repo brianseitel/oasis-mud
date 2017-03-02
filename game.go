@@ -1,20 +1,14 @@
 package main
 
 type Game struct {
-	server         *Server
-	itemDatabase   *ItemDatabase
-	playerDatabase *PlayerDatabase
-	roomDatabase   *RoomDatabase
-	running        bool
+	server  *Server
+	running bool
 }
 
 func NewGame(server *Server) *Game {
 	return &Game{
-		server:         server,
-		running:        false,
-		itemDatabase:   NewItemDatabase(),
-		playerDatabase: NewPlayerDatabase(),
-		roomDatabase:   NewRoomDatabase(),
+		server:  server,
+		running: false,
 	}
 }
 

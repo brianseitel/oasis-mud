@@ -13,6 +13,7 @@ var dbCommands *CommandDatabase
 var dbItems *ItemDatabase
 var dbRooms *RoomDatabase
 var activePlayers []Player
+var activeConnections []Connection
 
 type Connection struct {
 	conn    net.Conn
@@ -29,9 +30,12 @@ type Server struct {
 }
 
 func (server *Server) Handle(c *Connection) {
-	c.player = NewPlayer(c)
+
+	c.player = Login(c)
 	activePlayers = append(activePlayers, *c.player)
+	activeConnections = append(activeConnections, *c)
 	room := dbRooms.FindRoom(c.player.Room)
+
 	room.Display(*c)
 	for {
 		c.player.ShowStatusBar()
@@ -108,4 +112,12 @@ func (c *Connection) BufferData(text string) {
 
 func (c *Connection) SendBuffer() {
 	c.buffer.Flush()
+}
+
+func (c *Connection) BroadcastToRoom(text string) {
+	for _, connection := range activeConnections {
+		if connection.player != c.player && c.player.Room == connection.player.Room {
+			connection.SendString(c.player.Name + " says, \"" + text + "\"" + newline)
+		}
+	}
 }

@@ -1,6 +1,11 @@
 package main
 
-import "strconv"
+import (
+	"encoding/json"
+	"errors"
+	"io/ioutil"
+	"strconv"
+)
 
 const PLAYERITEMS = 16
 
@@ -23,43 +28,80 @@ type PlayerDatabase []Player
 
 type Player struct {
 	//Player information
-	Entity
-	inventory []Item
-	Room      int
-	exitVerb  string
+	Id       int    `json:"id"`
+	Name     string `json:"username"`
+	Password string `json:"password"`
 
-	hitpoints int
-	mana      int
-	movement  int
-	exp       int
+	Inventory []Item `json:"inventory"`
+	Room      int    `json:"current_room"`
+	ExitVerb  string `json:"exit_verb"`
 
+	Hitpoints int `json:"hitpoints"`
+	Mana      int `json:"mana"`
+	Movement  int `json:"movement"`
+	Exp       int `json:"experience"`
+
+	Level  int    `json:"level"`
+	Class  string `json:"class"`
+	Race   string `json:"race"`
+	Gender string `json:"gender"`
+
+	Stats     PlayerStats `json:"stats"`
 	m_request *Connection
 }
 
+type PlayerStats struct {
+	Strength     int `json:"strength"`
+	Wisdom       int `json:"wisdom"`
+	Intelligence int `json:"intelligence"`
+	Dexterity    int `json:"dexterity"`
+	Charisma     int `json:"charisma"`
+	Constitution int `json:"constitution"`
+}
+
 func NewPlayer(c *Connection) *Player {
-	p := &Player{
-		m_request: c,
-
-		hitpoints: DEFAULT_HITPOINTS,
-		mana:      DEFAULT_MANA,
-		movement:  DEFAULT_MOVEMENT,
-
-		Room:     3,
-		exitVerb: "jaunt",
-
-		inventory: []Item{},
-	}
+	p := &Player{}
 	return p
 }
 
+func LoadPlayer(name string, password string) (*Player, error) {
+	playerFile, err := ioutil.ReadFile("./players/" + name + ".json")
+	if err != nil {
+		return &Player{}, errors.New("Player not found.")
+	}
+
+	var player Player
+	json.Unmarshal(playerFile, &player)
+
+	if player.Password != password {
+		return &Player{}, errors.New("Invalid password.")
+	}
+
+	return &player, nil
+}
+
+func (player *Player) Save() error {
+	output, err := json.MarshalIndent(player, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile("./players/"+player.Name+".json", output, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *Player) AddItem(item Item) {
-	p.inventory = append(p.inventory, item)
+	p.Inventory = append(p.Inventory, item)
 }
 
 func (p *Player) RemoveItem(item Item) {
-	for k, i := range p.inventory {
+	for k, i := range p.Inventory {
 		if i.Id == item.Id {
-			p.inventory = append(p.inventory[:k], p.inventory[k+1:]...)
+			p.Inventory = append(p.Inventory[:k], p.Inventory[k+1:]...)
 			return
 		}
 	}
@@ -72,20 +114,20 @@ func (p *Player) SetRoom(room int) {
 func (p Player) exitMessage(direction string) string {
 	switch direction {
 	case "up", "down":
-		return "You " + p.exitVerb + " " + direction + "." + newline
+		return "You " + p.ExitVerb + " " + direction + "." + newline
 	default:
-		return "You " + p.exitVerb + " to the " + direction + "." + newline
+		return "You " + p.ExitVerb + " to the " + direction + "." + newline
 	}
 }
 
 func (p Player) getHitpoints() string {
-	return strconv.Itoa(p.hitpoints)
+	return strconv.Itoa(p.Hitpoints)
 }
 func (p Player) getMana() string {
-	return strconv.Itoa(p.mana)
+	return strconv.Itoa(p.Mana)
 }
 func (p Player) getMovement() string {
-	return strconv.Itoa(p.movement)
+	return strconv.Itoa(p.Movement)
 }
 
 func (p Player) ShowStatusBar() {

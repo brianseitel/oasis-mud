@@ -19,7 +19,8 @@ func (command NewCommand) Handle(c *Connection, line string) {
 type SayCommand struct{}
 
 func (command SayCommand) Handle(c *Connection, line string) {
-	c.SendString("You say " + line + "\n")
+	c.BroadcastToRoom(line)
+	c.SendString("You say, \"" + line + "\"" + newline)
 }
 
 type InventoryCommand struct{}
@@ -28,7 +29,7 @@ func (command InventoryCommand) Handle(c *Connection, line string) {
 	c.BufferData("==========================" + newline)
 	c.BufferData("Inventory" + newline)
 	c.BufferData("--------------------------" + newline)
-	for _, item := range c.player.inventory {
+	for _, item := range c.player.Inventory {
 		c.BufferData("(1) " + item.Name + newline)
 	}
 	c.BufferData("--------------------------" + newline)
@@ -86,7 +87,7 @@ func (command DropCommand) Handle(c *Connection, line string) {
 		return
 	}
 
-	items := c.player.inventory
+	items := c.player.Inventory
 
 	for _, item := range items {
 		name := strings.ToLower(item.Name)
@@ -106,6 +107,17 @@ type LookCommand struct{}
 func (command LookCommand) Handle(c *Connection, line string) {
 	room := dbRooms.FindRoom(c.player.Room)
 	room.Display(*c)
+}
+
+type SaveCommand struct{}
+
+func (command SaveCommand) Handle(c *Connection, line string) {
+	err := c.player.Save()
+	if err != nil {
+		c.SendString("Oops! Something went wrong!" + newline)
+	}
+
+	c.SendString("Saved!" + newline)
 }
 
 func NewCommandDatabase() *CommandDatabase {
@@ -129,6 +141,7 @@ func NewCommandDatabase() *CommandDatabase {
 	cmds["l"] = LookCommand{}
 	cmds["look"] = LookCommand{}
 	cmds["drop"] = DropCommand{}
+	cmds["save"] = SaveCommand{}
 
 	cmds["get"] = GetCommand{}
 	db.Commands = cmds

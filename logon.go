@@ -1,32 +1,40 @@
 package main
 
-const (
-	NEWCONNECTION = iota
-	NEWUSER
-	ENTERNEWPASS
-	ENTERPASS
+import (
+	"strings"
 )
 
-type LogonState int
+func Login(c *Connection) *Player {
 
-type Logon struct {
-	Handler
-	m_state      LogonState
-	m_errors     int
-	m_name       string
-	m_pass       string
-	p_connection *Connection
-}
+	var name string
+	var password string
 
-func (l *Logon) Hungup() {
-	//log
-}
+	for len(name) == 0 {
+		c.SendString("Welcome!" + newline + "What's your name? ")
+		input, err := c.buffer.ReadString('\n')
+		if err != nil {
+			panic(err)
+		}
+		name = strings.Trim(input, "\r\n")
+	}
 
-func (l *Logon) Flooded() {
-	//log
-}
+	for len(password) == 0 {
+		c.SendString("Password: ")
+		input, err := c.buffer.ReadString('\n')
+		if err != nil {
+			panic(err)
+		}
+		password = strings.Trim(input, "\r\n")
+	}
 
-func (l *Logon) Enter() {
-	//log
-	l.p_connection.SendString(red + bold + "Welcome" + newline + "Please enter your name or \"new\" if you are new: " + reset)
+	player, err := LoadPlayer(name, password)
+	if err != nil {
+		c.SendString(red + err.Error() + reset + newline)
+		return Login(c)
+	}
+
+	c.SendString("Welcome, " + player.Name + "!" + newline)
+
+	player.m_request = c
+	return player
 }
