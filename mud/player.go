@@ -1,10 +1,12 @@
-package main
+package mud
 
 import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"strconv"
+
+	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 const PLAYERITEMS = 16
@@ -59,12 +61,6 @@ type PlayerStats struct {
 	Constitution int `json:"constitution"`
 }
 
-// Creates a new player
-func NewPlayer(c *Connection) *Player {
-	p := &Player{}
-	return p
-}
-
 // Loads a player and authenticates. If not found or not valid, returns error
 // Otherwise, returns a Player.
 func LoadPlayer(name string, password string) (*Player, error) {
@@ -117,9 +113,9 @@ func (p *Player) RemoveItem(item Item) {
 func (p Player) exitMessage(direction string) string {
 	switch direction {
 	case "up", "down":
-		return "You " + p.ExitVerb + " " + direction + "." + newline
+		return "You " + p.ExitVerb + " " + direction + "." + helpers.Newline
 	default:
-		return "You " + p.ExitVerb + " to the " + direction + "." + newline
+		return "You " + p.ExitVerb + " to the " + direction + "." + helpers.Newline
 	}
 }
 
@@ -154,9 +150,9 @@ func (p Player) getMovement() string {
 
 // Displays the player's status bar
 func (p Player) ShowStatusBar() {
-	p.m_request.BufferData(white + "[" + p.getHitpoints() + reset + cyan + "hp")
-	p.m_request.BufferData(white + p.getMana() + reset + cyan + "mana ")
-	p.m_request.BufferData(white + p.getMovement() + reset + cyan + "mv" + white)
+	p.m_request.BufferData(helpers.White + "[" + p.getHitpoints() + helpers.Reset + helpers.Cyan + "hp")
+	p.m_request.BufferData(helpers.White + p.getMana() + helpers.Reset + helpers.Cyan + "mana ")
+	p.m_request.BufferData(helpers.White + p.getMovement() + helpers.Reset + helpers.Cyan + "mv" + helpers.White)
 	p.m_request.BufferData("] >> ")
 	p.m_request.SendBuffer()
 }

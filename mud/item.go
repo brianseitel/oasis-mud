@@ -1,4 +1,4 @@
-package main
+package mud
 
 import (
 	"encoding/json"
@@ -11,6 +11,10 @@ const (
 	armor
 	healing
 )
+
+var dbItems *ItemDatabase
+
+type ItemAttributeSet struct{}
 
 type Item struct {
 	Id          int              `json:"id"`

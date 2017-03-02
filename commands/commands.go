@@ -1,8 +1,10 @@
-package main
+package commands
 
 import (
 	"strconv"
 	"strings"
+
+	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 type CommandDatabase struct {
@@ -19,7 +21,7 @@ type SayCommand struct{}
 
 func (command SayCommand) Handle(c *Connection, line string) {
 	c.BroadcastToRoom(line)
-	c.SendString("You say, \"" + line + "\"" + newline)
+	c.SendString("You say, \"" + line + "\"" + helpers.Newline)
 }
 
 // Displays the player's inventory
@@ -27,14 +29,14 @@ func (command SayCommand) Handle(c *Connection, line string) {
 type InventoryCommand struct{}
 
 func (command InventoryCommand) Handle(c *Connection, line string) {
-	c.BufferData("==========================" + newline)
-	c.BufferData("Inventory" + newline)
-	c.BufferData("--------------------------" + newline)
+	c.BufferData("==========================" + helpers.Newline)
+	c.BufferData("Inventory" + helpers.Newline)
+	c.BufferData("--------------------------" + helpers.Newline)
 	for item, qty := range c.player.getInventory() {
-		c.BufferData("(" + strconv.Itoa(qty) + ") " + item + newline)
+		c.BufferData("(" + strconv.Itoa(qty) + ") " + item + helpers.Newline)
 	}
-	c.BufferData("--------------------------" + newline)
-	c.BufferData(newline)
+	c.BufferData("--------------------------" + helpers.Newline)
+	c.BufferData(helpers.Newline)
 
 	c.SendBuffer()
 }
@@ -50,14 +52,14 @@ func (command MoveCommand) Handle(c *Connection, line string) {
 	for _, v := range room.Exits {
 		if v.Dir == command.Dir {
 			c.player.Room = v.RoomId
-			c.SendString(c.player.exitMessage(command.Dir) + newline)
+			c.SendString(c.player.exitMessage(command.Dir) + helpers.Newline)
 
 			room := dbRooms.FindRoom(c.player.Room)
 			room.Display(*c)
 			return
 		}
 	}
-	c.SendString("There is no exit in that direction." + newline)
+	c.SendString("There is no exit in that direction." + helpers.Newline)
 }
 
 // Transfers an item from the ground to the player's inventory
@@ -77,7 +79,7 @@ func (command GetCommand) Handle(c *Connection, line string) {
 			c.player.AddItem(item)
 			room := dbRooms.FindRoom(c.player.Room)
 			dbRooms.RemoveItem(room, item)
-			c.SendString("You picked up " + item.Name + "." + newline)
+			c.SendString("You picked up " + item.Name + "." + helpers.Newline)
 		}
 		return
 	} else {
@@ -86,7 +88,7 @@ func (command GetCommand) Handle(c *Connection, line string) {
 			if strings.Contains(name, line) {
 				c.player.AddItem(item)
 				dbRooms.RemoveItem(room, item)
-				c.SendString("You picked up " + item.Name + "." + newline)
+				c.SendString("You picked up " + item.Name + "." + helpers.Newline)
 				return
 			}
 		}
@@ -112,7 +114,7 @@ func (command DropCommand) Handle(c *Connection, line string) {
 			c.player.RemoveItem(item)
 			room := dbRooms.FindRoom(c.player.Room)
 			dbRooms.AddItem(room, item)
-			c.SendString("You dropped " + item.Name + " to the ground." + newline)
+			c.SendString("You dropped " + item.Name + " to the ground." + helpers.Newline)
 		}
 		return
 	} else {
@@ -122,7 +124,7 @@ func (command DropCommand) Handle(c *Connection, line string) {
 				c.player.RemoveItem(item)
 				room := dbRooms.FindRoom(c.player.Room)
 				dbRooms.AddItem(room, item)
-				c.SendString("You dropped " + item.Name + " to the ground." + newline)
+				c.SendString("You dropped " + item.Name + " to the ground." + helpers.Newline)
 				return
 			}
 		}
@@ -147,10 +149,10 @@ type SaveCommand struct{}
 func (command SaveCommand) Handle(c *Connection, line string) {
 	err := c.player.Save()
 	if err != nil {
-		c.SendString("Oops! Something went wrong!" + newline)
+		c.SendString("Oops! Something went wrong!" + helpers.Newline)
 	}
 
-	c.SendString("Saved!" + newline)
+	c.SendString("Saved!" + helpers.Newline)
 }
 
 // Loads all commands

@@ -1,4 +1,4 @@
-package server
+package mud
 
 import (
 	"bufio"
@@ -8,10 +8,11 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/brianseitel/oasis-mud/commands"
 )
 
-var dbCommands *CommandDatabase
-var dbItems *ItemDatabase
+var dbCommands *commands.CommandDatabase
 var dbRooms *RoomDatabase
 var activePlayers []Player
 var activeConnections []Connection
@@ -29,11 +30,11 @@ type Server struct {
 	totalConnections int
 }
 
-func (server *Server) Handle(c *Connection) {
+func (server *Server) Handle(c *connection.Connection) {
 	ticker := time.NewTicker(time.Minute)
 	go func() {
 		for _ = range ticker.C {
-			c.SendString("Tick!" + newline)
+			c.SendString("Tick!" + helpers.Newline)
 		}
 	}()
 
@@ -59,11 +60,11 @@ func (server *Server) Handle(c *Connection) {
 
 			if cmd == "quit" {
 				// Save character first
-				command := SaveCommand{}
+				command := commands.SaveCommand{}
 				command.Handle(c, line)
 
 				// Say goodbye
-				c.SendString("Seeya!" + newline)
+				c.SendString("Seeya!" + helpers.Newline)
 				c.conn.Close()
 				return
 			}
@@ -71,7 +72,7 @@ func (server *Server) Handle(c *Connection) {
 			if command, ok := dbCommands.Lookup(cmd); ok {
 				command.Handle(c, line)
 			} else {
-				c.SendString("I'm sorry. I don't know what you mean." + newline)
+				c.SendString("I'm sorry. I don't know what you mean." + helpers.Newline)
 			}
 		}
 	}
@@ -82,7 +83,7 @@ func (server *Server) Logger() *log.Logger {
 }
 
 func (server *Server) Serve() {
-	dbItems = NewItemDatabase()
+	item.dbItems = NewItemDatabase()
 	dbRooms = NewRoomDatabase()
 	dbCommands = NewCommandDatabase()
 
@@ -128,7 +129,7 @@ func (c *Connection) SendBuffer() {
 func (c *Connection) BroadcastToRoom(text string) {
 	for _, connection := range activeConnections {
 		if connection.player != c.player && c.player.Room == connection.player.Room {
-			connection.SendString(c.player.Name + " says, \"" + text + "\"" + newline)
+			connection.SendString(c.player.Name + " says, \"" + text + "\"" + helpers.Newline)
 		}
 	}
 }
