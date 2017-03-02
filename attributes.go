@@ -13,16 +13,14 @@ const (
 	NUMATTRIBUTES
 )
 
-type AttributeSet [NUMATTRIBUTES]int
-
-/*
-"Strength",
-"Halth",
-"Agility",
-"Max hit points",
-"Accuracy",
-"Dodging",
-"Strike damage",
-"Damage Absorb",
-"HP Regen"
-*/
+type ItemAttributeSet struct {
+	Strength     int
+	Health       int
+	Agility      int
+	MaxHitPoints int
+	Accuracy     int
+	Dodging      int
+	StrikeDamage int
+	DamageAbsorb int
+	HPRegen      int
+}

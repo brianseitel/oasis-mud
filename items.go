@@ -13,25 +13,21 @@ const (
 )
 
 type Item struct {
-	Id          int          `json:"id"`
-	ItemType    string       `json:"type"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Min         int          `json:"min"`
-	Max         int          `json:"max"`
-	Speed       int          `json:"speed"`
-	Price       int          `json:"price"`
-	Attributes  AttributeSet `json:"attributes"`
+	Id          int              `json:"id"`
+	ItemType    string           `json:"type"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Min         int              `json:"min"`
+	Max         int              `json:"max"`
+	Speed       int              `json:"speed"`
+	Price       int              `json:"price"`
+	Attributes  ItemAttributeSet `json:"attributes"`
 }
 
 type ItemList struct {
 	Items []Item `json:"items"`
 }
 type ItemDatabase []Item
-
-func (i *Item) GetAttr(attribute int) int {
-	return i.Attributes[attribute]
-}
 
 func FindItem(i int) Item {
 	for _, v := range *dbItems {
