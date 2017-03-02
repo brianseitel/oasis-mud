@@ -167,9 +167,9 @@ func NewCommandDatabase() *CommandDatabase {
 	cmds["east"] = MoveCommand{Dir: "east"}
 	cmds["e"] = MoveCommand{Dir: "east"}
 	cmds["south"] = MoveCommand{Dir: "south"}
-	cmds["s"] = MoveCommand{Dir: "s"}
+	cmds["s"] = MoveCommand{Dir: "south"}
 	cmds["up"] = MoveCommand{Dir: "up"}
-	cmds["u"] = MoveCommand{Dir: "u"}
+	cmds["u"] = MoveCommand{Dir: "up"}
 	cmds["down"] = MoveCommand{Dir: "down"}
 	cmds["d"] = MoveCommand{Dir: "down"}
 	cmds["l"] = LookCommand{}
