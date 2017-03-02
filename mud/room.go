@@ -82,7 +82,7 @@ func (rdb *RoomDatabase) AddItem(room Room, item Item) {
 // directory.
 func NewRoomDatabase() *RoomDatabase {
 	dbItems = NewItemDatabase()
-	areaFiles, _ := filepath.Glob("./areas/*.json")
+	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
 	rooms := &RoomDatabase{}
 	for _, areaFile := range areaFiles {

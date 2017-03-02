@@ -64,7 +64,7 @@ type PlayerStats struct {
 // Loads a player and authenticates. If not found or not valid, returns error
 // Otherwise, returns a Player.
 func LoadPlayer(name string, password string) (*Player, error) {
-	playerFile, err := ioutil.ReadFile("./players/" + name + ".json")
+	playerFile, err := ioutil.ReadFile("./data/players/" + name + ".json")
 	if err != nil {
 		return &Player{}, errors.New("Player not found.")
 	}
@@ -86,7 +86,7 @@ func (player *Player) Save() error {
 		return err
 	}
 
-	err = ioutil.WriteFile("./players/"+player.Name+".json", output, 0644)
+	err = ioutil.WriteFile("./data/players/"+player.Name+".json", output, 0644)
 	if err != nil {
 		return err
 	}

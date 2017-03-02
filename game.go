@@ -1,11 +1,15 @@
 package main
 
+import (
+	"github.com/brianseitel/oasis-mud/mud"
+)
+
 type Game struct {
-	server  *Server
+	server  *mud.Server
 	running bool
 }
 
-func NewGame(server *Server) *Game {
+func NewGame(server *mud.Server) *Game {
 	return &Game{
 		server:  server,
 		running: false,

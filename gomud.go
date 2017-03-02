@@ -29,7 +29,7 @@ func main() {
 	var daemon *bool = flag.Bool("daemonize", false, "whether or not to daemonize process")
 	var logfile *string = flag.String("logfile", "gomud.log", "filename of the log file to write to")
 
-	server := &server.Server{*port, getLogger(*logfile, *daemon), 0, 0}
+	server := &mud.Server{*port, getLogger(*logfile, *daemon), 0, 0}
 	game := NewGame(server)
 	game.Start()
 }

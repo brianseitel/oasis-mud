@@ -12,8 +12,6 @@ const (
 	healing
 )
 
-var dbItems *ItemDatabase
-
 type ItemAttributeSet struct{}
 
 type Item struct {
@@ -46,7 +44,7 @@ func FindItem(i int) Item {
 
 // Seeds the item database with data from our items directory
 func NewItemDatabase() *ItemDatabase {
-	itemFiles, _ := filepath.Glob("./items/*.json")
+	itemFiles, _ := filepath.Glob("./data/items/*.json")
 
 	items := &ItemDatabase{}
 

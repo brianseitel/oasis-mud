@@ -9,11 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/brianseitel/oasis-mud/commands"
+	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-var dbCommands *commands.CommandDatabase
+var dbCommands *CommandDatabase
 var dbRooms *RoomDatabase
+var dbItems *ItemDatabase
 var activePlayers []Player
 var activeConnections []Connection
 
@@ -24,13 +25,13 @@ type Connection struct {
 }
 
 type Server struct {
-	port             int
-	log              *log.Logger
-	connections      int
-	totalConnections int
+	Port             int
+	Log              *log.Logger
+	Connections      int
+	TotalConnections int
 }
 
-func (server *Server) Handle(c *connection.Connection) {
+func (server *Server) Handle(c *Connection) {
 	ticker := time.NewTicker(time.Minute)
 	go func() {
 		for _ = range ticker.C {
@@ -60,7 +61,7 @@ func (server *Server) Handle(c *connection.Connection) {
 
 			if cmd == "quit" {
 				// Save character first
-				command := commands.SaveCommand{}
+				command := SaveCommand{}
 				command.Handle(c, line)
 
 				// Say goodbye
@@ -79,29 +80,29 @@ func (server *Server) Handle(c *connection.Connection) {
 }
 
 func (server *Server) Logger() *log.Logger {
-	return server.log
+	return server.Log
 }
 
 func (server *Server) Serve() {
-	item.dbItems = NewItemDatabase()
+	dbItems = NewItemDatabase()
 	dbRooms = NewRoomDatabase()
 	dbCommands = NewCommandDatabase()
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", server.port))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", server.Port))
 	if err != nil {
-		server.log.Printf("cannot start server: %s\n", err)
+		server.Log.Printf("cannot start server: %s\n", err)
 		os.Exit(1)
 	}
-	server.log.Printf("waiting for connections on %s\n", listener.Addr())
+	server.Log.Printf("waiting for connections on %s\n", listener.Addr())
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			server.log.Printf("could not accept: %s\n", err)
+			server.Log.Printf("could not accept: %s\n", err)
 		} else {
-			server.log.Printf("connected: %s\n", conn.RemoteAddr())
-			server.connections++
-			server.totalConnections++
+			server.Log.Printf("connected: %s\n", conn.RemoteAddr())
+			server.Connections++
+			server.TotalConnections++
 			go server.Handle(NewConnection(conn))
 		}
 	}
@@ -127,9 +128,9 @@ func (c *Connection) SendBuffer() {
 }
 
 func (c *Connection) BroadcastToRoom(text string) {
-	for _, connection := range activeConnections {
-		if connection.player != c.player && c.player.Room == connection.player.Room {
-			connection.SendString(c.player.Name + " says, \"" + text + "\"" + helpers.Newline)
-		}
-	}
+	// for _, connection := range activeConnections {
+	// 	if player != c.player && c.player.Room == player.Room {
+	// 		SendString(c.player.Name + " says, \"" + text + "\"" + helpers.Newline)
+	// 	}
+	// }
 }
