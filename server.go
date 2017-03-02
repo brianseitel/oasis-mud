@@ -17,10 +17,9 @@ var activePlayers []Player
 var activeConnections []Connection
 
 type Connection struct {
-	conn    net.Conn
-	buffer  *bufio.ReadWriter
-	handler Handler
-	player  *Player
+	conn   net.Conn
+	buffer *bufio.ReadWriter
+	player *Player
 }
 
 type Server struct {
