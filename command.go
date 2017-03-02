@@ -70,12 +70,23 @@ func (command GetCommand) Handle(c *Connection, line string) {
 	room := dbRooms.FindRoom(c.player.Room)
 	items := room.Items
 
-	for _, item := range items {
-		name := strings.ToLower(item.Name)
-		if strings.Contains(name, line) {
+	if strings.Trim(line, "\r\n") == "all" {
+		for _, item := range items {
 			c.player.AddItem(item)
+			room := dbRooms.FindRoom(c.player.Room)
 			dbRooms.RemoveItem(room, item)
-			return
+			c.SendString("You picked up " + item.Name + "." + newline)
+		}
+		return
+	} else {
+		for _, item := range items {
+			name := strings.ToLower(item.Name)
+			if strings.Contains(name, line) {
+				c.player.AddItem(item)
+				dbRooms.RemoveItem(room, item)
+				c.SendString("You picked up " + item.Name + "." + newline)
+				return
+			}
 		}
 	}
 
@@ -91,14 +102,26 @@ func (command DropCommand) Handle(c *Connection, line string) {
 	}
 
 	items := c.player.Inventory
+	room := dbRooms.FindRoom(c.player.Room)
 
-	for _, item := range items {
-		name := strings.ToLower(item.Name)
-		if strings.Contains(name, line) {
+	if strings.Trim(line, "\r\n") == "all" {
+		for _, item := range items {
 			c.player.RemoveItem(item)
 			room := dbRooms.FindRoom(c.player.Room)
 			dbRooms.AddItem(room, item)
-			return
+			c.SendString("You dropped " + item.Name + " to the ground." + newline)
+		}
+		return
+	} else {
+		for _, item := range items {
+			name := strings.ToLower(item.Name)
+			if strings.Contains(name, line) {
+				c.player.RemoveItem(item)
+				room := dbRooms.FindRoom(c.player.Room)
+				dbRooms.AddItem(room, item)
+				c.SendString("You dropped " + item.Name + " to the ground." + newline)
+				return
+			}
 		}
 	}
 
