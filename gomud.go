@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/brianseitel/mud/server"
 )
 
 func getLogger(logfile string, daemonized bool) (logger *log.Logger) {
@@ -27,7 +29,7 @@ func main() {
 	var daemon *bool = flag.Bool("daemonize", false, "whether or not to daemonize process")
 	var logfile *string = flag.String("logfile", "gomud.log", "filename of the log file to write to")
 
-	server := &Server{*port, getLogger(*logfile, *daemon), 0, 0}
+	server := &server.Server{*port, getLogger(*logfile, *daemon), 0, 0}
 	game := NewGame(server)
 	game.Start()
 }

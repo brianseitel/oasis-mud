@@ -1,5 +1,5 @@
 bin/*
-players/*
+data/players/*
 gomud.log
 
 
