@@ -30,6 +30,8 @@ type RoomDatabase struct {
 	Rooms []Room
 }
 
+// Finds a given room in the database. If not found,
+// returns a blank room
 func (rdb *RoomDatabase) FindRoom(r int) Room {
 	for _, v := range rdb.Rooms {
 		if v.Id == r {
@@ -39,6 +41,7 @@ func (rdb *RoomDatabase) FindRoom(r int) Room {
 	return Room{}
 }
 
+// Displays the current room
 func (r Room) Display(c Connection) {
 	tmpl := `{{ .Name }}
 {{ .Description }}
@@ -51,6 +54,7 @@ func (r Room) Display(c Connection) {
 	_ = t.Execute(c.conn, r)
 }
 
+// Removes an item from a room
 func (rdb *RoomDatabase) RemoveItem(room Room, item Item) {
 	for key, r := range rdb.Rooms {
 		if r.Id == room.Id {
@@ -64,6 +68,7 @@ func (rdb *RoomDatabase) RemoveItem(room Room, item Item) {
 	}
 }
 
+// Adds an item to a room
 func (rdb *RoomDatabase) AddItem(room Room, item Item) {
 	for key, r := range rdb.Rooms {
 		if r.Id == room.Id {
@@ -73,6 +78,8 @@ func (rdb *RoomDatabase) AddItem(room Room, item Item) {
 	}
 }
 
+// Creates a new room database, seeding it with data from the areas
+// directory.
 func NewRoomDatabase() *RoomDatabase {
 	dbItems = NewItemDatabase()
 	areaFiles, _ := filepath.Glob("./areas/*.json")

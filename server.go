@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 var dbCommands *CommandDatabase
@@ -30,6 +31,12 @@ type Server struct {
 }
 
 func (server *Server) Handle(c *Connection) {
+	ticker := time.NewTicker(time.Minute)
+	go func() {
+		for _ = range ticker.C {
+			c.SendString("Tick!" + newline)
+		}
+	}()
 
 	c.player = Login(c)
 	activePlayers = append(activePlayers, *c.player)

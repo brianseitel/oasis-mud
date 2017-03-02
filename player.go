@@ -59,11 +59,14 @@ type PlayerStats struct {
 	Constitution int `json:"constitution"`
 }
 
+// Creates a new player
 func NewPlayer(c *Connection) *Player {
 	p := &Player{}
 	return p
 }
 
+// Loads a player and authenticates. If not found or not valid, returns error
+// Otherwise, returns a Player.
 func LoadPlayer(name string, password string) (*Player, error) {
 	playerFile, err := ioutil.ReadFile("./players/" + name + ".json")
 	if err != nil {
@@ -80,6 +83,7 @@ func LoadPlayer(name string, password string) (*Player, error) {
 	return &player, nil
 }
 
+// Saves the player to disk
 func (player *Player) Save() error {
 	output, err := json.MarshalIndent(player, "", "    ")
 	if err != nil {
@@ -94,10 +98,12 @@ func (player *Player) Save() error {
 	return nil
 }
 
+// Adds an item to the player's inventory
 func (p *Player) AddItem(item Item) {
 	p.Inventory = append(p.Inventory, item)
 }
 
+// Removes an item from the player's inventory
 func (p *Player) RemoveItem(item Item) {
 	for k, i := range p.Inventory {
 		if i.Id == item.Id {
@@ -107,10 +113,7 @@ func (p *Player) RemoveItem(item Item) {
 	}
 }
 
-func (p *Player) SetRoom(room int) {
-	p.Room = room
-}
-
+// Returns the player's Exit Message
 func (p Player) exitMessage(direction string) string {
 	switch direction {
 	case "up", "down":
@@ -120,6 +123,8 @@ func (p Player) exitMessage(direction string) string {
 	}
 }
 
+// Return the inventory, grouped by item. Returns a map[string]int
+// where map["Big Sword"]3 means the Big Sword has a qty of 3
 func (p Player) getInventory() map[string]int {
 	inventory := make(map[string]int)
 	for _, item := range p.Inventory {
@@ -132,20 +137,31 @@ func (p Player) getInventory() map[string]int {
 	return inventory
 }
 
+// Retrieves the player's hit points as a string
 func (p Player) getHitpoints() string {
 	return strconv.Itoa(p.Hitpoints)
 }
+
+// Retrieves the player's mana as a string
 func (p Player) getMana() string {
 	return strconv.Itoa(p.Mana)
 }
+
+// Retrieves the player's movement as a string
 func (p Player) getMovement() string {
 	return strconv.Itoa(p.Movement)
 }
 
+// Displays the player's status bar
 func (p Player) ShowStatusBar() {
-	p.m_request.SendString(white + "[" + p.getHitpoints() + reset + cyan + "hp " + white + p.getMana() + reset + cyan + "mana " + white + p.getMovement() + reset + cyan + "mv" + white + "] >> ")
+	p.m_request.BufferData(white + "[" + p.getHitpoints() + reset + cyan + "hp")
+	p.m_request.BufferData(white + p.getMana() + reset + cyan + "mana ")
+	p.m_request.BufferData(white + p.getMovement() + reset + cyan + "mv" + white)
+	p.m_request.BufferData("] >> ")
+	p.m_request.SendBuffer()
 }
 
+// Instantiates a new PlayerDatabase
 func NewPlayerDatabase() *PlayerDatabase {
 	return &PlayerDatabase{}
 }

@@ -13,12 +13,8 @@ type Command interface {
 	Handle(c *Connection, line string)
 }
 
-type NewCommand struct{}
-
-func (command NewCommand) Handle(c *Connection, line string) {
-	c.SendString("Fresh blood!" + newline)
-}
-
+// Allows the player to speak to another player in the room
+// Command: say hello
 type SayCommand struct{}
 
 func (command SayCommand) Handle(c *Connection, line string) {
@@ -26,6 +22,8 @@ func (command SayCommand) Handle(c *Connection, line string) {
 	c.SendString("You say, \"" + line + "\"" + newline)
 }
 
+// Displays the player's inventory
+// Command: inv
 type InventoryCommand struct{}
 
 func (command InventoryCommand) Handle(c *Connection, line string) {
@@ -41,6 +39,8 @@ func (command InventoryCommand) Handle(c *Connection, line string) {
 	c.SendBuffer()
 }
 
+// Moves the player from the current room to a neighboring room
+// Command: move (north|south|east|west|up|down)
 type MoveCommand struct {
 	Dir string
 }
@@ -60,6 +60,8 @@ func (command MoveCommand) Handle(c *Connection, line string) {
 	c.SendString("There is no exit in that direction." + newline)
 }
 
+// Transfers an item from the ground to the player's inventory
+// Command: get <item> OR get all
 type GetCommand struct{}
 
 func (command GetCommand) Handle(c *Connection, line string) {
@@ -93,6 +95,8 @@ func (command GetCommand) Handle(c *Connection, line string) {
 	c.SendString("Get what?")
 }
 
+// Transfers an item from the player's inventory to the ground
+// Command: drop <item> OR drop all
 type DropCommand struct{}
 
 func (command DropCommand) Handle(c *Connection, line string) {
@@ -127,6 +131,8 @@ func (command DropCommand) Handle(c *Connection, line string) {
 	c.SendString("Drop what?")
 }
 
+// Command to view the room
+// Command: l, look
 type LookCommand struct{}
 
 func (command LookCommand) Handle(c *Connection, line string) {
@@ -134,6 +140,8 @@ func (command LookCommand) Handle(c *Connection, line string) {
 	room.Display(*c)
 }
 
+// Saves the player to disk
+// Command: save
 type SaveCommand struct{}
 
 func (command SaveCommand) Handle(c *Connection, line string) {
@@ -145,6 +153,7 @@ func (command SaveCommand) Handle(c *Connection, line string) {
 	c.SendString("Saved!" + newline)
 }
 
+// Loads all commands
 func NewCommandDatabase() *CommandDatabase {
 	db := &CommandDatabase{}
 
@@ -167,8 +176,8 @@ func NewCommandDatabase() *CommandDatabase {
 	cmds["look"] = LookCommand{}
 	cmds["drop"] = DropCommand{}
 	cmds["save"] = SaveCommand{}
-
 	cmds["get"] = GetCommand{}
+
 	db.Commands = cmds
 	return db
 }

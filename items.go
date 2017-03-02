@@ -29,6 +29,8 @@ type ItemList struct {
 }
 type ItemDatabase []Item
 
+// Finds an item in the item Database
+// If not found, returns an empty item
 func FindItem(i int) Item {
 	for _, v := range *dbItems {
 		if v.Id == i {
@@ -38,6 +40,7 @@ func FindItem(i int) Item {
 	return Item{}
 }
 
+// Seeds the item database with data from our items directory
 func NewItemDatabase() *ItemDatabase {
 	itemFiles, _ := filepath.Glob("./items/*.json")
 
