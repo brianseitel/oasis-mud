@@ -1,2 +1,2 @@
 mkdir players
-cp stubs/*.json players/
+cp data/stubs/*.json players/
