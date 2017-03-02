@@ -120,6 +120,18 @@ func (p Player) exitMessage(direction string) string {
 	}
 }
 
+func (p Player) getInventory() map[string]int {
+	inventory := make(map[string]int)
+	for _, item := range p.Inventory {
+		if _, ok := inventory[item.Name]; ok {
+			inventory[item.Name]++
+		} else {
+			inventory[item.Name] = 1
+		}
+	}
+	return inventory
+}
+
 func (p Player) getHitpoints() string {
 	return strconv.Itoa(p.Hitpoints)
 }

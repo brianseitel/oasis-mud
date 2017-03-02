@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 type CommandDatabase struct {
 	Commands map[string]Command
@@ -29,8 +32,8 @@ func (command InventoryCommand) Handle(c *Connection, line string) {
 	c.BufferData("==========================" + newline)
 	c.BufferData("Inventory" + newline)
 	c.BufferData("--------------------------" + newline)
-	for _, item := range c.player.Inventory {
-		c.BufferData("(1) " + item.Name + newline)
+	for item, qty := range c.player.getInventory() {
+		c.BufferData("(" + strconv.Itoa(qty) + ") " + item + newline)
 	}
 	c.BufferData("--------------------------" + newline)
 	c.BufferData(newline)
