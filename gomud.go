@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/brianseitel/mud/server"
+	"github.com/brianseitel/oasis-mud/server"
 )
 
 func getLogger(logfile string, daemonized bool) (logger *log.Logger) {
