@@ -102,7 +102,6 @@ func (command DropCommand) Handle(c *Connection, line string) {
 	}
 
 	items := c.player.Inventory
-	room := dbRooms.FindRoom(c.player.Room)
 
 	if strings.Trim(line, "\r\n") == "all" {
 		for _, item := range items {

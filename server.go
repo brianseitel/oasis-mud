@@ -52,6 +52,11 @@ func (server *Server) Handle(c *Connection) {
 			line := strings.Join(parts[1:], " ")
 
 			if cmd == "quit" {
+				// Save character first
+				command := SaveCommand{}
+				command.Handle(c, line)
+
+				// Say goodbye
 				c.SendString("Seeya!" + newline)
 				c.conn.Close()
 				return
