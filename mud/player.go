@@ -95,6 +95,16 @@ func (player *Player) Save() error {
 	return nil
 }
 
+func (p *Player) move(e Direction, rooms []*Room) {
+	server := GetServer()
+	for _, r := range server.rooms {
+		if r.Id == e.RoomId {
+			p.room = r
+			return
+		}
+	}
+}
+
 // Adds an item to the player's inventory
 func (p *Player) AddItem(item Item) {
 	p.Inventory = append(p.Inventory, item)

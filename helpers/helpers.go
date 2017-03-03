@@ -1,5 +1,13 @@
 package helpers
 
+import (
+	"github.com/davecgh/go-spew/spew"
+)
+
+func Dump(i interface{}) {
+	spew.Dump(i)
+}
+
 const (
 	Reset       = "\x1B[0m"
 	Bold        = "\x1B[1m"

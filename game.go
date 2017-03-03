@@ -17,6 +17,5 @@ func NewGame(server *mud.Server) *Game {
 }
 
 func (g *Game) Start() {
-	g.server.Serve(8099)
-	g.running = true
+	mud.MainServer.Serve(8099)
 }

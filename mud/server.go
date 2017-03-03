@@ -8,15 +8,23 @@ import (
 	// "github.com/brianseitel/oasis-mud/helpers"
 )
 
+var MainServer = new(Server)
+
 type Server struct {
 	connections []Connection
 	items       []Item
 	players     []Player
+	rooms       []Room
+}
+
+func GetServer() *Server {
+	return MainServer
 }
 
 func (server *Server) Handle(c *Connection) {
 	c.player = Login(c)
 	c.player.room = FindRoom(c.player.Room, *server)
+	newAction(c.player, c, "look")
 	for {
 		c.player.ShowStatusBar()
 		input, err := c.buffer.ReadString('\n')
@@ -27,7 +35,6 @@ func (server *Server) Handle(c *Connection) {
 		input = strings.Trim(input, "\r\n")
 
 		if len(input) > 0 {
-			rooms := server.rooms
 			newActionWithInput(&action{player: c.player, conn: c, args: strings.Split(input, " ")})
 			// if cmd == "quit" {
 			// 	// Save character first

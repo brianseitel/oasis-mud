@@ -2,7 +2,6 @@ package mud
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"text/template"

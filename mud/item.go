@@ -43,10 +43,10 @@ func FindItem(i int, s Server) Item {
 }
 
 // Seeds the item database with data from our items directory
-func NewItemDatabase() *ItemDatabase {
+func NewItemDatabase(s Server) []Item {
 	itemFiles, _ := filepath.Glob("./data/items/*.json")
 
-	items := &ItemDatabase{}
+	var items []Item
 
 	for _, itemFile := range itemFiles {
 		file, err := ioutil.ReadFile(itemFile)
@@ -58,7 +58,7 @@ func NewItemDatabase() *ItemDatabase {
 		json.Unmarshal(file, &list)
 
 		for _, item := range list.Items {
-			*items = append(*items, item)
+			items = append(items, item)
 		}
 	}
 
