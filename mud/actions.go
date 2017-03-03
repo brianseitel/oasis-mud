@@ -1,6 +1,7 @@
 package mud
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -18,36 +19,39 @@ func newAction(p *Player, c *Connection, i string) {
 	newActionWithInput(&action{player: p, conn: c, args: strings.Split(i, " ")})
 }
 
-func newActionWithInput(a *action) {
+func newActionWithInput(a *action) error {
 
 	switch a.getCommand() {
 	case cLook:
 		a.look()
-		return
+		return nil
 	case cNorth:
 		a.move("north")
-		return
+		return nil
 	case cSouth:
 		a.move("south")
-		return
+		return nil
 	case cEast:
 		a.move("east")
-		return
+		return nil
 	case cWest:
 		a.move("west")
-		return
+		return nil
 	case cUp:
 		a.move("up")
-		return
+		return nil
 	case cDown:
 		a.move("down")
-		return
-	// case cDrop:
-	// 	a.drop()
-	// 	return
-	// case cGet:
-	// 	a.get()
-	// 	return
+		return nil
+	case cQuit:
+		a.quit()
+		return errors.New("Done")
+	case cDrop:
+		a.drop()
+		return nil
+	case cGet:
+		a.get()
+		return nil
 	// case cWear:
 	// 	a.wear()
 	// 	return
@@ -61,6 +65,7 @@ func newActionWithInput(a *action) {
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
+	return nil
 }
 
 func (i *action) getCommand() command {
@@ -120,4 +125,47 @@ func (a *action) move(d string) {
 		}
 	}
 	a.conn.SendString("Alas, you cannot go that way." + helpers.Newline)
+}
+
+func (a *action) drop() {
+	for j, item := range a.player.Inventory {
+		if a.matchesSubject(item.Identifiers) {
+			a.player.Inventory, a.player.room.Items = transferItem(j, a.player.Inventory, a.player.room.Items)
+			a.conn.SendString(fmt.Sprintf("You drop %s.", item.Name) + helpers.Newline)
+			return
+		}
+	}
+}
+
+func (a *action) get() {
+	for j, item := range a.player.room.Items {
+		if a.matchesSubject(item.Identifiers) {
+			a.player.room.Items, a.player.Inventory = transferItem(j, a.player.room.Items, a.player.Inventory)
+			a.conn.SendString(fmt.Sprintf("You pick up %s.", item.Name) + helpers.Newline)
+			return
+		}
+	}
+}
+
+func (a *action) quit() {
+	a.conn.SendString("Seeya!" + helpers.Newline)
+	a.conn.conn.Close()
+}
+
+func (a *action) matchesSubject(s []string) bool {
+	for _, v := range s {
+		if strings.HasPrefix(v, a.args[1]) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func transferItem(i int, from []Item, to []Item) ([]Item, []Item) {
+	item := from[i]
+	from = append(from[0:i], from[i+1:]...)
+	to = append(to, item)
+
+	return from, to
 }

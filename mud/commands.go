@@ -16,13 +16,14 @@ const (
 	cRemove command = "remove"
 	cKill   command = "kill"
 	cFlee   command = "flee"
+	cQuit   command = "quit"
 	cNoop   command = "noop"
 )
 
 var commands []command
 
 func init() {
-	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cGet, cDrop, cWear, cRemove, cKill, cFlee}
+	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cGet, cDrop, cWear, cRemove, cKill, cFlee, cQuit}
 }
 
 // import (

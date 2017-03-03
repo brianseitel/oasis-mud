@@ -29,7 +29,10 @@ func (server *Server) Handle(c *Connection) {
 		input = strings.Trim(input, "\r\n")
 
 		if len(input) > 0 {
-			newActionWithInput(&action{player: c.player, conn: c, args: strings.Split(input, " ")})
+			err := newActionWithInput(&action{player: c.player, conn: c, args: strings.Split(input, " ")})
+			if err != nil {
+				return
+			}
 			// if cmd == "quit" {
 			// 	// Save character first
 			// 	command := SaveCommand{}
@@ -47,6 +50,7 @@ func (server *Server) Handle(c *Connection) {
 			// c.SendString("I'm sorry. I don't know what you mean." + helpers.Newline + cmd + line)
 			// }
 		}
+
 	}
 }
 

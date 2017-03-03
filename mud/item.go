@@ -24,6 +24,7 @@ type Item struct {
 	Speed       int              `json:"speed"`
 	Price       int              `json:"price"`
 	Attributes  ItemAttributeSet `json:"attributes"`
+	Identifiers []string         `json:"identifiers"`
 }
 
 type ItemList struct {
