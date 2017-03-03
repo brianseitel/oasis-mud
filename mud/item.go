@@ -33,8 +33,8 @@ type ItemDatabase []Item
 
 // Finds an item in the item Database
 // If not found, returns an empty item
-func FindItem(i int) Item {
-	for _, v := range *dbItems {
+func FindItem(i int, s Server) Item {
+	for _, v := range s.items {
 		if v.Id == i {
 			return v
 		}

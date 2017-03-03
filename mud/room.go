@@ -2,6 +2,7 @@ package mud
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"text/template"
@@ -32,8 +33,8 @@ type RoomDatabase struct {
 
 // Finds a given room in the database. If not found,
 // returns a blank room
-func (rdb *RoomDatabase) FindRoom(r int) Room {
-	for _, v := range rdb.Rooms {
+func FindRoom(r int, s Server) Room {
+	for _, v := range s.rooms {
 		if v.Id == r {
 			return v
 		}
@@ -80,11 +81,10 @@ func (rdb *RoomDatabase) AddItem(room Room, item Item) {
 
 // Creates a new room database, seeding it with data from the areas
 // directory.
-func NewRoomDatabase() *RoomDatabase {
-	dbItems = NewItemDatabase()
+func NewRoomDatabase(s Server) []Room {
 	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
-	rooms := &RoomDatabase{}
+	var rooms []Room
 	for _, areaFile := range areaFiles {
 		file, err := ioutil.ReadFile(areaFile)
 		if err != nil {
@@ -96,10 +96,11 @@ func NewRoomDatabase() *RoomDatabase {
 
 		for _, room := range area.Rooms {
 			for _, v := range room.ItemIds {
-				room.Items = append(room.Items, FindItem(v))
+				room.Items = append(room.Items, FindItem(v, s))
 			}
-			rooms.Rooms = append(rooms.Rooms, room)
+			rooms = append(rooms, room)
 		}
 	}
+
 	return rooms
 }

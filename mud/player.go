@@ -36,6 +36,7 @@ type Player struct {
 
 	Inventory []Item `json:"inventory"`
 	Room      int    `json:"current_room"`
+	room      Room
 	ExitVerb  string `json:"exit_verb"`
 
 	Hitpoints int `json:"hitpoints"`
@@ -106,16 +107,6 @@ func (p *Player) RemoveItem(item Item) {
 			p.Inventory = append(p.Inventory[:k], p.Inventory[k+1:]...)
 			return
 		}
-	}
-}
-
-// Returns the player's Exit Message
-func (p Player) exitMessage(direction string) string {
-	switch direction {
-	case "up", "down":
-		return "You " + p.ExitVerb + " " + direction + "." + helpers.Newline
-	default:
-		return "You " + p.ExitVerb + " to the " + direction + "." + helpers.Newline
 	}
 }
 
