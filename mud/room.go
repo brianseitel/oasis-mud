@@ -32,8 +32,8 @@ type RoomDatabase struct {
 
 // Finds a given room in the database. If not found,
 // returns a blank room
-func FindRoom(r int, s Server) Room {
-	for _, v := range s.rooms {
+func FindRoom(r int) Room {
+	for _, v := range Registry.rooms {
 		if v.Id == r {
 			return v
 		}
@@ -80,7 +80,7 @@ func (rdb *RoomDatabase) AddItem(room Room, item Item) {
 
 // Creates a new room database, seeding it with data from the areas
 // directory.
-func NewRoomDatabase(s Server) []Room {
+func NewRoomDatabase() []Room {
 	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
 	var rooms []Room
@@ -95,7 +95,7 @@ func NewRoomDatabase(s Server) []Room {
 
 		for _, room := range area.Rooms {
 			for _, v := range room.ItemIds {
-				room.Items = append(room.Items, FindItem(v, s))
+				room.Items = append(room.Items, FindItem(v))
 			}
 			rooms = append(rooms, room)
 		}

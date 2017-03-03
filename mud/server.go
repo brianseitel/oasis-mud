@@ -8,8 +8,6 @@ import (
 	// "github.com/brianseitel/oasis-mud/helpers"
 )
 
-var MainServer = new(Server)
-
 type Server struct {
 	connections []Connection
 	items       []Item
@@ -17,13 +15,9 @@ type Server struct {
 	rooms       []Room
 }
 
-func GetServer() *Server {
-	return MainServer
-}
-
 func (server *Server) Handle(c *Connection) {
 	c.player = Login(c)
-	c.player.room = FindRoom(c.player.Room, *server)
+	c.player.room = FindRoom(c.player.Room)
 	newAction(c.player, c, "look")
 	for {
 		c.player.ShowStatusBar()
@@ -77,6 +71,6 @@ func (server *Server) Serve(port int) {
 }
 
 func (server *Server) init() {
-	server.items = NewItemDatabase(*server)
-	server.rooms = NewRoomDatabase(*server)
+	Registry.items = NewItemDatabase()
+	Registry.rooms = NewRoomDatabase()
 }

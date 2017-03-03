@@ -33,8 +33,8 @@ type ItemDatabase []Item
 
 // Finds an item in the item Database
 // If not found, returns an empty item
-func FindItem(i int, s Server) Item {
-	for _, v := range s.items {
+func FindItem(i int) Item {
+	for _, v := range Registry.items {
 		if v.Id == i {
 			return v
 		}
@@ -43,7 +43,7 @@ func FindItem(i int, s Server) Item {
 }
 
 // Seeds the item database with data from our items directory
-func NewItemDatabase(s Server) []Item {
+func NewItemDatabase() []Item {
 	itemFiles, _ := filepath.Glob("./data/items/*.json")
 
 	var items []Item

@@ -59,7 +59,7 @@ func newActionWithInput(a *action) {
 	// case cFlee:
 	// 	a.flee()
 	default:
-		a.conn.SendString("Eh?")
+		a.conn.SendString("Eh?" + helpers.Newline)
 	}
 }
 
@@ -114,8 +114,7 @@ func itemsString(r Room) string {
 func (a *action) move(d string) {
 	for _, e := range a.player.room.Exits {
 		if e.Dir == d {
-			rooms := a.rooms
-			a.player.move(e, rooms)
+			a.player.move(e)
 			newAction(a.player, a.conn, "look")
 			return
 		}
