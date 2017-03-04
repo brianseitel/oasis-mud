@@ -52,6 +52,9 @@ func newActionWithInput(a *action) error {
 	case cGet:
 		a.get()
 		return nil
+	case cInventory:
+		a.inventory()
+		return nil
 	// case cWear:
 	// 	a.wear()
 	// 	return
@@ -96,6 +99,16 @@ func (a *action) look() {
 	)
 }
 
+func (a *action) inventory() {
+	a.conn.SendString(
+		fmt.Sprintf("Inventory\n%s\n%s\n%s",
+			"-----------------------------------",
+			strings.Join(inventoryString(a.player), helpers.Newline),
+			"-----------------------------------",
+		) + helpers.Newline,
+	)
+}
+
 func exitsString(r Room) string {
 	var exits string
 
@@ -111,6 +124,29 @@ func itemsString(r Room) string {
 
 	for _, i := range r.Items {
 		items = fmt.Sprintf("%s is here.\n%s", i.Name, items)
+	}
+
+	return items
+}
+
+func inventoryString(p *Player) []string {
+	inventory := make(map[string]int)
+
+	for _, i := range p.Inventory {
+		if _, ok := inventory[i.Name]; ok {
+			inventory[i.Name]++
+		} else {
+			inventory[i.Name] = 1
+		}
+	}
+
+	var items []string
+	for name, qty := range inventory {
+		if qty > 1 {
+			items = append(items, fmt.Sprintf("(%d) %s", qty, name))
+		} else {
+			items = append(items, name)
+		}
 	}
 
 	return items
