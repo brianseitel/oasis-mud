@@ -28,24 +28,8 @@ func (server *Server) Handle(c *Connection) {
 		if len(input) > 0 {
 			err := newActionWithInput(&action{player: c.player, conn: c, args: strings.Split(input, " ")})
 			if err != nil {
-				return
+				return // we're quitting
 			}
-			// if cmd == "quit" {
-			// 	// Save character first
-			// 	command := SaveCommand{}
-			// 	command.Handle(c, line)
-
-			// 	// Say goodbye
-			// 	c.SendString("Seeya!" + helpers.Newline)
-			// 	c.conn.Close()
-			// 	return
-			// }
-
-			// if command, ok := dbCommands.Lookup(cmd); ok {
-			// 	command.Handle(c, line)
-			// } else {
-			// c.SendString("I'm sorry. I don't know what you mean." + helpers.Newline + cmd + line)
-			// }
 		}
 
 	}

@@ -29,11 +29,3 @@ func (c *Connection) BufferData(text string) {
 func (c *Connection) SendBuffer() {
 	c.buffer.Flush()
 }
-
-func (c *Connection) BroadcastToRoom(text string) {
-	// for _, connection := range activeConnections {
-	//  if player != c.player && c.player.Room == player.Room {
-	//      SendString(c.player.Name + " says, \"" + text + "\"" + helpers.Newline)
-	//  }
-	// }
-}
