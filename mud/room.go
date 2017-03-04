@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
-	"text/template"
 )
 
 type Area struct {
