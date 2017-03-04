@@ -167,6 +167,7 @@ func (a *action) drop() {
 	for j, item := range a.player.Inventory {
 		if a.matchesSubject(item.Identifiers) {
 			a.player.Inventory, a.player.room.Items = transferItem(j, a.player.Inventory, a.player.room.Items)
+			Registry.rooms[a.player.room.Id] = a.player.room
 			a.conn.SendString(fmt.Sprintf("You drop %s.", item.Name) + helpers.Newline)
 			return
 		}
@@ -177,6 +178,7 @@ func (a *action) get() {
 	for j, item := range a.player.room.Items {
 		if a.matchesSubject(item.Identifiers) {
 			a.player.room.Items, a.player.Inventory = transferItem(j, a.player.room.Items, a.player.Inventory)
+			Registry.rooms[a.player.room.Id] = a.player.room
 			a.conn.SendString(fmt.Sprintf("You pick up %s.", item.Name) + helpers.Newline)
 			return
 		}

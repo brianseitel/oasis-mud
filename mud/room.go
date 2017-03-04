@@ -80,10 +80,10 @@ func (rdb *RoomDatabase) AddItem(room Room, item Item) {
 
 // Creates a new room database, seeding it with data from the areas
 // directory.
-func NewRoomDatabase() []Room {
+func NewRoomDatabase() map[int]Room {
 	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
-	var rooms []Room
+	rooms := make(map[int]Room)
 	for _, areaFile := range areaFiles {
 		file, err := ioutil.ReadFile(areaFile)
 		if err != nil {
@@ -97,7 +97,7 @@ func NewRoomDatabase() []Room {
 			for _, v := range room.ItemIds {
 				room.Items = append(room.Items, FindItem(v))
 			}
-			rooms = append(rooms, room)
+			rooms[room.Id] = room
 		}
 	}
 
