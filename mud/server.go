@@ -10,9 +10,6 @@ import (
 
 type Server struct {
 	connections []Connection
-	items       []Item
-	players     []Player
-	rooms       []Room
 }
 
 func (server *Server) Handle(c *Connection) {
