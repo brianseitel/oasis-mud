@@ -2,7 +2,8 @@ package mud
 
 type registry struct {
 	rooms   map[int]Room
-	players []Player
+	players []Mob
+	mobs    []Mob
 	items   []Item
 }
 

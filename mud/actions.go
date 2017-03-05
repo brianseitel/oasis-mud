@@ -9,14 +9,14 @@ import (
 )
 
 type action struct {
-	player *Player
-	rooms  []*Room
-	conn   *Connection
-	args   []string
+	mob   *Mob
+	rooms []*Room
+	conn  *Connection
+	args  []string
 }
 
-func newAction(p *Player, c *Connection, i string) {
-	newActionWithInput(&action{player: p, conn: c, args: strings.Split(i, " ")})
+func newAction(p *Mob, c *Connection, i string) {
+	newActionWithInput(&action{mob: p, conn: c, args: strings.Split(i, " ")})
 }
 
 func newActionWithInput(a *action) error {
@@ -86,15 +86,16 @@ func isCommand(c command, p string) bool {
 }
 
 func (a *action) look() {
-	r := a.player.room
+	r := a.mob.room
 	a.conn.SendString(
 		fmt.Sprintf(
-			"%s\n%s\n%s%s",
+			"%s [ID: %d]\n%s\n%s%s%s",
 			r.Name,
+			r.Id,
 			r.Description,
 			exitsString(r),
 			itemsString(r),
-			// mobsString(r, a.player),
+			mobsString(r, a.mob),
 		),
 	)
 }
@@ -103,7 +104,7 @@ func (a *action) inventory() {
 	a.conn.SendString(
 		fmt.Sprintf("Inventory\n%s\n%s\n%s",
 			"-----------------------------------",
-			strings.Join(inventoryString(a.player), helpers.Newline),
+			strings.Join(inventoryString(a.mob), helpers.Newline),
 			"-----------------------------------",
 		) + helpers.Newline,
 	)
@@ -125,11 +126,22 @@ func itemsString(r Room) string {
 	for _, i := range r.Items {
 		items = fmt.Sprintf("%s is here.\n%s", i.Name, items)
 	}
-
 	return items
 }
 
-func inventoryString(p *Player) []string {
+func mobsString(r Room, mob *Mob) string {
+	var mobs string
+	mobs = ""
+	for _, m := range r.Mobs {
+		if m.Name != mob.Name {
+			mobs = fmt.Sprintf("%s is here.\n%s", m.Name, mobs)
+		}
+	}
+
+	return mobs
+}
+
+func inventoryString(p *Mob) []string {
 	inventory := make(map[string]int)
 
 	for _, i := range p.Inventory {
@@ -153,10 +165,12 @@ func inventoryString(p *Player) []string {
 }
 
 func (a *action) move(d string) {
-	for _, e := range a.player.room.Exits {
+	for _, e := range a.mob.room.Exits {
 		if e.Dir == d {
-			a.player.move(e)
-			newAction(a.player, a.conn, "look")
+			a.mob.move(e)
+			a.mob.room.Mobs[a.mob.pid] = *a.mob
+			Registry.rooms[a.mob.room.Id] = a.mob.room
+			newAction(a.mob, a.conn, "look")
 			return
 		}
 	}
@@ -164,10 +178,10 @@ func (a *action) move(d string) {
 }
 
 func (a *action) drop() {
-	for j, item := range a.player.Inventory {
+	for j, item := range a.mob.Inventory {
 		if a.matchesSubject(item.Identifiers) {
-			a.player.Inventory, a.player.room.Items = transferItem(j, a.player.Inventory, a.player.room.Items)
-			Registry.rooms[a.player.room.Id] = a.player.room
+			a.mob.Inventory, a.mob.room.Items = transferItem(j, a.mob.Inventory, a.mob.room.Items)
+			Registry.rooms[a.mob.room.Id] = a.mob.room
 			a.conn.SendString(fmt.Sprintf("You drop %s.", item.Name) + helpers.Newline)
 			return
 		}
@@ -175,10 +189,10 @@ func (a *action) drop() {
 }
 
 func (a *action) get() {
-	for j, item := range a.player.room.Items {
+	for j, item := range a.mob.room.Items {
 		if a.matchesSubject(item.Identifiers) {
-			a.player.room.Items, a.player.Inventory = transferItem(j, a.player.room.Items, a.player.Inventory)
-			Registry.rooms[a.player.room.Id] = a.player.room
+			a.mob.room.Items, a.mob.Inventory = transferItem(j, a.mob.room.Items, a.mob.Inventory)
+			Registry.rooms[a.mob.room.Id] = a.mob.room
 			a.conn.SendString(fmt.Sprintf("You pick up %s.", item.Name) + helpers.Newline)
 			return
 		}

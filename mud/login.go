@@ -6,7 +6,7 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func Login(c *Connection) *Player {
+func Login(c *Connection) *Mob {
 
 	var name string
 	var password string
@@ -29,7 +29,7 @@ func Login(c *Connection) *Player {
 		password = strings.Trim(input, "\r\n")
 	}
 
-	player, err := LoadPlayer(name, password)
+	player, err := LoadMob(name, password)
 	if err != nil {
 		c.SendString(helpers.Red + err.Error() + helpers.Reset + helpers.Newline)
 		return Login(c)
@@ -37,6 +37,6 @@ func Login(c *Connection) *Player {
 
 	c.SendString("Welcome, " + player.Name + "!" + helpers.Newline)
 
-	player.m_request = c
+	player.client = c
 	return player
 }

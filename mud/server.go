@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 	// "github.com/brianseitel/oasis-mud/helpers"
 )
 
@@ -14,7 +15,10 @@ type Server struct {
 
 func (server *Server) Handle(c *Connection) {
 	c.player = Login(c)
+	c.player.isPlayer = true
 	c.player.room = FindRoom(c.player.Room)
+	pid++
+	c.player.pid = pid
 	newAction(c.player, c, "look")
 	for {
 		c.player.ShowStatusBar()
@@ -26,7 +30,7 @@ func (server *Server) Handle(c *Connection) {
 		input = strings.Trim(input, "\r\n")
 
 		if len(input) > 0 {
-			err := newActionWithInput(&action{player: c.player, conn: c, args: strings.Split(input, " ")})
+			err := newActionWithInput(&action{mob: c.player, conn: c, args: strings.Split(input, " ")})
 			if err != nil {
 				return // we're quitting
 			}
@@ -42,7 +46,11 @@ func (server *Server) Serve(port int) {
 		fmt.Printf("cannot start server: %s\n", err)
 		os.Exit(1)
 	}
+	defer listener.Close()
+
 	fmt.Printf("waiting for connections on %s\n", listener.Addr())
+
+	go server.timing()
 
 	for {
 		conn, err := listener.Accept()
@@ -55,7 +63,32 @@ func (server *Server) Serve(port int) {
 	}
 }
 
+func (server *Server) timing() {
+	const (
+		tickLen time.Duration = 5
+	)
+
+	pulse := time.NewTicker(time.Second)
+	tick := time.NewTicker(time.Second * tickLen)
+
+	for {
+		select {
+		case <-pulse.C:
+			fmt.Printf("")
+			break
+		case <-tick.C:
+			for _, r := range Registry.rooms {
+				for _, m := range r.Mobs {
+					m.wander()
+				}
+			}
+			break
+		}
+	}
+}
+
 func (server *Server) init() {
 	Registry.items = NewItemDatabase()
+	Registry.mobs = NewMobDatabase()
 	Registry.rooms = NewRoomDatabase()
 }

@@ -18,6 +18,8 @@ type Room struct {
 	Exits       []Direction `json:"exits"`
 	ItemIds     []int       `json:"items"`
 	Items       []Item
+	MobIds      []int `json:"mobs"`
+	Mobs        map[int64]Mob
 }
 
 type Direction struct {
@@ -32,12 +34,7 @@ type RoomDatabase struct {
 // Finds a given room in the database. If not found,
 // returns a blank room
 func FindRoom(r int) Room {
-	for _, v := range Registry.rooms {
-		if v.Id == r {
-			return v
-		}
-	}
-	return Room{}
+	return Registry.rooms[r]
 }
 
 // Creates a new room database, seeding it with data from the areas
@@ -58,6 +55,12 @@ func NewRoomDatabase() map[int]Room {
 		for _, room := range area.Rooms {
 			for _, v := range room.ItemIds {
 				room.Items = append(room.Items, FindItem(v))
+			}
+			room.Mobs = make(map[int64]Mob)
+			for _, v := range room.MobIds {
+				mob := FindMob(v)
+				mob.room = room
+				room.Mobs[mob.pid] = mob
 			}
 			rooms[room.Id] = room
 		}
