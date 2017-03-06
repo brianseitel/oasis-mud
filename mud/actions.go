@@ -3,6 +3,7 @@ package mud
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/brianseitel/oasis-mud/helpers"
@@ -54,6 +55,9 @@ func newActionWithInput(a *action) error {
 		return nil
 	case cInventory:
 		a.inventory()
+		return nil
+	case cStats:
+		a.stats()
 		return nil
 	// case cWear:
 	// 	a.wear()
@@ -108,6 +112,39 @@ func (a *action) inventory() {
 			strings.Join(inventoryString(a.player), helpers.Newline),
 			"-----------------------------------",
 		) + helpers.Newline,
+	)
+}
+
+func (a *action) stats() {
+	const (
+		width int = 50
+	)
+
+	username := a.player.Username
+	id := fmt.Sprintf("Level %d %s %s", a.player.Level, a.player.Race.Name, a.player.Job.Name)
+	spaces := width - len(username) - len(id)
+
+	title := fmt.Sprintf("%s%s%s", username, strings.Repeat(" ", spaces), id)
+
+	strength := fmt.Sprintf("%s%s%s%s%s%s%s", "Strength", strings.Repeat(" ", 8), strconv.Itoa(a.player.Strength), strings.Repeat(" ", 11), "Experience", strings.Repeat(" ", 11-len(strconv.Itoa(a.player.Exp))), strconv.Itoa(a.player.Exp))
+	wisdom := fmt.Sprintf("%s%s%s%s%s%s%s", "Wisdom", strings.Repeat(" ", 10), strconv.Itoa(a.player.Wisdom), strings.Repeat(" ", 11), "TNL", strings.Repeat(" ", 18-len(strconv.Itoa(a.player.TNL()))), strconv.Itoa(a.player.TNL()))
+	intel := fmt.Sprintf("%s%s%s", "Intelligence", strings.Repeat(" ", 4), strconv.Itoa(a.player.Intelligence))
+	dexterity := fmt.Sprintf("%s%s%s", "Dexterity", strings.Repeat(" ", 7), strconv.Itoa(a.player.Dexterity))
+	constitution := fmt.Sprintf("%s%s%s", "Constitution", strings.Repeat(" ", 4), strconv.Itoa(a.player.Constitution))
+	charisma := fmt.Sprintf("%s%s%s", "Charisma", strings.Repeat(" ", 8), strconv.Itoa(a.player.Dexterity))
+	a.conn.SendString(
+		fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+			strings.Repeat("=", width),
+			title,
+			strings.Repeat("-", width),
+			strength,
+			wisdom,
+			intel,
+			dexterity,
+			constitution,
+			charisma,
+			strings.Repeat("=", width),
+		),
 	)
 }
 

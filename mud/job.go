@@ -14,7 +14,7 @@ type Job struct {
 
 func NewJobDatabase() {
 	fmt.Println("Creating jobs")
-	jobs := []string{"warrior", "mage", "cleric", "thief", "ranger", "bard"}
+	jobs := []string{"Warrior", "Mage", "Cleric", "Thief", "Ranger", "Bard"}
 
 	for _, v := range jobs {
 		job := &Job{Name: v}

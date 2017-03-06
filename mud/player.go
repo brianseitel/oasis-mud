@@ -35,12 +35,24 @@ type Player struct {
 	Exp   int
 	Level int
 
-	Job    Job
-	Race   Race
+	Job    Job  `json:"-"`
+	JobID  int  `json:"job"`
+	Race   Race `json:"-"`
+	RaceID int  `json:"race"`
 	Gender string
 
-	// MobStats
+	Strength     int
+	Wisdom       int
+	Intelligence int
+	Dexterity    int
+	Charisma     int
+	Constitution int
+
 	client *Connection `gorm:"-"`
+}
+
+func (p Player) TNL() int {
+	return (p.Level * 1000) - p.Exp
 }
 
 func (p *Player) move(e Exit) {

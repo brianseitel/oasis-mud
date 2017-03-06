@@ -16,7 +16,7 @@ type Race struct {
 
 func NewRaceDatabase() {
 	fmt.Println("Creating races")
-	races := []string{"human", "elf", "dwarf", "drow", "goblin", "dragon"}
+	races := []string{"Human", "Elf", "Dwarf", "Drow", "Goblin", "Dragon"}
 
 	for _, v := range races {
 		race := &Race{Name: v}

@@ -37,6 +37,24 @@ func Login(c *Connection) *Player {
 		return Login(c)
 	}
 
+	player = getPlayer(player)
 	player.client = c
 	return &player
+}
+
+func getPlayer(p Player) Player {
+	var (
+		room Room
+		// inventory []Item
+		job  Job
+		race Race
+	)
+
+	db.First(&p).Related(&job).Related(&race).Related(&room)
+
+	p.Room = room
+	// p.Inventory = inventory
+	p.Job = job
+	p.Race = race
+	return p
 }
