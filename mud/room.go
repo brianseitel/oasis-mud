@@ -2,29 +2,41 @@ package mud
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
+
+	// "github.com/brianseitel/oasis-mud/helpers"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
 type Area struct {
+	gorm.Model
+
 	Name  string `json:"name"`
-	Rooms []Room `json:"rooms"`
+	Rooms []Room `json:"rooms",gorm:"-"`
 }
 
 type Room struct {
-	Id          int
+	gorm.Model
+
+	Area        Area
+	AreaId      int
 	Name        string
 	Description string
-	Exits       []Direction `json:"exits"`
-	ItemIds     []int       `json:"items"`
-	Items       []Item
-	MobIds      []int `json:"mobs"`
-	Mobs        map[int64]Mob
+	Exits       []Exit `gorm:"many2many:room_exits;"`
+	ItemIds     []int  `json:"items" gorm:"-"`
+	Items       []Item `gorm:"many2many:room_items;"`
+	Mobs        []Mob
+	MobIds      []int `gorm:"-" json:"mobs"`
 }
 
-type Direction struct {
+type Exit struct {
+	gorm.Model
 	Dir    string `json:"direction"`
-	RoomId int    `json:"room_id"`
+	RoomId int    `json:"room_id",gorm:"-"`
 }
 
 type RoomDatabase struct {
@@ -34,15 +46,16 @@ type RoomDatabase struct {
 // Finds a given room in the database. If not found,
 // returns a blank room
 func FindRoom(r int) Room {
-	return Registry.rooms[r]
+	var room Room
+	db.First(&room, r)
+	return room
 }
 
 // Creates a new room database, seeding it with data from the areas
 // directory.
-func NewRoomDatabase() map[int]Room {
+func NewRoomDatabase() {
 	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
-	rooms := make(map[int]Room)
 	for _, areaFile := range areaFiles {
 		file, err := ioutil.ReadFile(areaFile)
 		if err != nil {
@@ -51,20 +64,44 @@ func NewRoomDatabase() map[int]Room {
 
 		var area Area
 		json.Unmarshal(file, &area)
+		if err != nil {
+			panic(err)
+		}
+
+		a := &Area{Name: area.Name}
+
+		db.First(&a)
+		if db.NewRecord(&a) {
+			fmt.Println("\tCreating area " + a.Name + "!")
+			db.Create(&a)
+		} else {
+			fmt.Println("\tSkipping area " + a.Name + "!")
+		}
 
 		for _, room := range area.Rooms {
-			for _, v := range room.ItemIds {
-				room.Items = append(room.Items, FindItem(v))
+			room.AreaId = int(a.ID)
+			for _, i := range room.ItemIds {
+				var item Item
+				db.First(&item, i)
+
+				room.Items = append(room.Items, item)
 			}
-			room.Mobs = make(map[int64]Mob)
-			for _, v := range room.MobIds {
-				mob := FindMob(v)
-				mob.room = room
-				room.Mobs[mob.pid] = mob
+
+			for _, i := range room.MobIds {
+				var mob Mob
+				db.First(&mob, i)
+				room.Mobs = append(room.Mobs, mob)
 			}
-			rooms[room.Id] = room
+
+			var r Room
+			db.First(&r, room.ID)
+
+			if db.NewRecord(&r) {
+				fmt.Println("\tCreating room " + room.Name + "!")
+				db.Create(&room)
+			} else {
+				fmt.Println("\tSkipping room " + room.Name + "!")
+			}
 		}
 	}
-
-	return rooms
 }

@@ -7,6 +7,9 @@ import (
 	"strings"
 	"time"
 	// "github.com/brianseitel/oasis-mud/helpers"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
 type Server struct {
@@ -15,10 +18,6 @@ type Server struct {
 
 func (server *Server) Handle(c *Connection) {
 	c.player = Login(c)
-	c.player.isPlayer = true
-	c.player.room = FindRoom(c.player.Room)
-	pid++
-	c.player.pid = pid
 	newAction(c.player, c, "look")
 	for {
 		c.player.ShowStatusBar()
@@ -30,7 +29,7 @@ func (server *Server) Handle(c *Connection) {
 		input = strings.Trim(input, "\r\n")
 
 		if len(input) > 0 {
-			err := newActionWithInput(&action{mob: c.player, conn: c, args: strings.Split(input, " ")})
+			err := newActionWithInput(&action{player: c.player, conn: c, args: strings.Split(input, " ")})
 			if err != nil {
 				return // we're quitting
 			}
@@ -77,7 +76,9 @@ func (server *Server) timing() {
 			fmt.Printf("")
 			break
 		case <-tick.C:
-			for _, r := range Registry.rooms {
+			var rooms []Room
+			db.Find(&rooms)
+			for _, r := range rooms {
 				for _, m := range r.Mobs {
 					m.wander()
 				}
@@ -87,8 +88,28 @@ func (server *Server) timing() {
 	}
 }
 
+var (
+	db *gorm.DB
+)
+
 func (server *Server) init() {
-	Registry.items = NewItemDatabase()
-	Registry.mobs = NewMobDatabase()
-	Registry.rooms = NewRoomDatabase()
+	initializeDatabase()
+}
+
+func initializeDatabase() {
+	var err error
+	db, _ = gorm.Open("mysql", "homestead:secret@tcp(api.guidebox.brian:3306)/mud?charset=utf8&parseTime=True&loc=Local")
+	if err != nil {
+		panic(err)
+	}
+	// db.LogMode(true)
+	// defer db.Close()
+	db.AutoMigrate(&Mob{}, &Job{}, &Race{}, &Item{}, &Area{}, &Room{}, &Exit{}, &Player{})
+
+	NewJobDatabase()
+	NewRaceDatabase()
+	NewItemDatabase()
+	NewMobDatabase()
+	NewRoomDatabase()
+	NewPlayerDatabase()
 }

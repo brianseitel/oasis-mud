@@ -1,8 +1,7 @@
 [
     {
         "id": 1,
-        "username": "A citizen",
-        "password": "",
+        "name": "A citizen",
         "inventory": [],
         "current_room": 2,
         "exit_verb": "jaunt",
@@ -11,8 +10,8 @@
         "movement": 100,
         "experience": 0,
         "level": 1,
-        "class": "warrior",
-        "race": "human",
+        "job": { "id": 1 },
+        "race": { "id": 1 },
         "gender": "M",
         "stats": {
             "strength": 12,
