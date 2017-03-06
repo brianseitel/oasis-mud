@@ -51,6 +51,10 @@ type Player struct {
 	client *Connection `gorm:"-"`
 }
 
+func (p Player) test() {
+	fmt.Printn("This is a test")
+}
+
 func (p Player) TNL() int {
 	return (p.Level * 1000) - p.Exp
 }
