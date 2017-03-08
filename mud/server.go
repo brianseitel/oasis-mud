@@ -7,20 +7,22 @@ import (
 	"strings"
 	"time"
 
-	// "github.com/brianseitel/oasis-mud/helpers"
+	"github.com/brianseitel/oasis-mud/helpers"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
-var server Server
+var gameServer Server
 
 type Server struct {
 	connections []connection
 }
 
-func (server *Server) Handle(c *connection) {
+func (server *Server) handle(c *connection) {
 	c.mob = login(c)
+	server.connections = append(server.connections, *c)
+	gameServer = *server
 	newAction(c.mob, c, "look")
 	for {
 		c.mob.ShowStatusBar()
@@ -60,7 +62,7 @@ func (server *Server) Serve(port int) {
 			fmt.Printf("could not accept: %s\n", err)
 		} else {
 			fmt.Printf("connected: %s\n", conn.RemoteAddr())
-			go server.Handle(newConnection(conn))
+			go server.handle(newConnection(conn))
 		}
 	}
 }
@@ -95,7 +97,8 @@ func (server *Server) timing() {
 			for _, r := range rooms {
 				for _, m := range r.Mobs {
 					m.wander()
-
+					m.notify(helpers.Newline)
+					m.ShowStatusBar()
 				}
 			}
 			break
@@ -112,7 +115,7 @@ func (server *Server) init() {
 }
 
 func getConnections() []connection {
-	return server.connections
+	return gameServer.connections
 }
 
 func initializeDatabase() {

@@ -72,19 +72,34 @@ func (m *mob) attack(target *mob, f *fight) {
 		target.notify(fmt.Sprintf("%s attacks you for %d damage!%s", m.Name, damage, helpers.Newline))
 		m.notify(fmt.Sprintf("You strike %s for %d damage!%s", target.Name, damage, helpers.Newline))
 		if target.Status == dead {
-			fmt.Println("ACK! I'M DEAD")
+			m.notify(fmt.Sprintf("You have KILLED %s to death!!%s", target.Name, helpers.Newline))
 			m.Status = standing
 			db.Save(&m)
+
+			// whisk it away
+			target.die()
+
 			db.Delete(&f)
+			m.ShowStatusBar()
 		}
 	}
 }
 
+func (m *mob) die() {
+	// drop corpse in room
+	corpse := &item{itemType: "corpse", Name: "A corpse of " + m.Name, Identifiers: "corpse," + m.Identifiers}
+	var room room
+	db.Find(&room, m.RoomID)
+	db.Model(&room).Association("Items").Append(corpse).Error
+
+	// whisk them away to hell
+	m.RoomID = 0
+	db.Save(&m)
+}
+
 func (m *mob) takeDamage(damage int) {
 	m.Hitpoints -= damage
-	if m.Hitpoints <= 0 && m.Hitpoints > -5 {
-		m.Status = incapacitated
-	} else if m.Hitpoints < -5 {
+	if m.Hitpoints < -5 {
 		m.Status = dead
 		m.notify(helpers.Red + "You are DEAD!!!" + helpers.Reset)
 	}
@@ -125,11 +140,13 @@ func (m *mob) move(e exit) {
 
 func (m mob) ShowStatusBar() {
 	m = getMob(m)
-	m.client.BufferData(helpers.White + "[" + m.getHitpoints() + helpers.Reset + helpers.Cyan + "hp")
-	m.client.BufferData(helpers.White + m.getMana() + helpers.Reset + helpers.Cyan + "mana ")
-	m.client.BufferData(helpers.White + m.getMovement() + helpers.Reset + helpers.Cyan + "mv" + helpers.White)
-	m.client.BufferData("] >> ")
-	m.client.SendBuffer()
+	if m.client != nil {
+		m.client.BufferData(helpers.White + "[" + m.getHitpoints() + helpers.Reset + helpers.Cyan + "hp")
+		m.client.BufferData(helpers.White + m.getMana() + helpers.Reset + helpers.Cyan + "mana ")
+		m.client.BufferData(helpers.White + m.getMovement() + helpers.Reset + helpers.Cyan + "mv" + helpers.White)
+		m.client.BufferData("] >> ")
+		m.client.SendBuffer()
+	}
 }
 
 func (m mob) getRoom() room {
@@ -143,7 +160,8 @@ func (m mob) getRoom() room {
 }
 
 func (m *mob) notify(message string) {
-	fmt.Println("Notifying", m.Name)
+	mob := getMob(*m)
+	m = &mob
 	if m.client != nil {
 		m.client.SendString(message)
 	}
@@ -242,4 +260,18 @@ func newMobDatabase() {
 			}
 		}
 	}
+}
+
+func getMob(m mob) mob {
+	db.Preload("Job").Preload("Race").Preload("Inventory").Preload("Room").First(&m)
+
+	if m.client == nil {
+		for _, conn := range getConnections() {
+			if conn.mob.ID == m.ID {
+				m.client = &conn
+				return m
+			}
+		}
+	}
+	return m
 }

@@ -47,9 +47,3 @@ func login(c *connection) *mob {
 	mob.client = c
 	return &mob
 }
-
-func getMob(m mob) mob {
-	db.Preload("Job").Preload("Race").Preload("Inventory").Preload("Room").First(&m)
-
-	return m
-}
