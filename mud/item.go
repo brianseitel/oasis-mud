@@ -8,7 +8,6 @@ import (
 
 	// "github.com/brianseitel/oasis-mud/helpers"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 const (
@@ -17,34 +16,29 @@ const (
 	healing
 )
 
-type ItemAttributeSet struct{}
+type itemAttributeSet struct{}
 
-type Item struct {
+type item struct {
 	gorm.Model
 
-	ItemType    string
+	itemType    string
 	Name        string `json:"name"`
 	Description string
 	Min         int
 	Max         int
 	Speed       int
 	Price       int
-	// Attributes  ItemAttributeSet
+	// Attributes  itemAttributeSet
 	Identifiers string
 }
 
-type ItemDatabase []Item
-
-// Finds an item in the item Database
-// If not found, returns an empty item
-func FindItem(i int) Item {
-	var item Item
+func findItem(i int) item {
+	var item item
 	db.First(&item, i)
 	return item
 }
 
-// Seeds the item database with data from our items directory
-func NewItemDatabase() {
+func newItemDatabase() {
 	fmt.Println("Creating items!")
 	itemFiles, _ := filepath.Glob("./data/items/*.json")
 
@@ -54,17 +48,17 @@ func NewItemDatabase() {
 			panic(err)
 		}
 
-		var list []Item
+		var list []item
 		json.Unmarshal(file, &list)
 
-		for _, item := range list {
-			var items []Item
-			db.Find(&items, item)
+		for _, it := range list {
+			var items []item
+			db.Find(&items, it)
 			if len(items) == 0 {
-				fmt.Println("\tCreating item " + item.Name + "!")
-				db.Create(&item)
+				fmt.Println("\tCreating item " + it.Name + "!")
+				db.Create(&it)
 			} else {
-				fmt.Println("\tSkipping item " + item.Name + "!")
+				fmt.Println("\tSkipping item " + it.Name + "!")
 			}
 		}
 	}

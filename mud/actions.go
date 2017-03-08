@@ -10,13 +10,13 @@ import (
 )
 
 type action struct {
-	player *Player
-	rooms  []*Room
-	conn   *Connection
+	player *player
+	rooms  []*room
+	conn   *connection
 	args   []string
 }
 
-func newAction(p *Player, c *Connection, i string) {
+func newAction(p *player, c *connection, i string) {
 	newActionWithInput(&action{player: p, conn: c, args: strings.Split(i, " ")})
 }
 
@@ -60,24 +60,24 @@ func newActionWithInput(a *action) error {
 		a.stats()
 		return nil
 	// case cWear:
-	// 	a.wear()
-	// 	return
+	//  a.wear()
+	//  return
 	// case cRemove:
-	// 	a.remove()
-	// 	return
+	//  a.remove()
+	//  return
 	// case cKill:
-	// 	a.kill()
+	//  a.kill()
 	// case cFlee:
-	// 	a.flee()
+	//  a.flee()
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
 	return nil
 }
 
-func (i *action) getCommand() command {
+func (a *action) getCommand() command {
 	for _, c := range commands {
-		if isCommand(c, i.args[0]) == true {
+		if isCommand(c, a.args[0]) == true {
 			return c
 		}
 	}
@@ -94,13 +94,14 @@ func (a *action) look() {
 
 	a.conn.SendString(
 		fmt.Sprintf(
-			"%s [ID: %d]\n%s\n%s%s%s",
+			"%s [ID: %d]\n%s\n%s%s%s%s",
 			r.Name,
 			r.ID,
 			r.Description,
 			exitsString(r.Exits),
 			itemsString(r.Items),
 			mobsString(r.Mobs),
+			playersString(r.Players),
 		),
 	)
 }
@@ -148,7 +149,7 @@ func (a *action) stats() {
 	)
 }
 
-func exitsString(exits []Exit) string {
+func exitsString(exits []exit) string {
 	var output string
 	for _, e := range exits {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
@@ -157,7 +158,7 @@ func exitsString(exits []Exit) string {
 	return fmt.Sprintf("[%s]%s%s", strings.Trim(output, " "), helpers.Newline, helpers.Newline)
 }
 
-func itemsString(items []Item) string {
+func itemsString(items []item) string {
 	var output string
 
 	for _, i := range items {
@@ -166,7 +167,7 @@ func itemsString(items []Item) string {
 	return output
 }
 
-func mobsString(mobs []Mob) string {
+func mobsString(mobs []mob) string {
 	var output string
 	output = ""
 	for _, m := range mobs {
@@ -176,7 +177,17 @@ func mobsString(mobs []Mob) string {
 	return output
 }
 
-func inventoryString(p *Player) []string {
+func playersString(players []player) string {
+	var output string
+	output = ""
+	for _, p := range players {
+		output = fmt.Sprintf("%s is here.\n%s", p.Username, output)
+	}
+
+	return output
+}
+
+func inventoryString(p *player) []string {
 	inventory := make(map[string]int)
 
 	for _, i := range p.Inventory {
@@ -204,8 +215,8 @@ func (a *action) move(d string) {
 	for _, e := range room.Exits {
 		if e.Dir == d {
 			a.player.move(e)
-			a.player.RoomId = int(e.RoomId)
-			db.Save(&a.player)
+			a.player.RoomID = e.RoomID
+			db.Set("gorm:save_associations", false).Save(&a.player)
 			newAction(a.player, a.conn, "look")
 			return
 		}
@@ -252,7 +263,7 @@ func (a *action) matchesSubject(s string) bool {
 	return false
 }
 
-func transferItem(i int, from []Item, to []Item) ([]Item, []Item) {
+func transferItem(i int, from []item, to []item) ([]item, []item) {
 	item := from[i]
 	from = append(from[0:i], from[i+1:]...)
 	to = append(to, item)

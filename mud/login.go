@@ -6,7 +6,7 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func Login(c *Connection) *Player {
+func login(c *connection) *player {
 
 	var name string
 	var password string
@@ -20,6 +20,14 @@ func Login(c *Connection) *Player {
 		name = strings.Trim(input, "\r\n")
 	}
 
+	var p player
+	db.First(&p, &player{Username: name})
+
+	if db.NewRecord(p) {
+		p.Username = name
+		return register(c, p)
+	}
+
 	for len(password) == 0 {
 		c.SendString("Password: ")
 		input, err := c.buffer.ReadString('\n')
@@ -29,31 +37,29 @@ func Login(c *Connection) *Player {
 		password = strings.Trim(input, "\r\n")
 	}
 
-	var player Player
-	db.First(&player, &Player{Username: name, Password: password})
-
-	if db.NewRecord(player) {
+	notFound := db.First(&p, &player{Username: name, Password: password}).RecordNotFound()
+	if notFound {
 		c.SendString(helpers.Red + "Incorrect login. Please try again." + helpers.Reset + helpers.Newline)
-		return Login(c)
+		return login(c)
 	}
 
-	player = getPlayer(player)
+	player := getplayer(p)
 	player.client = c
 	return &player
 }
 
-func getPlayer(p Player) Player {
+func getplayer(p player) player {
 	var (
-		room Room
-		// inventory []Item
-		job  Job
-		race Race
+		room      room
+		inventory []item
+		job       job
+		race      race
 	)
 
-	db.First(&p).Related(&job).Related(&race).Related(&room)
+	db.First(&p).Related(&job).Related(&race).Related(&room).Related(&inventory)
 
 	p.Room = room
-	// p.Inventory = inventory
+	p.Inventory = inventory
 	p.Job = job
 	p.Race = race
 	return p

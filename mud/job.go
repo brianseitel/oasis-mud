@@ -4,28 +4,34 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
-type Job struct {
+type job struct {
 	gorm.Model
 	Name string
+	Abbr string
 }
 
-func NewJobDatabase() {
+func newJobDatabase() {
 	fmt.Println("Creating jobs")
-	jobs := []string{"Warrior", "Mage", "Cleric", "Thief", "Ranger", "Bard"}
+	jobs := make(map[string]string)
+	jobs["war"] = "Warrior"
+	jobs["mag"] = "Mage"
+	jobs["cle"] = "Cleric"
+	jobs["thi"] = "Thief"
+	jobs["ran"] = "Ranger"
+	jobs["bar"] = "Bard"
 
-	for _, v := range jobs {
-		job := &Job{Name: v}
+	for abbr, name := range jobs {
+		j := &job{Name: name, Abbr: abbr}
 
-		var found Job
-		db.Find(&found, Job{Name: v})
+		var found job
+		db.Find(&found, job{Name: name})
 		if !db.NewRecord(&found) {
-			fmt.Println("\tSkipping job " + job.Name + "!")
+			fmt.Println("\tSkipping job " + j.Name + "!")
 		} else {
-			fmt.Println("\tCreating job " + job.Name + "!")
-			db.Create(&job)
+			fmt.Println("\tCreating job " + j.Name + "!")
+			db.Create(&j)
 		}
 	}
 }

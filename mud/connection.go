@@ -5,27 +5,27 @@ import (
 	"net"
 )
 
-type Connection struct {
+type connection struct {
 	conn   net.Conn
 	buffer *bufio.ReadWriter
-	player *Player
+	player *player
 }
 
-func NewConnection(connection net.Conn) *Connection {
-	return &Connection{
-		conn:   connection,
-		buffer: bufio.NewReadWriter(bufio.NewReader(connection), bufio.NewWriter(connection)),
+func newConnection(c net.Conn) *connection {
+	return &connection{
+		conn:   c,
+		buffer: bufio.NewReadWriter(bufio.NewReader(c), bufio.NewWriter(c)),
 	}
 }
 
-func (c *Connection) SendString(text string) {
+func (c *connection) SendString(text string) {
 	c.conn.Write([]byte(text))
 }
 
-func (c *Connection) BufferData(text string) {
+func (c *connection) BufferData(text string) {
 	c.buffer.Write([]byte(text))
 }
 
-func (c *Connection) SendBuffer() {
+func (c *connection) SendBuffer() {
 	c.buffer.Flush()
 }

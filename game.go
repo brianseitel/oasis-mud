@@ -4,19 +4,19 @@ import (
 	"github.com/brianseitel/oasis-mud/mud"
 )
 
-type Game struct {
+type game struct {
 	server  *mud.Server
 	running bool
 }
 
-func NewGame(server *mud.Server) *Game {
-	return &Game{
+func newGame(server *mud.Server) *game {
+	return &game{
 		server:  server,
 		running: false,
 	}
 }
 
-func (g *Game) Start() {
+func (g *game) Start() {
 	server := mud.Server{}
 	server.Serve(8099)
 }

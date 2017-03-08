@@ -13,11 +13,11 @@ import (
 )
 
 type Server struct {
-	connections []Connection
+	connections []connection
 }
 
-func (server *Server) Handle(c *Connection) {
-	c.player = Login(c)
+func (server *Server) Handle(c *connection) {
+	c.player = login(c)
 	newAction(c.player, c, "look")
 	for {
 		c.player.ShowStatusBar()
@@ -57,7 +57,7 @@ func (server *Server) Serve(port int) {
 			fmt.Printf("could not accept: %s\n", err)
 		} else {
 			fmt.Printf("connected: %s\n", conn.RemoteAddr())
-			go server.Handle(NewConnection(conn))
+			go server.Handle(newConnection(conn))
 		}
 	}
 }
@@ -76,7 +76,7 @@ func (server *Server) timing() {
 			fmt.Printf("")
 			break
 		case <-tick.C:
-			var rooms []Room
+			var rooms []room
 			db.Find(&rooms)
 			for _, r := range rooms {
 				for _, m := range r.Mobs {
@@ -104,12 +104,12 @@ func initializeDatabase() {
 	}
 	// db.LogMode(true)
 	// defer db.Close()
-	db.AutoMigrate(&Mob{}, &Job{}, &Race{}, &Item{}, &Area{}, &Room{}, &Exit{}, &Player{})
+	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{}, &player{})
 
-	NewJobDatabase()
-	NewRaceDatabase()
-	NewItemDatabase()
-	NewMobDatabase()
-	NewRoomDatabase()
-	NewPlayerDatabase()
+	newJobDatabase()
+	newRaceDatabase()
+	newItemDatabase()
+	newMobDatabase()
+	newRoomDatabase()
+	newPlayerDatabase()
 }

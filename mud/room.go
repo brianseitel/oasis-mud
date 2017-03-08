@@ -12,48 +12,49 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
-type Area struct {
+type area struct {
 	gorm.Model
 
 	Name  string `json:"name"`
-	Rooms []Room `json:"rooms",gorm:"-"`
+	Rooms []room `json:"rooms",gorm:"-"`
 }
 
-type Room struct {
+type room struct {
 	gorm.Model
 
-	Area        Area
-	AreaId      int
+	Area        area
+	AreaID      int
 	Name        string
 	Description string
-	Exits       []Exit `gorm:"many2many:room_exits;"`
+	Exits       []exit `gorm:"many2many:room_exits;"`
 	ItemIds     []int  `json:"items" gorm:"-"`
-	Items       []Item `gorm:"many2many:room_items;"`
-	Mobs        []Mob
+	Items       []item `gorm:"many2many:room_items;"`
+	Mobs        []mob
 	MobIds      []int `gorm:"-" json:"mobs"`
+	Players     []player
 }
 
-type Exit struct {
+type exit struct {
 	gorm.Model
 	Dir    string `json:"direction"`
-	RoomId int    `json:"room_id",gorm:"-"`
+	RoomID int    `json:"room_id",gorm:"-"`
 }
 
-type RoomDatabase struct {
-	Rooms []Room
+type roomDatabase struct {
+	Rooms []room
 }
 
-// Finds a given room in the database. If not found,
-// returns a blank room
-func FindRoom(r int) Room {
-	var room Room
-	db.First(&room, r)
+func findRoom(r int) room {
+	var (
+		room    room
+		players []player
+	)
+
+	db.First(&room, r).Related(&players)
 	return room
 }
 
-// Creates a new room database, seeding it with data from the areas
-// directory.
-func NewRoomDatabase() {
+func newRoomDatabase() {
 	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
 	for _, areaFile := range areaFiles {
@@ -62,45 +63,45 @@ func NewRoomDatabase() {
 			panic(err)
 		}
 
-		var area Area
-		json.Unmarshal(file, &area)
+		var a area
+		json.Unmarshal(file, &a)
 		if err != nil {
 			panic(err)
 		}
 
-		a := &Area{Name: area.Name}
+		ar := &area{Name: a.Name}
 
-		db.First(&a)
-		if db.NewRecord(&a) {
-			fmt.Println("\tCreating area " + a.Name + "!")
-			db.Create(&a)
+		db.First(&ar)
+		if db.NewRecord(&ar) {
+			fmt.Println("\tCreating area " + ar.Name + "!")
+			db.Create(&ar)
 		} else {
-			fmt.Println("\tSkipping area " + a.Name + "!")
+			fmt.Println("\tSkipping area " + ar.Name + "!")
 		}
 
-		for _, room := range area.Rooms {
-			room.AreaId = int(a.ID)
-			for _, i := range room.ItemIds {
-				var item Item
+		for _, ro := range a.Rooms {
+			ro.AreaID = int(a.ID)
+			for _, i := range ro.ItemIds {
+				var item item
 				db.First(&item, i)
 
-				room.Items = append(room.Items, item)
+				ro.Items = append(ro.Items, item)
 			}
 
-			for _, i := range room.MobIds {
-				var mob Mob
+			for _, i := range ro.MobIds {
+				var mob mob
 				db.First(&mob, i)
-				room.Mobs = append(room.Mobs, mob)
+				ro.Mobs = append(ro.Mobs, mob)
 			}
 
-			var r Room
-			db.First(&r, room.ID)
+			var r room
+			db.First(&r, ro.ID)
 
 			if db.NewRecord(&r) {
-				fmt.Println("\tCreating room " + room.Name + "!")
-				db.Create(&room)
+				fmt.Println("\tCreating room " + ro.Name + "!")
+				db.Create(&ro)
 			} else {
-				fmt.Println("\tSkipping room " + room.Name + "!")
+				fmt.Println("\tSkipping room " + ro.Name + "!")
 			}
 		}
 	}

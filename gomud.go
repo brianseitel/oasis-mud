@@ -6,6 +6,6 @@ import (
 
 func main() {
 	server := &mud.Server{}
-	game := NewGame(server)
+	game := newGame(server)
 	game.Start()
 }
