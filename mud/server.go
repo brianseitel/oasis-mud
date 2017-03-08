@@ -6,21 +6,24 @@ import (
 	"os"
 	"strings"
 	"time"
+
 	// "github.com/brianseitel/oasis-mud/helpers"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
+var server Server
+
 type Server struct {
 	connections []connection
 }
 
 func (server *Server) Handle(c *connection) {
-	c.player = login(c)
-	newAction(c.player, c, "look")
+	c.mob = login(c)
+	newAction(c.mob, c, "look")
 	for {
-		c.player.ShowStatusBar()
+		c.mob.ShowStatusBar()
 		input, err := c.buffer.ReadString('\n')
 		if err != nil {
 			panic(err)
@@ -29,7 +32,7 @@ func (server *Server) Handle(c *connection) {
 		input = strings.Trim(input, "\r\n")
 
 		if len(input) > 0 {
-			err := newActionWithInput(&action{player: c.player, conn: c, args: strings.Split(input, " ")})
+			err := newActionWithInput(&action{mob: c.mob, conn: c, args: strings.Split(input, " ")})
 			if err != nil {
 				return // we're quitting
 			}
@@ -71,16 +74,28 @@ func (server *Server) timing() {
 	tick := time.NewTicker(time.Second * tickLen)
 
 	for {
+		var rooms []room
+		db.Preload("Mobs").Find(&rooms)
+
 		select {
 		case <-pulse.C:
-			fmt.Printf("")
+			fmt.Printf(".")
+			for _, r := range rooms {
+				for _, m := range r.Mobs {
+					var f fight
+					db.Model(&m).Related(&f)
+					if m.Status == fighting {
+						f.turn(&m)
+					}
+				}
+			}
 			break
 		case <-tick.C:
-			var rooms []room
-			db.Find(&rooms)
+			fmt.Printf("o")
 			for _, r := range rooms {
 				for _, m := range r.Mobs {
 					m.wander()
+
 				}
 			}
 			break
@@ -96,20 +111,22 @@ func (server *Server) init() {
 	initializeDatabase()
 }
 
+func getConnections() []connection {
+	return server.connections
+}
+
 func initializeDatabase() {
 	var err error
 	db, _ = gorm.Open("mysql", "homestead:secret@tcp(api.guidebox.brian:3306)/mud?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		panic(err)
 	}
-	// db.LogMode(true)
-	// defer db.Close()
-	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{}, &player{})
+
+	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{}, &fight{})
 
 	newJobDatabase()
 	newRaceDatabase()
 	newItemDatabase()
 	newMobDatabase()
 	newRoomDatabase()
-	newPlayerDatabase()
 }

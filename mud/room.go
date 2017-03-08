@@ -31,7 +31,6 @@ type room struct {
 	Items       []item `gorm:"many2many:room_items;"`
 	Mobs        []mob
 	MobIds      []int `gorm:"-" json:"mobs"`
-	Players     []player
 }
 
 type exit struct {
@@ -46,11 +45,13 @@ type roomDatabase struct {
 
 func findRoom(r int) room {
 	var (
-		room    room
-		players []player
+		room room
+		mobs []mob
 	)
 
-	db.First(&room, r).Related(&players)
+	db.First(&room, r).Related(&mobs)
+
+	room.Mobs = mobs
 	return room
 }
 

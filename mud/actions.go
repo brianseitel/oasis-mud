@@ -10,14 +10,14 @@ import (
 )
 
 type action struct {
-	player *player
-	rooms  []*room
-	conn   *connection
-	args   []string
+	mob   *mob
+	rooms []*room
+	conn  *connection
+	args  []string
 }
 
-func newAction(p *player, c *connection, i string) {
-	newActionWithInput(&action{player: p, conn: c, args: strings.Split(i, " ")})
+func newAction(m *mob, c *connection, i string) {
+	newActionWithInput(&action{mob: m, conn: c, args: strings.Split(i, " ")})
 }
 
 func newActionWithInput(a *action) error {
@@ -59,6 +59,9 @@ func newActionWithInput(a *action) error {
 	case cStats:
 		a.stats()
 		return nil
+	case cKill:
+		a.kill()
+		return nil
 	// case cWear:
 	//  a.wear()
 	//  return
@@ -90,18 +93,17 @@ func isCommand(c command, p string) bool {
 }
 
 func (a *action) look() {
-	r := a.player.getRoom()
+	r := a.mob.getRoom()
 
 	a.conn.SendString(
 		fmt.Sprintf(
-			"%s [ID: %d]\n%s\n%s%s%s%s",
+			"%s [ID: %d]\n%s\n%s%s%s",
 			r.Name,
 			r.ID,
 			r.Description,
 			exitsString(r.Exits),
 			itemsString(r.Items),
 			mobsString(r.Mobs),
-			playersString(r.Players),
 		),
 	)
 }
@@ -110,7 +112,7 @@ func (a *action) inventory() {
 	a.conn.SendString(
 		fmt.Sprintf("Inventory\n%s\n%s\n%s",
 			"-----------------------------------",
-			strings.Join(inventoryString(a.player), helpers.Newline),
+			strings.Join(inventoryString(a.mob), helpers.Newline),
 			"-----------------------------------",
 		) + helpers.Newline,
 	)
@@ -121,18 +123,18 @@ func (a *action) stats() {
 		width int = 50
 	)
 
-	username := a.player.Username
-	id := fmt.Sprintf("Level %d %s %s", a.player.Level, a.player.Race.Name, a.player.Job.Name)
+	username := a.mob.Name
+	id := fmt.Sprintf("Level %d %s %s", a.mob.Level, a.mob.Race.Name, a.mob.Job.Name)
 	spaces := width - len(username) - len(id)
 
 	title := fmt.Sprintf("%s%s%s", username, strings.Repeat(" ", spaces), id)
 
-	strength := fmt.Sprintf("%s%s%s%s%s%s%s", "Strength", strings.Repeat(" ", 8), strconv.Itoa(a.player.Strength), strings.Repeat(" ", 11), "Experience", strings.Repeat(" ", 11-len(strconv.Itoa(a.player.Exp))), strconv.Itoa(a.player.Exp))
-	wisdom := fmt.Sprintf("%s%s%s%s%s%s%s", "Wisdom", strings.Repeat(" ", 10), strconv.Itoa(a.player.Wisdom), strings.Repeat(" ", 11), "TNL", strings.Repeat(" ", 18-len(strconv.Itoa(a.player.TNL()))), strconv.Itoa(a.player.TNL()))
-	intel := fmt.Sprintf("%s%s%s", "Intelligence", strings.Repeat(" ", 4), strconv.Itoa(a.player.Intelligence))
-	dexterity := fmt.Sprintf("%s%s%s", "Dexterity", strings.Repeat(" ", 7), strconv.Itoa(a.player.Dexterity))
-	constitution := fmt.Sprintf("%s%s%s", "Constitution", strings.Repeat(" ", 4), strconv.Itoa(a.player.Constitution))
-	charisma := fmt.Sprintf("%s%s%s", "Charisma", strings.Repeat(" ", 8), strconv.Itoa(a.player.Dexterity))
+	strength := fmt.Sprintf("%s%s%s%s%s%s%s", "Strength", strings.Repeat(" ", 8), strconv.Itoa(a.mob.Strength), strings.Repeat(" ", 11), "Experience", strings.Repeat(" ", 11-len(strconv.Itoa(a.mob.Exp))), strconv.Itoa(a.mob.Exp))
+	wisdom := fmt.Sprintf("%s%s%s%s%s%s%s", "Wisdom", strings.Repeat(" ", 10), strconv.Itoa(a.mob.Wisdom), strings.Repeat(" ", 11), "TNL", strings.Repeat(" ", 18-len(strconv.Itoa(a.mob.TNL()))), strconv.Itoa(a.mob.TNL()))
+	intel := fmt.Sprintf("%s%s%s", "Intelligence", strings.Repeat(" ", 4), strconv.Itoa(a.mob.Intelligence))
+	dexterity := fmt.Sprintf("%s%s%s", "Dexterity", strings.Repeat(" ", 7), strconv.Itoa(a.mob.Dexterity))
+	constitution := fmt.Sprintf("%s%s%s", "Constitution", strings.Repeat(" ", 4), strconv.Itoa(a.mob.Constitution))
+	charisma := fmt.Sprintf("%s%s%s", "Charisma", strings.Repeat(" ", 8), strconv.Itoa(a.mob.Dexterity))
 	a.conn.SendString(
 		fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 			strings.Repeat("=", width),
@@ -177,20 +179,10 @@ func mobsString(mobs []mob) string {
 	return output
 }
 
-func playersString(players []player) string {
-	var output string
-	output = ""
-	for _, p := range players {
-		output = fmt.Sprintf("%s is here.\n%s", p.Username, output)
-	}
-
-	return output
-}
-
-func inventoryString(p *player) []string {
+func inventoryString(m *mob) []string {
 	inventory := make(map[string]int)
 
-	for _, i := range p.Inventory {
+	for _, i := range m.Inventory {
 		if _, ok := inventory[i.Name]; ok {
 			inventory[i.Name]++
 		} else {
@@ -211,13 +203,13 @@ func inventoryString(p *player) []string {
 }
 
 func (a *action) move(d string) {
-	room := a.player.getRoom()
+	room := a.mob.getRoom()
 	for _, e := range room.Exits {
 		if e.Dir == d {
-			a.player.move(e)
-			a.player.RoomID = e.RoomID
-			db.Set("gorm:save_associations", false).Save(&a.player)
-			newAction(a.player, a.conn, "look")
+			a.mob.move(e)
+			a.mob.RoomID = e.RoomID
+			db.Set("gorm:save_associations", false).Save(&a.mob)
+			newAction(a.mob, a.conn, "look")
 			return
 		}
 	}
@@ -225,11 +217,11 @@ func (a *action) move(d string) {
 }
 
 func (a *action) drop() {
-	room := a.player.getRoom()
-	for _, item := range a.player.Inventory {
+	room := a.mob.getRoom()
+	for _, item := range a.mob.Inventory {
 		if a.matchesSubject(item.Identifiers) {
 			db.Model(&room).Association("Items").Append(item)
-			db.Model(&a.player).Association("Inventory").Delete(item)
+			db.Model(&a.mob).Association("Inventory").Delete(item)
 			a.conn.SendString(fmt.Sprintf("You drop %s.", item.Name) + helpers.Newline)
 			return
 		}
@@ -237,15 +229,27 @@ func (a *action) drop() {
 }
 
 func (a *action) get() {
-	room := a.player.getRoom()
+	room := a.mob.getRoom()
 	for _, item := range room.Items {
 		if a.matchesSubject(item.Identifiers) {
 			db.Model(&room).Association("Items").Delete(item)
-			db.Model(&a.player).Association("Inventory").Append(item)
+			db.Model(&a.mob).Association("Inventory").Append(item)
 			a.conn.SendString(fmt.Sprintf("You pick up %s.", item.Name) + helpers.Newline)
 			return
 		}
 	}
+}
+
+func (a *action) kill() {
+	room := a.mob.getRoom()
+	for _, m := range room.Mobs {
+		if a.matchesSubject(m.Identifiers) {
+			newFight(a.mob, &m)
+			return
+		}
+	}
+
+	a.mob.notify("You can't find them.")
 }
 
 func (a *action) quit() {

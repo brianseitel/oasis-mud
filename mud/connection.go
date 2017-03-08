@@ -8,7 +8,7 @@ import (
 type connection struct {
 	conn   net.Conn
 	buffer *bufio.ReadWriter
-	player *player
+	mob    *mob
 }
 
 func newConnection(c net.Conn) *connection {

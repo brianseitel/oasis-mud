@@ -2,6 +2,9 @@
     {
         "id": 1,
         "name": "A citizen",
+        "password": "",
+        "identifiers": "citizen",
+        "status": 6,
         "inventory": [],
         "current_room": 2,
         "exit_verb": "jaunt",
@@ -10,16 +13,14 @@
         "movement": 100,
         "experience": 0,
         "level": 1,
-        "job": { "id": 1 },
-        "race": { "id": 1 },
+        "job": 1,
+        "race": 1,
         "gender": "M",
-        "stats": {
-            "strength": 12,
-            "wisdom": 12,
-            "intelligence": 12,
-            "dexterity": 12,
-            "charisma": 12,
-            "constitution": 12
-        }
+        "strength": 12,
+        "wisdom": 12,
+        "intelligence": 12,
+        "dexterity": 12,
+        "charisma": 12,
+        "constitution": 12
     }
 ]

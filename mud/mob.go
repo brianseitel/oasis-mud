@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	// "github.com/brianseitel/oasis-mud/helpers"
+	"github.com/brianseitel/oasis-mud/helpers"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
@@ -19,8 +19,11 @@ type mob struct {
 	gorm.Model
 
 	//Mob information
-	Name      string `gorm:"name"`
-	Inventory []item `json:"items",gorm:"many2many:mob_items;"`
+	Name     string `json:"name" gorm:"name"`
+	Password string `gorm:"password"`
+
+	Inventory []item `gorm:"many2many:player_items;"`
+	ItemIds   []int  `json:"items" gorm:"-"`
 	Room      room
 	RoomID    int `json:"current_room"`
 	ExitVerb  string
@@ -35,8 +38,10 @@ type mob struct {
 	Exp   int
 	Level int
 
-	Job    job
-	Race   race
+	Job    job  `json:"-"`
+	JobID  int  `json:"job"`
+	Race   race `json:"-"`
+	RaceID int  `json:"race"`
 	Gender string
 
 	Strength     int
@@ -46,42 +51,99 @@ type mob struct {
 	Charisma     int
 	Constitution int
 
+	Status      status
+	Identifiers string
+
+	Fight   fight
+	FightID uint
+
 	client *connection
 }
 
-func (m *mob) move(e exit) {
-	// if m.Room.Id <= 0 {
-	//  m.Room = Registry.rooms[m.Room]
-	// }
+func (m mob) setFight(f *fight) {
+	m.FightID = f.ID
+	db.Save(&m)
+}
 
-	// old_room := m.Room
+func (m *mob) attack(target *mob, f *fight) {
+	if target.Status != dead {
+		damage := dice().Intn(m.damage()) + m.hit()
+		target.takeDamage(damage)
+		target.notify(fmt.Sprintf("%s attacks you for %d damage!%s", m.Name, damage, helpers.Newline))
+		m.notify(fmt.Sprintf("You strike %s for %d damage!%s", target.Name, damage, helpers.Newline))
+		if target.Status == dead {
+			fmt.Println("ACK! I'M DEAD")
+			m.Status = standing
+			db.Save(&m)
+			db.Delete(&f)
+		}
+	}
+}
+
+func (m *mob) takeDamage(damage int) {
+	m.Hitpoints -= damage
+	if m.Hitpoints <= 0 && m.Hitpoints > -5 {
+		m.Status = incapacitated
+	} else if m.Hitpoints < -5 {
+		m.Status = dead
+		m.notify(helpers.Red + "You are DEAD!!!" + helpers.Reset)
+	}
+
+	db.Save(&m)
+}
+
+func (m *mob) damage() int {
+	return m.Strength
+}
+
+func (m *mob) hit() int {
+	return int(m.Dexterity / 3)
+}
+
+func (m mob) TNL() int {
+	return (m.Level * 1000) - m.Exp
+}
+
+func (m *mob) move(e exit) {
+	var oldRoom room
+	db.First(&oldRoom, m.RoomID)
+
 	var newRoom room
 	db.First(&newRoom, e.RoomID)
 
-	// remove mob from old room list
-	// delete(old_room.Mobs, m.pid)
-	// for _, rm := range old_room.Mobs {
-	// if rm.pid != m.pid {
-	// rm.notify(fmt.Sprintf("%s leaves heading %s.\n", m.Name, e.Dir))
-	// }
-	// } //
-	// Registry.rooms[old_room.Id] = old_room
+	for _, rm := range oldRoom.Mobs {
+		rm.notify(fmt.Sprintf("%s leaves heading %s\n", m.Name, e.Dir))
+	}
 
 	// add mob to new room list
-	m.Room = newRoom
-	// m.Room = newRoom.Id
+	m.RoomID = int(newRoom.ID)
 
-	// m.Room.Mobs[m.pid] = *m
-	// Registry.rooms[newRoom.Id] = m.Room
+	for _, rm := range newRoom.Mobs {
+		rm.notify(fmt.Sprintf("%s arrives in room %d.\n", m.Name, m.RoomID))
+	}
+}
 
-	// for _, rm := range newRoom.Mobs {
-	// if rm.pid != m.pid {
-	//  rm.notify(fmt.Sprintf("%s arrives in room %d.\n", m.Name, m.Room.ID))
-	// }
-	// }
+func (m mob) ShowStatusBar() {
+	m = getMob(m)
+	m.client.BufferData(helpers.White + "[" + m.getHitpoints() + helpers.Reset + helpers.Cyan + "hp")
+	m.client.BufferData(helpers.White + m.getMana() + helpers.Reset + helpers.Cyan + "mana ")
+	m.client.BufferData(helpers.White + m.getMovement() + helpers.Reset + helpers.Cyan + "mv" + helpers.White)
+	m.client.BufferData("] >> ")
+	m.client.SendBuffer()
+}
+
+func (m mob) getRoom() room {
+	var (
+		r room
+	)
+
+	db.Preload("Exits").Preload("Items").Preload("Mobs", "id != (?)", m.ID).First(&r, m.RoomID)
+
+	return r
 }
 
 func (m *mob) notify(message string) {
+	fmt.Println("Notifying", m.Name)
 	if m.client != nil {
 		m.client.SendString(message)
 	}
@@ -132,17 +194,17 @@ func (m mob) getInventory() map[string]int {
 	return inventory
 }
 
-// Retrieves the player's hit points as a string
+// Retrieves the mob's hit points as a string
 func (m mob) getHitpoints() string {
 	return strconv.Itoa(m.Hitpoints)
 }
 
-// Retrieves the player's mana as a string
+// Retrieves the mob's mana as a string
 func (m mob) getMana() string {
 	return strconv.Itoa(m.Mana)
 }
 
-// Retrieves the player's movement as a string
+// Retrieves the mob's movement as a string
 func (m mob) getMovement() string {
 	return strconv.Itoa(m.Movement)
 }

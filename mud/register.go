@@ -7,7 +7,7 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func register(c *connection, p player) *player {
+func register(c *connection, m mob) *mob {
 
 	input := askIfNew(c)
 
@@ -19,33 +19,34 @@ func register(c *connection, p player) *player {
 	job := askForJob(c)
 	race := askForRace(c)
 
-	newPlayer := &player{
-		Username:     p.Username,
+	newPlayer := &mob{
+		Name:         m.Name,
 		Password:     password,
 		Job:          job,
 		Race:         race,
-		Hitpoints:    p.Race.defaultStats("hitpoints"),
-		MaxHitpoints: p.Race.defaultStats("hitpoints"),
-		Mana:         p.Race.defaultStats("mana"),
-		MaxMana:      p.Race.defaultStats("mana"),
-		Movement:     p.Race.defaultStats("movement"),
-		MaxMovement:  p.Race.defaultStats("movement"),
-		Strength:     p.Race.defaultStats("strength"),
-		Wisdom:       p.Race.defaultStats("wisdom"),
-		Dexterity:    p.Race.defaultStats("dexterity"),
-		Charisma:     p.Race.defaultStats("charisma"),
-		Constitution: p.Race.defaultStats("constitution"),
-		Intelligence: p.Race.defaultStats("intelligence"),
+		Hitpoints:    m.Race.defaultStats("hitpoints"),
+		MaxHitpoints: m.Race.defaultStats("hitpoints"),
+		Mana:         m.Race.defaultStats("mana"),
+		MaxMana:      m.Race.defaultStats("mana"),
+		Movement:     m.Race.defaultStats("movement"),
+		MaxMovement:  m.Race.defaultStats("movement"),
+		Strength:     m.Race.defaultStats("strength"),
+		Wisdom:       m.Race.defaultStats("wisdom"),
+		Dexterity:    m.Race.defaultStats("dexterity"),
+		Charisma:     m.Race.defaultStats("charisma"),
+		Constitution: m.Race.defaultStats("constitution"),
+		Intelligence: m.Race.defaultStats("intelligence"),
 		Level:        1,
 		Exp:          0,
 		RoomID:       1,
+		Status:       standing,
 	}
 
 	db.Save(&newPlayer)
 
-	p = getplayer(*newPlayer)
-	p.client = c
-	return &p
+	m = getMob(*newPlayer)
+	m.client = c
+	return &m
 }
 
 func askIfNew(c *connection) string {
