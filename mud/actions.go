@@ -95,17 +95,27 @@ func isCommand(c command, p string) bool {
 func (a *action) look() {
 	r := a.mob.getRoom()
 
-	a.conn.SendString(
-		fmt.Sprintf(
-			"%s [ID: %d]\n%s\n%s%s%s",
-			r.Name,
-			r.ID,
-			r.Description,
-			exitsString(r.Exits),
-			itemsString(r.Items),
-			mobsString(r.Mobs),
-		),
-	)
+	if len(a.args) == 1 {
+		a.conn.SendString(
+			fmt.Sprintf(
+				"%s [ID: %d]\n%s\n%s%s%s",
+				r.Name,
+				r.ID,
+				r.Description,
+				exitsString(r.Exits),
+				itemsString(r.Items),
+				mobsString(r.Mobs),
+			),
+		)
+	} else {
+		for _, mob := range r.Mobs {
+			if a.matchesSubject(mob.Identifiers) {
+				a.conn.SendString(fmt.Sprintf("You look at %s.", mob.Name) + helpers.Newline)
+				a.conn.SendString(helpers.WordWrap(mob.Description, 50) + helpers.Newline)
+				return
+			}
+		}
+	}
 }
 
 func (a *action) inventory() {

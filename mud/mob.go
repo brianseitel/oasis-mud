@@ -13,14 +13,13 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
-var pid int64
-
 type mob struct {
 	gorm.Model
 
 	//Mob information
-	Name     string `json:"name" gorm:"name"`
-	Password string `gorm:"password"`
+	Name        string `json:"name" gorm:"name"`
+	Password    string `gorm:"password"`
+	Description string `gorm:"type:text"`
 
 	Inventory []item `gorm:"many2many:player_items;"`
 	ItemIds   []int  `json:"items" gorm:"-"`
@@ -90,7 +89,7 @@ func (m *mob) die() {
 	corpse := &item{itemType: "corpse", Name: "A corpse of " + m.Name, Identifiers: "corpse," + m.Identifiers}
 	var room room
 	db.Find(&room, m.RoomID)
-	db.Model(&room).Association("Items").Append(corpse).Error
+	db.Model(&room).Association("Items").Append(corpse)
 
 	// whisk them away to hell
 	m.RoomID = 0
