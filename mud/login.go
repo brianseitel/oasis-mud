@@ -45,5 +45,6 @@ func login(c *connection) *mob {
 
 	mob := getMob(m)
 	mob.client = c
+	mob.Status = standing
 	return &mob
 }

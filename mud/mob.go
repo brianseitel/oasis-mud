@@ -70,6 +70,13 @@ func (m *mob) attack(target *mob, f *fight) {
 		target.takeDamage(damage)
 		target.notify(fmt.Sprintf("%s attacks you for %d damage!%s", m.Name, damage, helpers.Newline))
 		m.notify(fmt.Sprintf("You strike %s for %d damage!%s", target.Name, damage, helpers.Newline))
+
+		m.Status = fighting
+		db.Save(&m)
+
+		target.Status = fighting
+		db.Save(&target)
+
 		if target.Status == dead {
 			m.notify(fmt.Sprintf("You have KILLED %s to death!!%s", target.Name, helpers.Newline))
 			m.Status = standing
@@ -120,10 +127,10 @@ func (m mob) TNL() int {
 
 func (m *mob) move(e exit) {
 	var oldRoom room
-	db.First(&oldRoom, m.RoomID)
+	db.Preload("Mobs").First(&oldRoom, m.RoomID)
 
 	var newRoom room
-	db.First(&newRoom, e.RoomID)
+	db.Preload("Mobs").First(&newRoom, e.RoomID)
 
 	for _, rm := range oldRoom.Mobs {
 		rm.notify(fmt.Sprintf("%s leaves heading %s\n", m.Name, e.Dir))
@@ -167,17 +174,29 @@ func (m *mob) notify(message string) {
 }
 
 func (m *mob) wander() {
+	mob := getMob(*m)
+	m = &mob
+
+	if m.client != nil {
+		return
+	}
 	room := m.getRoom()
+	if m.Status != standing {
+		return
+	}
 	switch c := len(room.Exits); c {
 	case 0:
 		return
 	case 1:
 		m.move(room.Exits[0])
+		db.Save(&m)
 		return
 	default:
 		for {
 			e := room.Exits[dice().Intn(c)]
 			m.move(e)
+			m.RoomID = e.RoomID
+			db.Set("gorm:save_associations", false).Save(&m)
 			return
 		}
 	}

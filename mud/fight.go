@@ -18,8 +18,6 @@ type fight struct {
 }
 
 func newFight(m1 *mob, m2 *mob) *fight {
-	// m1.disposition = fighting
-	// m2.disposition = fighting
 	m1.notify(fmt.Sprintf("You scream and attack %s!%s", m2.Name, helpers.Newline))
 
 	m1.Status = fighting
@@ -49,6 +47,11 @@ func (f *fight) turn(m *mob) {
 	db.Model(&f).Related(&m1, "Mob1").Related(&m2, "Mob2")
 	f.Mob1 = &m1
 	f.Mob2 = &m2
+
+	if m1.RoomID != m2.RoomID {
+		return
+	}
+
 	if m.ID == m1.ID {
 		fmt.Println("Mob1 attacks")
 		m.attack(&m2, f)

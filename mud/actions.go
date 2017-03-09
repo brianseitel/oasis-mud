@@ -92,6 +92,8 @@ func isCommand(c command, p string) bool {
 }
 
 func (a *action) look() {
+	me := getMob(*a.mob)
+	a.mob = &me
 	r := a.mob.getRoom()
 
 	if len(a.args) == 1 {
@@ -213,6 +215,17 @@ func inventoryString(m *mob) []string {
 }
 
 func (a *action) move(d string) {
+	me := getMob(*a.mob)
+	a.mob = &me
+	if a.mob.Status != standing {
+		switch a.mob.Status {
+		case fighting:
+			a.conn.SendString("You can't move while fighting!" + helpers.Newline)
+			break
+		}
+		fmt.Println("fuck")
+		return
+	}
 	room := a.mob.getRoom()
 	for _, e := range room.Exits {
 		if e.Dir == d {
@@ -263,6 +276,8 @@ func (a *action) kill() {
 }
 
 func (a *action) flee() {
+	me := getMob(*a.mob)
+	a.mob = &me
 	if a.mob.Status != fighting {
 		a.conn.SendString("You can't flee if you're not fighting, fool." + helpers.Newline)
 		return
@@ -283,6 +298,8 @@ func (a *action) flee() {
 
 		mob2.Status = standing
 		db.Save(&mob2)
+
+		db.Delete(&fight)
 
 		a.mob.wander()
 		a.conn.SendString("You flee!")
