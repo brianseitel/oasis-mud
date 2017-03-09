@@ -115,6 +115,7 @@ func (a *action) look() {
 				return
 			}
 		}
+		a.conn.SendString("Who?" + helpers.Newline)
 	}
 }
 
