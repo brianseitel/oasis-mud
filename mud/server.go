@@ -21,8 +21,12 @@ type Server struct {
 
 func (server *Server) handle(c *connection) {
 	c.mob = login(c)
-	server.connections = append(server.connections, *c)
-	gameServer = *server
+
+	err := server.registerConnection(c)
+	if err == nil {
+		return
+	}
+
 	newAction(c.mob, c, "look")
 	for {
 		c.mob.ShowStatusBar()
@@ -104,6 +108,18 @@ func (server *Server) timing() {
 			break
 		}
 	}
+}
+
+func (server *Server) registerConnection(c *connection) error {
+	for _, oc := range server.connections {
+		if c.mob.ID == oc.mob.ID {
+			c.SendString("This user is already playing. Bye!" + helpers.Newline)
+			return c.conn.Close()
+		}
+	}
+	server.connections = append(server.connections, *c)
+	gameServer = *server
+	return nil
 }
 
 var (
