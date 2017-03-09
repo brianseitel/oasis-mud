@@ -1,6 +1,7 @@
 package mud
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -22,8 +23,8 @@ type Server struct {
 func (server *Server) handle(c *connection) {
 	c.mob = login(c)
 
-	err := server.registerConnection(c)
-	if err == nil {
+	err := registerConnection(c)
+	if err != nil {
 		return
 	}
 
@@ -110,15 +111,16 @@ func (server *Server) timing() {
 	}
 }
 
-func (server *Server) registerConnection(c *connection) error {
-	for _, oc := range server.connections {
+func registerConnection(c *connection) error {
+	for _, oc := range gameServer.connections {
 		if c.mob.ID == oc.mob.ID {
-			c.SendString("This user is already playing. Bye!" + helpers.Newline)
-			return c.conn.Close()
+			c.SendString(fmt.Sprintf("This user is already playing. Bye! %s", helpers.Newline))
+			c.end()
+			return errors.New("this user is already playing")
 		}
 	}
-	server.connections = append(server.connections, *c)
-	gameServer = *server
+
+	gameServer.connections = append(gameServer.connections, *c)
 	return nil
 }
 

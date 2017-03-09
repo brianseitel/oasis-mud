@@ -18,6 +18,19 @@ func newConnection(c net.Conn) *connection {
 	}
 }
 
+func (c *connection) end() {
+	server := &gameServer
+	for j, con := range server.connections {
+		if con.conn == c.conn {
+			server.connections = append(server.connections[0:j], server.connections[j+1:]...)
+			break
+		}
+	}
+
+	c.conn.Close()
+	gameServer = *server
+}
+
 func (c *connection) SendString(text string) {
 	c.conn.Write([]byte(text))
 }

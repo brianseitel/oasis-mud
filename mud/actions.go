@@ -265,7 +265,7 @@ func (a *action) kill() {
 
 func (a *action) quit() {
 	a.conn.SendString("Seeya!" + helpers.Newline)
-	a.conn.conn.Close()
+	a.conn.end()
 }
 
 func (a *action) matchesSubject(s string) bool {
