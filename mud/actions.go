@@ -264,8 +264,12 @@ func (a *action) kill() {
 }
 
 func (a *action) quit() {
-	a.conn.SendString("Seeya!" + helpers.Newline)
-	a.conn.end()
+	if a.mob.Status == fighting {
+		a.conn.SendString("You can't quit now. You're fighting!" + helpers.Newline)
+	} else {
+		a.conn.SendString("Seeya!" + helpers.Newline)
+		a.conn.end()
+	}
 }
 
 func (a *action) matchesSubject(s string) bool {
