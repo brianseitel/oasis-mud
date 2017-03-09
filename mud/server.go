@@ -104,6 +104,7 @@ func (server *Server) timing() {
 					m.wander()
 					m.notify(helpers.Newline)
 					m.ShowStatusBar()
+					m.regen()
 				}
 			}
 			break

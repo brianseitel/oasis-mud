@@ -56,7 +56,8 @@ type mob struct {
 	Fight   fight
 	FightID uint
 
-	client *connection
+	Playable bool
+	client   *connection
 }
 
 func (m mob) setFight(f *fight) {
@@ -171,6 +172,93 @@ func (m *mob) notify(message string) {
 	if m.client != nil {
 		m.client.SendString(message)
 	}
+}
+
+func (m *mob) regen() {
+	mob := getMob(*m)
+	m = &mob
+	if m.Playable && m.client == nil {
+		return
+	}
+
+	m = m.regenHitpoints()
+	m = m.regenMana()
+	m = m.regenMovement()
+	db.Save(&m)
+}
+
+func (m *mob) regenHitpoints() *mob {
+	if m.Hitpoints >= m.MaxHitpoints {
+		return m
+	}
+	amount := dice().Intn(int(m.MaxHitpoints/20) + (m.Level * m.Constitution))
+
+	multiplier := 1.0
+	switch m.Status {
+	case fighting:
+		multiplier = 0.2
+		break
+	case sleeping:
+		multiplier = 1.5
+		break
+	}
+
+	amount = int(float64(amount) * multiplier)
+
+	m.Hitpoints += amount
+	if m.Hitpoints > m.MaxHitpoints {
+		m.Hitpoints = m.MaxHitpoints
+	}
+	return m
+}
+
+func (m *mob) regenMana() *mob {
+	if m.Mana >= m.MaxMana {
+		return m
+	}
+	amount := dice().Intn(int(m.MaxMana/20) + (m.Level * m.Intelligence))
+	multiplier := 1.0
+	switch m.Status {
+	case fighting:
+		multiplier = 0.2
+		break
+	case sleeping:
+		multiplier = 1.5
+		break
+	}
+
+	amount = int(float64(amount) * multiplier)
+
+	m.Mana += amount
+	if m.Mana > m.MaxMana {
+		m.Mana = m.MaxMana
+	}
+	return m
+}
+
+func (m *mob) regenMovement() *mob {
+	if m.Movement >= m.MaxMovement {
+		return m
+	}
+	amount := dice().Intn(int(m.MaxMovement/20) + (m.Level * m.Dexterity))
+
+	multiplier := 1.0
+	switch m.Status {
+	case fighting:
+		multiplier = 0.2
+		break
+	case sleeping:
+		multiplier = 1.5
+		break
+	}
+
+	amount = int(float64(amount) * multiplier)
+
+	m.Movement += amount
+	if m.Movement > m.MaxMovement {
+		m.Movement = m.MaxMovement
+	}
+	return m
 }
 
 func (m *mob) wander() {
