@@ -62,16 +62,15 @@ func newActionWithInput(a *action) error {
 	case cKill:
 		a.kill()
 		return nil
+	case cFlee:
+		a.flee()
+		return nil
 	// case cWear:
 	//  a.wear()
 	//  return
 	// case cRemove:
 	//  a.remove()
 	//  return
-	// case cKill:
-	//  a.kill()
-	// case cFlee:
-	//  a.flee()
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -261,6 +260,35 @@ func (a *action) kill() {
 	}
 
 	a.mob.notify("You can't find them.")
+}
+
+func (a *action) flee() {
+	if a.mob.Status != fighting {
+		a.conn.SendString("You can't flee if you're not fighting, fool." + helpers.Newline)
+		return
+	}
+
+	roll := dice().Intn(36 - a.mob.Dexterity) // higher the dexterity, better the chance of fleeing successfully
+	if roll == 1 {
+		var (
+			fight fight
+			mob1  mob
+			mob2  mob
+		)
+
+		db.Find(&fight, a.mob.FightID).Related(&mob1, "Mob1").Related(&mob2, "Mob2")
+
+		mob1.Status = standing
+		db.Save(&mob1)
+
+		mob2.Status = standing
+		db.Save(&mob2)
+
+		a.mob.wander()
+		a.conn.SendString("You flee!")
+	} else {
+		a.conn.SendString("You tried to flee, but failed!" + helpers.Newline)
+	}
 }
 
 func (a *action) quit() {

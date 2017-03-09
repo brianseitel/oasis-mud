@@ -25,5 +25,5 @@ const (
 var commands []command
 
 func init() {
-	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cGet, cDrop, cWear, cRemove, cKill, cFlee, cInventory, cStats, cQuit}
+	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cGet, cDrop, cWear, cRemove, cKill, cFlee, cInventory, cStats, cFlee, cQuit}
 }

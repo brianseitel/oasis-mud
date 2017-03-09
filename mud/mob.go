@@ -167,18 +167,17 @@ func (m *mob) notify(message string) {
 }
 
 func (m *mob) wander() {
-	switch c := len(m.Room.Exits); c {
+	room := m.getRoom()
+	switch c := len(room.Exits); c {
 	case 0:
 		return
 	case 1:
-		m.move(m.Room.Exits[0])
+		m.move(room.Exits[0])
 		return
 	default:
 		for {
-			e := m.Room.Exits[dice().Intn(c)]
-			// if m.lastRoom.ID != e.RoomID {
+			e := room.Exits[dice().Intn(c)]
 			m.move(e)
-			// }
 			return
 		}
 	}
