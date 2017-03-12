@@ -7,10 +7,16 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"container/list"
+
 	"github.com/brianseitel/oasis-mud/helpers"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
+)
+
+var (
+	mobList *list.List
 )
 
 type mob struct {
@@ -21,9 +27,9 @@ type mob struct {
 	Password    string `gorm:"password"`
 	Description string `gorm:"type:text"`
 
-	Inventory []item `gorm:"many2many:player_items;"`
-	ItemIds   []int  `json:"items" gorm:"-"`
-	Room      room
+	Inventory []*item `gorm:"many2many:player_items;"`
+	ItemIds   []int   `json:"items" gorm:"-"`
+	Room      *room
 	RoomID    int `json:"current_room"`
 	ExitVerb  string
 
@@ -53,16 +59,19 @@ type mob struct {
 	Status      status
 	Identifiers string
 
-	Fight   fight
+	Fight   *fight
 	FightID uint
 
 	Playable bool
 	client   *connection
 }
 
+func (m *mob) addItem(item *item) {
+	m.Inventory = append(m.Inventory, item)
+}
+
 func (m mob) setFight(f *fight) {
-	m.FightID = f.ID
-	db.Save(&m)
+	m.Fight = f
 }
 
 func (m *mob) attack(target *mob, f *fight) {
@@ -73,20 +82,15 @@ func (m *mob) attack(target *mob, f *fight) {
 		m.notify(fmt.Sprintf("You strike %s for %d damage!%s", target.Name, damage, helpers.Newline))
 
 		m.Status = fighting
-		db.Save(&m)
 
 		target.Status = fighting
-		db.Save(&target)
 
 		if target.Status == dead {
 			m.notify(fmt.Sprintf("You have KILLED %s to death!!%s", target.Name, helpers.Newline))
 			m.Status = standing
-			db.Save(&m)
 
 			// whisk it away
 			target.die()
-
-			db.Delete(&f)
 			m.ShowStatusBar()
 		}
 	}
@@ -95,13 +99,10 @@ func (m *mob) attack(target *mob, f *fight) {
 func (m *mob) die() {
 	// drop corpse in room
 	corpse := &item{itemType: "corpse", Name: "A corpse of " + m.Name, Identifiers: "corpse," + m.Identifiers}
-	var room room
-	db.Find(&room, m.RoomID)
-	db.Model(&room).Association("Items").Append(corpse)
+	m.Room.Items = append(m.Room.Items, corpse)
 
-	// whisk them away to hell
-	m.RoomID = 0
-	db.Save(&m)
+	// whisk them away to Nowhere
+	m.Room = nil
 }
 
 func (m *mob) takeDamage(damage int) {
@@ -110,8 +111,6 @@ func (m *mob) takeDamage(damage int) {
 		m.Status = dead
 		m.notify(helpers.Red + "You are DEAD!!!" + helpers.Reset)
 	}
-
-	db.Save(&m)
 }
 
 func (m *mob) damage() int {
@@ -126,27 +125,29 @@ func (m mob) TNL() int {
 	return (m.Level * 1000) - m.Exp
 }
 
-func (m *mob) move(e exit) {
-	var oldRoom room
-	db.Preload("Mobs").First(&oldRoom, m.RoomID)
-
-	var newRoom room
-	db.Preload("Mobs").First(&newRoom, e.RoomID)
-
-	for _, rm := range oldRoom.Mobs {
-		rm.notify(fmt.Sprintf("%s leaves heading %s\n", m.Name, e.Dir))
+func (m *mob) move(e *exit) {
+	for i, rm := range m.Room.Mobs {
+		if rm == m {
+			m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
+		} else {
+			rm.notify(fmt.Sprintf("%s leaves heading %s.\n", m.Name, e.Dir))
+		}
 	}
 
 	// add mob to new room list
-	m.RoomID = int(newRoom.ID)
+	e.getRoom()
+	m.Room = e.Room
 
-	for _, rm := range newRoom.Mobs {
-		rm.notify(fmt.Sprintf("%s arrives in room %d.\n", m.Name, m.RoomID))
+	m.Room.Mobs = append(m.Room.Mobs, m)
+
+	for _, rm := range m.Room.Mobs {
+		if rm != m {
+			rm.notify(fmt.Sprintf("%s arrives in room.\n", m.Name))
+		}
 	}
 }
 
-func (m mob) ShowStatusBar() {
-	m = getMob(m)
+func (m *mob) ShowStatusBar() {
 	if m.client != nil {
 		m.client.BufferData(helpers.White + "[" + m.getHitpoints() + helpers.Reset + helpers.Cyan + "hp")
 		m.client.BufferData(helpers.White + m.getMana() + helpers.Reset + helpers.Cyan + "mana ")
@@ -156,35 +157,38 @@ func (m mob) ShowStatusBar() {
 	}
 }
 
-func (m mob) getRoom() room {
-	var (
-		r room
-	)
+func (m *mob) getRoom() {
+	for e := roomList.Front(); e != nil; e = e.Next() {
+		room := e.Value.(*room)
 
-	db.Preload("Exits").Preload("Items").Preload("Mobs", "id != (?)", m.ID).First(&r, m.RoomID)
-
-	return r
+		if room.ID == m.Room.ID {
+			m.Room = room
+			var exits []*exit
+			for _, x := range m.Room.Exits {
+				room := getRoom(x.RoomID)
+				ex := &exit{Dir: x.Dir, Room: room, RoomID: x.RoomID}
+				exits = append(exits, ex)
+			}
+			m.Room.Exits = exits
+			return
+		}
+	}
 }
 
 func (m *mob) notify(message string) {
-	mob := getMob(*m)
-	m = &mob
 	if m.client != nil {
 		m.client.SendString(message)
 	}
 }
 
 func (m *mob) regen() {
-	mob := getMob(*m)
-	m = &mob
 	if m.Playable && m.client == nil {
 		return
 	}
 
-	m = m.regenHitpoints()
-	m = m.regenMana()
-	m = m.regenMovement()
-	db.Save(&m)
+	m.regenHitpoints()
+	m.regenMana()
+	m.regenMovement()
 }
 
 func (m *mob) regenHitpoints() *mob {
@@ -262,35 +266,29 @@ func (m *mob) regenMovement() *mob {
 }
 
 func (m *mob) wander() {
-	mob := getMob(*m)
-	m = &mob
-
 	if m.client != nil {
 		return
 	}
-	room := m.getRoom()
+
 	if m.Status != standing {
 		return
 	}
-	switch c := len(room.Exits); c {
+	switch c := len(m.Room.Exits); c {
 	case 0:
 		return
 	case 1:
-		m.move(room.Exits[0])
-		db.Save(&m)
+		m.move(m.Room.Exits[0])
 		return
 	default:
 		for {
-			e := room.Exits[dice().Intn(c)]
+			e := m.Room.Exits[dice().Intn(c)]
 			m.move(e)
-			m.RoomID = e.RoomID
-			db.Set("gorm:save_associations", false).Save(&m)
 			return
 		}
 	}
 }
 
-func (m *mob) AddItem(item item) {
+func (m *mob) AddItem(item *item) {
 	m.Inventory = append(m.Inventory, item)
 }
 
@@ -332,13 +330,9 @@ func (m mob) getMovement() string {
 	return strconv.Itoa(m.Movement)
 }
 
-func findMob(i int) mob {
-	var mob mob
-	db.First(&mob, i)
-	return mob
-}
-
 func newMobDatabase() {
+	mobList = list.New()
+
 	fmt.Println("Creating Mobs")
 	mobFiles, _ := filepath.Glob("./data/mobs/*.json")
 
@@ -363,20 +357,10 @@ func newMobDatabase() {
 			} else {
 				fmt.Println("\tSkipping mob " + m.Name + "!")
 			}
-		}
-	}
-}
 
-func getMob(m mob) mob {
-	db.Preload("Job").Preload("Race").Preload("Inventory").Preload("Room").First(&m)
-
-	if m.client == nil {
-		for _, conn := range getConnections() {
-			if conn.mob.ID == m.ID {
-				m.client = &conn
-				return m
+			if m.Playable == false {
+				mobList.PushBack(m)
 			}
 		}
 	}
-	return m
 }

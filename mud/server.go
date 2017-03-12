@@ -81,31 +81,25 @@ func (server *Server) timing() {
 	tick := time.NewTicker(time.Second * tickLen)
 
 	for {
-		var rooms []room
-		db.Preload("Mobs").Find(&rooms)
-
 		select {
 		case <-pulse.C:
 			fmt.Printf(".")
-			for _, r := range rooms {
-				for _, m := range r.Mobs {
-					var f fight
-					db.Model(&m).Related(&f)
-					if m.Status == fighting {
-						f.turn(&m)
-					}
+			for e := mobList.Front(); e != nil; e = e.Next() {
+				m := e.Value.(mob)
+				f := m.Fight
+				if f != nil && m.Status == fighting {
+					f.turn(&m)
 				}
 			}
 			break
 		case <-tick.C:
 			fmt.Printf("o")
-			for _, r := range rooms {
-				for _, m := range r.Mobs {
-					m.wander()
-					m.notify(helpers.Newline)
-					m.ShowStatusBar()
-					m.regen()
-				}
+			for e := mobList.Front(); e != nil; e = e.Next() {
+				m := e.Value.(mob)
+				m.wander()
+				m.notify(helpers.Newline)
+				m.ShowStatusBar()
+				m.regen()
 			}
 			break
 		}

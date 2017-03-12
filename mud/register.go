@@ -7,7 +7,7 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func register(c *connection, m mob) *mob {
+func register(c *connection, m *mob) *mob {
 
 	input := askIfNew(c)
 
@@ -44,9 +44,8 @@ func register(c *connection, m mob) *mob {
 
 	db.Save(&newPlayer)
 
-	m = getMob(*newPlayer)
 	m.client = c
-	return &m
+	return m
 }
 
 func askIfNew(c *connection) string {

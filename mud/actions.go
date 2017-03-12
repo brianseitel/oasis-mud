@@ -92,24 +92,25 @@ func isCommand(c command, p string) bool {
 }
 
 func (a *action) look() {
-	me := getMob(*a.mob)
-	a.mob = &me
-	r := a.mob.getRoom()
+	if a.mob == nil {
+		fmt.Println("shit!")
+		return
+	}
 
 	if len(a.args) == 1 {
 		a.conn.SendString(
 			fmt.Sprintf(
 				"%s [ID: %d]\n%s\n%s%s%s",
-				r.Name,
-				r.ID,
-				r.Description,
-				exitsString(r.Exits),
-				itemsString(r.Items),
-				mobsString(r.Mobs),
+				a.mob.Room.Name,
+				a.mob.Room.ID,
+				a.mob.Room.Description,
+				exitsString(a.mob.Room.Exits),
+				itemsString(a.mob.Room.Items),
+				mobsString(a.mob.Room.Mobs, a.mob),
 			),
 		)
 	} else {
-		for _, mob := range r.Mobs {
+		for _, mob := range a.mob.Room.Mobs {
 			if a.matchesSubject(mob.Identifiers) {
 				a.conn.SendString(fmt.Sprintf("You look at %s.", mob.Name) + helpers.Newline)
 				a.conn.SendString(helpers.WordWrap(mob.Description, 50) + helpers.Newline)
@@ -163,7 +164,7 @@ func (a *action) stats() {
 	)
 }
 
-func exitsString(exits []exit) string {
+func exitsString(exits []*exit) string {
 	var output string
 	for _, e := range exits {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
@@ -172,7 +173,7 @@ func exitsString(exits []exit) string {
 	return fmt.Sprintf("[%s]%s%s", strings.Trim(output, " "), helpers.Newline, helpers.Newline)
 }
 
-func itemsString(items []item) string {
+func itemsString(items []*item) string {
 	var output string
 
 	for _, i := range items {
@@ -181,11 +182,13 @@ func itemsString(items []item) string {
 	return output
 }
 
-func mobsString(mobs []mob) string {
+func mobsString(mobs []*mob, player *mob) string {
 	var output string
 	output = ""
 	for _, m := range mobs {
-		output = fmt.Sprintf("%s is here.\n%s", m.Name, output)
+		if m != player {
+			output = fmt.Sprintf("%s is here.\n%s", m.Name, output)
+		}
 	}
 
 	return output
@@ -215,8 +218,6 @@ func inventoryString(m *mob) []string {
 }
 
 func (a *action) move(d string) {
-	me := getMob(*a.mob)
-	a.mob = &me
 	if a.mob.Status != standing {
 		switch a.mob.Status {
 		case fighting:
@@ -226,12 +227,10 @@ func (a *action) move(d string) {
 		fmt.Println("fuck")
 		return
 	}
-	room := a.mob.getRoom()
-	for _, e := range room.Exits {
+
+	for _, e := range a.mob.Room.Exits {
 		if e.Dir == d {
 			a.mob.move(e)
-			a.mob.RoomID = e.RoomID
-			db.Set("gorm:save_associations", false).Save(&a.mob)
 			newAction(a.mob, a.conn, "look")
 			return
 		}
@@ -240,44 +239,59 @@ func (a *action) move(d string) {
 }
 
 func (a *action) drop() {
-	room := a.mob.getRoom()
-	for _, item := range a.mob.Inventory {
+	for j, item := range a.mob.Inventory {
 		if a.matchesSubject(item.Identifiers) {
-			db.Model(&room).Association("Items").Append(item)
-			db.Model(&a.mob).Association("Inventory").Delete(item)
-			a.conn.SendString(fmt.Sprintf("You drop %s.", item.Name) + helpers.Newline)
+			a.mob.Inventory, a.mob.Room.Items = transferItem(j, a.mob.Inventory, a.mob.Room.Items)
+			message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.Name)
+			for _, m := range a.mob.Room.Mobs {
+				if m.ID == a.mob.ID {
+					m.notify(fmt.Sprintf("You drop %s.\n", item.Name))
+				} else {
+					m.notify(message)
+				}
+			}
 			return
 		}
 	}
+
+	a.mob.notify("Drop what?")
 }
 
 func (a *action) get() {
-	room := a.mob.getRoom()
-	for _, item := range room.Items {
+	for j, item := range a.mob.Room.Items {
 		if a.matchesSubject(item.Identifiers) {
-			db.Model(&room).Association("Items").Delete(item)
-			db.Model(&a.mob).Association("Inventory").Append(item)
-			a.conn.SendString(fmt.Sprintf("You pick up %s.", item.Name) + helpers.Newline)
+			a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
+			// a.mob.Room.removeItem(item)
+			// a.mob.addItem(item)
+			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
+			for _, m := range a.mob.Room.Mobs {
+				if m.ID == a.mob.ID {
+					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
+				} else {
+					m.notify(message)
+				}
+			}
+
+			helpers.Dump(a.mob.Room.Items)
 			return
 		}
 	}
+
+	a.mob.notify("Get what?" + helpers.Newline)
 }
 
 func (a *action) kill() {
-	room := a.mob.getRoom()
-	for _, m := range room.Mobs {
+	for _, m := range a.mob.Room.Mobs {
 		if a.matchesSubject(m.Identifiers) {
-			newFight(a.mob, &m)
+			newFight(a.mob, m)
 			return
 		}
 	}
 
-	a.mob.notify("You can't find them.")
+	a.mob.notify("You can't find them." + helpers.Newline)
 }
 
 func (a *action) flee() {
-	me := getMob(*a.mob)
-	a.mob = &me
 	if a.mob.Status != fighting {
 		a.conn.SendString("You can't flee if you're not fighting, fool." + helpers.Newline)
 		return
@@ -285,21 +299,8 @@ func (a *action) flee() {
 
 	roll := dice().Intn(36 - a.mob.Dexterity) // higher the dexterity, better the chance of fleeing successfully
 	if roll == 1 {
-		var (
-			fight fight
-			mob1  mob
-			mob2  mob
-		)
-
-		db.Find(&fight, a.mob.FightID).Related(&mob1, "Mob1").Related(&mob2, "Mob2")
-
-		mob1.Status = standing
-		db.Save(&mob1)
-
-		mob2.Status = standing
-		db.Save(&mob2)
-
-		db.Delete(&fight)
+		a.mob.Fight.Mob1.Status = standing
+		a.mob.Fight.Mob2.Status = standing
 
 		a.mob.wander()
 		a.conn.SendString("You flee!")
@@ -327,7 +328,7 @@ func (a *action) matchesSubject(s string) bool {
 	return false
 }
 
-func transferItem(i int, from []item, to []item) ([]item, []item) {
+func transferItem(i int, from []*item, to []*item) ([]*item, []*item) {
 	item := from[i]
 	from = append(from[0:i], from[i+1:]...)
 	to = append(to, item)

@@ -1,6 +1,7 @@
 package mud
 
 import (
+	"container/list"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,15 +9,20 @@ import (
 
 	// "github.com/brianseitel/oasis-mud/helpers"
 
+	"github.com/brianseitel/oasis-mud/helpers"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
+)
+
+var (
+	roomList list.List
 )
 
 type area struct {
 	gorm.Model
 
-	Name  string `json:"name"`
-	Rooms []room `json:"rooms",gorm:"-"`
+	Name  string  `json:"name"`
+	Rooms []*room `json:"rooms",gorm:"-"`
 }
 
 type room struct {
@@ -26,33 +32,30 @@ type room struct {
 	AreaID      int
 	Name        string
 	Description string
-	Exits       []exit `gorm:"many2many:room_exits;"`
-	ItemIds     []int  `json:"items" gorm:"-"`
-	Items       []item `gorm:"many2many:room_items;"`
-	Mobs        []mob
+	Exits       []*exit `gorm:"many2many:room_exits;"`
+	ItemIds     []int   `json:"items" gorm:"-"`
+	Items       []*item `gorm:"many2many:room_items;"`
+	Mobs        []*mob
 	MobIds      []int `gorm:"-" json:"mobs"`
 }
 
 type exit struct {
 	gorm.Model
 	Dir    string `json:"direction"`
-	RoomID int    `json:"room_id",gorm:"-"`
+	Room   *room
+	RoomID uint `json:"room_id",gorm:"-"`
 }
 
-type roomDatabase struct {
-	Rooms []room
-}
-
-func findRoom(r int) room {
-	var (
-		room room
-		mobs []mob
-	)
-
-	db.First(&room, r).Related(&mobs)
-
-	room.Mobs = mobs
-	return room
+func (x *exit) getRoom() {
+	for e := roomList.Front(); e != nil; e = e.Next() {
+		room := e.Value.(*room)
+		if room.ID == x.RoomID {
+			x.Room = room
+			fmt.Println("found one")
+			return
+		}
+	}
+	return
 }
 
 func newRoomDatabase() {
@@ -86,13 +89,13 @@ func newRoomDatabase() {
 				var item item
 				db.First(&item, i)
 
-				ro.Items = append(ro.Items, item)
+				ro.Items = append(ro.Items, &item)
 			}
 
 			for _, i := range ro.MobIds {
 				var mob mob
 				db.First(&mob, i)
-				ro.Mobs = append(ro.Mobs, mob)
+				ro.Mobs = append(ro.Mobs, &mob)
 			}
 
 			var r room
@@ -104,6 +107,41 @@ func newRoomDatabase() {
 			} else {
 				fmt.Println("\tSkipping room " + ro.Name + "!")
 			}
+
+			roomList.PushBack(ro)
+		}
+
+		exitsList := list.New()
+		for e := roomList.Front(); e != nil; e = e.Next() {
+			room := e.Value.(*room)
+			for j, x := range room.Exits {
+				room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
+			}
+			exitsList.PushBack(room)
+		}
+
+		roomList = *exitsList
+
+		mobsList := list.New()
+		for e := mobList.Front(); e != nil; e = e.Next() {
+			mob := e.Value.(mob)
+			mob.Room = getRoom(uint(mob.RoomID))
+			helpers.Dump(mob.Room)
+			mobsList.PushBack(mob)
+		}
+
+		mobList = mobsList
+	}
+}
+
+func getRoom(id uint) *room {
+	for e := roomList.Front(); e != nil; e = e.Next() {
+		r := e.Value.(*room)
+		fmt.Println(r.ID, id)
+		if r.ID == id {
+			return r
 		}
 	}
+	fmt.Println("Shit!")
+	return nil
 }

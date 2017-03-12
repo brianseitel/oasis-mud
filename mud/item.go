@@ -1,6 +1,7 @@
 package mud
 
 import (
+	"container/list"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,6 +9,10 @@ import (
 
 	// "github.com/brianseitel/oasis-mud/helpers"
 	"github.com/jinzhu/gorm"
+)
+
+var (
+	itemList list.List
 )
 
 const (
@@ -32,12 +37,6 @@ type item struct {
 	Identifiers string
 }
 
-func findItem(i int) item {
-	var item item
-	db.First(&item, i)
-	return item
-}
-
 func newItemDatabase() {
 	fmt.Println("Creating items!")
 	itemFiles, _ := filepath.Glob("./data/items/*.json")
@@ -60,6 +59,9 @@ func newItemDatabase() {
 			} else {
 				fmt.Println("\tSkipping item " + it.Name + "!")
 			}
+
+			itemList.PushBack(it)
 		}
+
 	}
 }

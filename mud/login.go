@@ -25,7 +25,7 @@ func login(c *connection) *mob {
 
 	if db.NewRecord(m) {
 		m.Name = name
-		return register(c, m)
+		return register(c, &m)
 	}
 
 	for len(password) == 0 {
@@ -43,8 +43,10 @@ func login(c *connection) *mob {
 		return login(c)
 	}
 
-	mob := getMob(m)
+	mob := &m
 	mob.client = c
 	mob.Status = standing
-	return &mob
+	mob.Room = getRoom(uint(m.RoomID))
+	mobList.PushBack(m)
+	return mob
 }
