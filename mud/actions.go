@@ -93,7 +93,6 @@ func isCommand(c command, p string) bool {
 
 func (a *action) look() {
 	if a.mob == nil {
-		fmt.Println("shit!")
 		return
 	}
 
@@ -224,7 +223,6 @@ func (a *action) move(d string) {
 			a.conn.SendString("You can't move while fighting!" + helpers.Newline)
 			break
 		}
-		fmt.Println("fuck")
 		return
 	}
 
@@ -272,7 +270,6 @@ func (a *action) get() {
 				}
 			}
 
-			helpers.Dump(a.mob.Room.Items)
 			return
 		}
 	}

@@ -333,7 +333,6 @@ func (m mob) getMovement() string {
 func newMobDatabase() {
 	mobList = list.New()
 
-	fmt.Println("Creating Mobs")
 	mobFiles, _ := filepath.Glob("./data/mobs/*.json")
 
 	for _, mobFile := range mobFiles {
@@ -352,12 +351,8 @@ func newMobDatabase() {
 			var mobs mob
 			db.First(&mobs, m.ID)
 			if db.NewRecord(mobs) {
-				fmt.Println("\tCreating mob " + m.Name + "!")
 				db.Create(&m)
-			} else {
-				fmt.Println("\tSkipping mob " + m.Name + "!")
 			}
-
 			if m.Playable == false {
 				mobList.PushBack(m)
 			}

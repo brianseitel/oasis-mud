@@ -1,8 +1,6 @@
 package mud
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -13,7 +11,6 @@ type job struct {
 }
 
 func newJobDatabase() {
-	fmt.Println("Creating jobs")
 	jobs := make(map[string]string)
 	jobs["war"] = "Warrior"
 	jobs["mag"] = "Mage"
@@ -27,10 +24,7 @@ func newJobDatabase() {
 
 		var found job
 		db.Find(&found, job{Name: name})
-		if !db.NewRecord(&found) {
-			fmt.Println("\tSkipping job " + j.Name + "!")
-		} else {
-			fmt.Println("\tCreating job " + j.Name + "!")
+		if db.NewRecord(&found) {
 			db.Create(&j)
 		}
 	}

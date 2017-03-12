@@ -36,7 +36,5 @@ func (f *fight) turn(m *mob) {
 	} else if m.ID == f.Mob2.ID {
 		fmt.Println("Mob2 attacks")
 		m.attack(f.Mob1, f)
-	} else {
-		fmt.Println("what")
 	}
 }

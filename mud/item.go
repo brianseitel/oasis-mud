@@ -3,7 +3,6 @@ package mud
 import (
 	"container/list"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -38,7 +37,6 @@ type item struct {
 }
 
 func newItemDatabase() {
-	fmt.Println("Creating items!")
 	itemFiles, _ := filepath.Glob("./data/items/*.json")
 
 	for _, itemFile := range itemFiles {
@@ -54,10 +52,7 @@ func newItemDatabase() {
 			var items []item
 			db.Find(&items, it)
 			if len(items) == 0 {
-				fmt.Println("\tCreating item " + it.Name + "!")
 				db.Create(&it)
-			} else {
-				fmt.Println("\tSkipping item " + it.Name + "!")
 			}
 
 			itemList.PushBack(it)

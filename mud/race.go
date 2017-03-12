@@ -1,8 +1,6 @@
 package mud
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 	// "github.com/brianseitel/oasis-mud/helpers"
 )
@@ -31,7 +29,6 @@ func (r race) defaultStats(s string) int {
 }
 
 func newRaceDatabase() {
-	fmt.Println("Creating races")
 	races := make(map[string]string)
 	races["hum"] = "Human"
 	races["elf"] = "Elf"
@@ -45,10 +42,7 @@ func newRaceDatabase() {
 
 		var found race
 		db.Find(&found, race{Name: name})
-		if !db.NewRecord(&found) {
-			fmt.Println("\tSkipping race " + r.Name + "!")
-		} else {
-			fmt.Println("\tCreating race " + r.Name + "!")
+		if db.NewRecord(&found) {
 			db.Create(&r)
 		}
 	}
