@@ -137,7 +137,6 @@ func (m *mob) move(e *exit) {
 	// add mob to new room list
 	e.getRoom()
 	m.Room = e.Room
-
 	m.Room.Mobs = append(m.Room.Mobs, m)
 
 	for _, rm := range m.Room.Mobs {
@@ -354,7 +353,7 @@ func newMobDatabase() {
 				db.Create(&m)
 			}
 			if m.Playable == false {
-				mobList.PushBack(m)
+				mobList.PushBack(&mobs)
 			}
 		}
 	}

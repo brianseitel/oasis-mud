@@ -85,17 +85,17 @@ func (server *Server) timing() {
 		case <-pulse.C:
 			fmt.Printf(".")
 			for e := mobList.Front(); e != nil; e = e.Next() {
-				m := e.Value.(mob)
+				m := e.Value.(*mob)
 				f := m.Fight
 				if f != nil && m.Status == fighting {
-					f.turn(&m)
+					f.turn(m)
 				}
 			}
 			break
 		case <-tick.C:
 			fmt.Printf("o")
 			for e := mobList.Front(); e != nil; e = e.Next() {
-				m := e.Value.(mob)
+				m := e.Value.(*mob)
 				m.wander()
 				m.notify(helpers.Newline)
 				m.ShowStatusBar()

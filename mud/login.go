@@ -47,6 +47,6 @@ func login(c *connection) *mob {
 	mob.client = c
 	mob.Status = standing
 	mob.Room = getRoom(uint(m.RoomID))
-	mobList.PushBack(m)
+	mobList.PushBack(mob)
 	return mob
 }

@@ -113,14 +113,11 @@ func newRoomDatabase() {
 
 		roomList = *exitsList
 
-		mobsList := list.New()
 		for e := mobList.Front(); e != nil; e = e.Next() {
-			mob := e.Value.(mob)
+			mob := e.Value.(*mob)
 			mob.Room = getRoom(uint(mob.RoomID))
-			mobsList.PushBack(mob)
 		}
 
-		mobList = mobsList
 	}
 }
 
