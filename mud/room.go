@@ -33,8 +33,8 @@ type room struct {
 	Exits       []*exit `gorm:"many2many:room_exits;"`
 	ItemIds     []int   `json:"items" gorm:"-"`
 	Items       []*item `gorm:"many2many:room_items;"`
-	Mobs        []*mob
-	MobIds      []int `gorm:"-" json:"mobs"`
+	Mobs        []*mob  `gorm:"many2many:room_mobs;"`
+	MobIds      []int   `gorm:"-" json:"mobs"`
 }
 
 type exit struct {
@@ -42,17 +42,6 @@ type exit struct {
 	Dir    string `json:"direction"`
 	Room   *room
 	RoomID uint `json:"room_id",gorm:"-"`
-}
-
-func (x *exit) getRoom() {
-	for e := roomList.Front(); e != nil; e = e.Next() {
-		room := e.Value.(*room)
-		if room.ID == x.RoomID {
-			x.Room = room
-			return
-		}
-	}
-	return
 }
 
 func newRoomDatabase() {
@@ -89,7 +78,6 @@ func newRoomDatabase() {
 			for _, i := range ro.MobIds {
 				var mob mob
 				db.First(&mob, i)
-				ro.Mobs = append(ro.Mobs, &mob)
 			}
 
 			var r room
@@ -108,6 +96,11 @@ func newRoomDatabase() {
 			for j, x := range room.Exits {
 				room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
 			}
+
+			for j, x := range room.Mobs {
+				room.Mobs[j] = getMob(x.ID)
+			}
+
 			exitsList.PushBack(room)
 		}
 
@@ -115,7 +108,8 @@ func newRoomDatabase() {
 
 		for e := mobList.Front(); e != nil; e = e.Next() {
 			mob := e.Value.(*mob)
-			mob.Room = getRoom(uint(mob.RoomID))
+			room := getRoom(uint(mob.RoomID))
+			mob.Room = room
 		}
 
 	}
@@ -126,6 +120,16 @@ func getRoom(id uint) *room {
 		r := e.Value.(*room)
 		if r.ID == id {
 			return r
+		}
+	}
+	return nil
+}
+
+func getMob(id uint) *mob {
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		m := e.Value.(*mob)
+		if m.ID == id {
+			return m
 		}
 	}
 	return nil

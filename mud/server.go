@@ -96,7 +96,9 @@ func (server *Server) timing() {
 			fmt.Printf("o")
 			for e := mobList.Front(); e != nil; e = e.Next() {
 				m := e.Value.(*mob)
-				m.wander()
+				if m.Playable == false {
+					m.wander()
+				}
 				m.notify(helpers.Newline)
 				m.ShowStatusBar()
 				m.regen()
@@ -138,7 +140,7 @@ func initializeDatabase() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{}, &fight{})
+	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{})
 
 	newJobDatabase()
 	newRaceDatabase()

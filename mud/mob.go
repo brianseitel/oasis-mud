@@ -107,7 +107,7 @@ func (m *mob) die() {
 
 func (m *mob) takeDamage(damage int) {
 	m.Hitpoints -= damage
-	if m.Hitpoints < -5 {
+	if m.Hitpoints < 0 {
 		m.Status = dead
 		m.notify(helpers.Red + "You are DEAD!!!" + helpers.Reset)
 	}
@@ -126,16 +126,20 @@ func (m mob) TNL() int {
 }
 
 func (m *mob) move(e *exit) {
-	for i, rm := range m.Room.Mobs {
-		if rm == m {
-			m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
-		} else {
-			rm.notify(fmt.Sprintf("%s leaves heading %s.\n", m.Name, e.Dir))
+	if len(m.Room.Mobs) > 0 {
+		for i, rm := range m.Room.Mobs {
+			if rm.Room == nil {
+				rm.Room = getRoom(uint(rm.RoomID))
+			}
+			if rm == m {
+				m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
+			} else {
+				rm.notify(fmt.Sprintf("%s leaves heading %s.\n", m.Name, e.Dir))
+			}
 		}
 	}
 
 	// add mob to new room list
-	e.getRoom()
 	m.Room = e.Room
 	m.Room.Mobs = append(m.Room.Mobs, m)
 
@@ -153,24 +157,6 @@ func (m *mob) ShowStatusBar() {
 		m.client.BufferData(helpers.White + m.getMovement() + helpers.Reset + helpers.Cyan + "mv" + helpers.White)
 		m.client.BufferData("] >> ")
 		m.client.SendBuffer()
-	}
-}
-
-func (m *mob) getRoom() {
-	for e := roomList.Front(); e != nil; e = e.Next() {
-		room := e.Value.(*room)
-
-		if room.ID == m.Room.ID {
-			m.Room = room
-			var exits []*exit
-			for _, x := range m.Room.Exits {
-				room := getRoom(x.RoomID)
-				ex := &exit{Dir: x.Dir, Room: room, RoomID: x.RoomID}
-				exits = append(exits, ex)
-			}
-			m.Room.Exits = exits
-			return
-		}
 	}
 }
 
