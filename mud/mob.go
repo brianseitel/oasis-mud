@@ -78,12 +78,8 @@ func (m *mob) attack(target *mob, f *fight) {
 	if target.Status != dead {
 		damage := dice().Intn(m.damage()) + m.hit()
 		target.takeDamage(damage)
-		target.notify(fmt.Sprintf("%s attacks you for %d damage!%s", m.Name, damage, helpers.Newline))
-		m.notify(fmt.Sprintf("You strike %s for %d damage!%s", target.Name, damage, helpers.Newline))
-
-		m.Status = fighting
-
-		target.Status = fighting
+		target.notify(fmt.Sprintf("%s attacks you for %d damagel!%s", m.Name, damage, helpers.Newline))
+		m.notify(fmt.Sprintf("You strike %s for %d damagel!%s", target.Name, damage, helpers.Newline))
 
 		if target.Status == dead {
 			m.notify(fmt.Sprintf("You have KILLED %s to death!!%s", target.Name, helpers.Newline))
@@ -92,7 +88,10 @@ func (m *mob) attack(target *mob, f *fight) {
 			// whisk it away
 			target.die()
 			m.ShowStatusBar()
+			return
 		}
+		m.Status = fighting
+		target.Status = fighting
 	}
 }
 
@@ -185,7 +184,7 @@ func (m *mob) regenHitpoints() *mob {
 	multiplier := 1.0
 	switch m.Status {
 	case fighting:
-		multiplier = 0.2
+		multiplier = 0.0
 		break
 	case sleeping:
 		multiplier = 1.5
@@ -209,7 +208,7 @@ func (m *mob) regenMana() *mob {
 	multiplier := 1.0
 	switch m.Status {
 	case fighting:
-		multiplier = 0.2
+		multiplier = 0.0
 		break
 	case sleeping:
 		multiplier = 1.5
@@ -234,7 +233,7 @@ func (m *mob) regenMovement() *mob {
 	multiplier := 1.0
 	switch m.Status {
 	case fighting:
-		multiplier = 0.2
+		multiplier = 0.0
 		break
 	case sleeping:
 		multiplier = 1.5

@@ -74,7 +74,7 @@ func (server *Server) Serve(port int) {
 
 func (server *Server) timing() {
 	const (
-		tickLen time.Duration = 5
+		tickLen time.Duration = 45
 	)
 
 	pulse := time.NewTicker(time.Second)
