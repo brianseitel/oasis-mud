@@ -3,6 +3,7 @@ package mud
 import (
 	"container/list"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -42,6 +43,24 @@ type exit struct {
 	Dir    string `json:"direction"`
 	Room   *room
 	RoomID uint `json:"room_id",gorm:"-"`
+}
+
+func (r *room) decayItems() {
+	for j, item := range r.Items {
+		if item.Decays != decays {
+			continue
+		}
+
+		if item.TTL <= 0 {
+			r.Items = append(r.Items[0:j], r.Items[j+1:]...)
+			for _, m := range r.Mobs {
+				m.notify(fmt.Sprintf("Rats scurry forth and drag away %s!\n", item.Name))
+			}
+			break
+		}
+		item.TTL--
+		fmt.Println("Decaying ", item.Name, " (", item.TTL, " ticks remaining")
+	}
 }
 
 func newRoomDatabase() {

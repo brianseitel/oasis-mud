@@ -2,6 +2,14 @@
     "name": "Mud School",
     "rooms": [
         {
+            "id": 0,
+            "name": "Nowhere",
+            "description": "This is MUD storage.",
+            "exits": [],
+            "items": [],
+            "mobs": []
+        },
+        {
             "id": 1,
             "name": "Blue",
             "description": "This is a blue room.",

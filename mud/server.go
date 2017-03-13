@@ -74,7 +74,7 @@ func (server *Server) Serve(port int) {
 
 func (server *Server) timing() {
 	const (
-		tickLen time.Duration = 45
+		tickLen time.Duration = 5
 	)
 
 	pulse := time.NewTicker(time.Second)
@@ -102,6 +102,11 @@ func (server *Server) timing() {
 				m.notify(helpers.Newline)
 				m.ShowStatusBar()
 				m.regen()
+			}
+
+			for e := roomList.Front(); e != nil; e = e.Next() {
+				r := e.Value.(*room)
+				r.decayItems()
 			}
 			break
 		}

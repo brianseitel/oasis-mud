@@ -97,11 +97,17 @@ func (m *mob) attack(target *mob, f *fight) {
 
 func (m *mob) die() {
 	// drop corpse in room
-	corpse := &item{itemType: "corpse", Name: "A corpse of " + m.Name, Identifiers: "corpse," + m.Identifiers}
+	corpse := &item{itemType: "corpse", Name: "A corpse of " + m.Name, Identifiers: "corpse," + m.Identifiers, Decays: decays, TTL: 1}
 	m.Room.Items = append(m.Room.Items, corpse)
 
 	// whisk them away to Nowhere
-	m.Room = nil
+	for j, mob := range m.Room.Mobs {
+		if mob == m {
+			m.Room.Mobs = append(m.Room.Mobs[0:j], m.Room.Mobs[j+1:]...)
+			break
+		}
+	}
+	m.Room = getRoom(0)
 }
 
 func (m *mob) takeDamage(damage int) {

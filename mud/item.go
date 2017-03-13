@@ -20,6 +20,11 @@ const (
 	healing
 )
 
+const (
+	decays = iota
+	permanent
+)
+
 type itemAttributeSet struct{}
 
 type item struct {
@@ -34,6 +39,8 @@ type item struct {
 	Price       int
 	// Attributes  itemAttributeSet
 	Identifiers string
+	Decays      uint
+	TTL         int
 }
 
 func newItemDatabase() {

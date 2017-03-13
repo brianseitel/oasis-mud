@@ -8,6 +8,8 @@
             "max": 3,
             "speed": 0,
             "price": 100,
+            "decays": false,
+            "ttl": 0,
             "attributes": []
         },
         {
@@ -19,6 +21,8 @@
             "max": 1,
             "price": 100,
             "speed": 0,
+            "decays": false,
+            "ttl": 0,
             "attributes": []
         }
 ]
