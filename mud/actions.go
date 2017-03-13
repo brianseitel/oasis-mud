@@ -74,6 +74,9 @@ func newActionWithInput(a *action) error {
 	case cEquipment:
 		a.equipment()
 		return nil
+	case cScan:
+		a.scan()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -372,6 +375,22 @@ func (a *action) flee() {
 		a.conn.SendString("You flee!")
 	} else {
 		a.conn.SendString("You tried to flee, but failed!" + helpers.Newline)
+	}
+}
+
+func (a *action) scan() {
+	room := getRoom(a.mob.Room.ID)
+	for _, x := range room.Exits {
+		a.conn.SendString(fmt.Sprintf("[%s]%s", x.Dir, helpers.Newline))
+
+		if len(x.Room.Mobs) > 0 {
+			mobs := x.Room.Mobs
+			for _, m := range mobs {
+				a.conn.SendString(fmt.Sprintf("    %s\n", m.Name))
+			}
+		} else {
+			a.conn.SendString(fmt.Sprintf("    %s(nothing)%s\n", helpers.Blue, helpers.Reset))
+		}
 	}
 }
 
