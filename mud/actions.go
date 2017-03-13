@@ -65,12 +65,12 @@ func newActionWithInput(a *action) error {
 	case cFlee:
 		a.flee()
 		return nil
-	// case cWear:
-	//  a.wear()
-	//  return
-	// case cRemove:
-	//  a.remove()
-	//  return
+	case cWear:
+		a.wear()
+		return nil
+	case cRemove:
+		a.remove()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -275,6 +275,36 @@ func (a *action) get() {
 	}
 
 	a.mob.notify("Get what?" + helpers.Newline)
+}
+
+func (a *action) wear() {
+	for j, item := range a.mob.Inventory {
+		if a.matchesSubject(item.Identifiers) {
+			for k, eq := range a.mob.Equipped {
+				if eq.Position == item.Position {
+					a.mob.Equipped, a.mob.Inventory = transferItem(k, a.mob.Equipped, a.mob.Inventory)
+					a.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.%s", eq.Name, helpers.Newline))
+				}
+			}
+			a.mob.Inventory, a.mob.Equipped = transferItem(j, a.mob.Inventory, a.mob.Equipped)
+			a.mob.notify(fmt.Sprintf("You wear %s.%s", item.Name, helpers.Newline))
+			return
+		}
+	}
+
+	a.mob.notify("You can't find that.")
+}
+
+func (a *action) remove() {
+	for j, item := range a.mob.Equipped {
+		if a.matchesSubject(item.Identifiers) {
+			a.mob.Equipped, a.mob.Inventory = transferItem(j, a.mob.Equipped, a.mob.Inventory)
+			a.mob.notify(fmt.Sprintf("You remove %s.%s", item.Name, helpers.Newline))
+			return
+		}
+	}
+
+	a.mob.notify(fmt.Sprintf("You aren't wearing that.%s", helpers.Newline))
 }
 
 func (a *action) kill() {

@@ -25,6 +25,31 @@ const (
 	permanent
 )
 
+type position string
+
+const (
+	light     position = "light"
+	finger1   position = "finger"
+	finger2   position = "finger"
+	neck1     position = "neck"
+	neck2     position = "neck"
+	torso     position = "torso"
+	head      position = "head"
+	legs      position = "legs"
+	feet      position = "feet"
+	hands     position = "hands"
+	arms      position = "arms"
+	shield    position = "shield"
+	body      position = "body"
+	waist     position = "waist"
+	wrist1    position = "wrist"
+	wrist2    position = "wrist"
+	wield     position = "wield"
+	held      position = "held"
+	floating  position = "floating"
+	secondary position = "secondary"
+)
+
 type itemAttributeSet struct{}
 
 type item struct {
@@ -37,6 +62,7 @@ type item struct {
 	Max         int
 	Speed       int
 	Price       int
+	Position    string
 	// Attributes  itemAttributeSet
 	Identifiers string
 	Decays      uint

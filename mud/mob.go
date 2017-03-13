@@ -28,6 +28,7 @@ type mob struct {
 	Description string `gorm:"type:text"`
 
 	Inventory []*item `gorm:"many2many:player_items;"`
+	Equipped  []*item `gorm:"many2many:player_equipped;ForeignKey:item"`
 	ItemIds   []int   `json:"items" gorm:"-"`
 	Room      *room
 	RoomID    int `json:"current_room"`

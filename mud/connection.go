@@ -19,7 +19,7 @@ func newConnection(c net.Conn) *connection {
 }
 
 func (c *connection) end() {
-	server := &gameServer
+	server := gameServer
 	for j, con := range server.connections {
 		if con.conn == c.conn {
 			server.connections = append(server.connections[0:j], server.connections[j+1:]...)
@@ -28,7 +28,7 @@ func (c *connection) end() {
 	}
 
 	c.conn.Close()
-	gameServer = *server
+	gameServer = server
 }
 
 func (c *connection) SendString(text string) {

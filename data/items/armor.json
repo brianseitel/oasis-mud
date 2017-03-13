@@ -10,6 +10,7 @@
             "price": 100,
             "decays": 1,
             "ttl": 999999,
+            "position": "shield",
             "attributes": []
         },
         {
@@ -23,6 +24,7 @@
             "speed": 0,
             "decays": 1,
             "ttl": 999999,
+            "position": "shield",
             "attributes": []
         }
 ]
