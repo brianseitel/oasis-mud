@@ -71,6 +71,9 @@ func newActionWithInput(a *action) error {
 	case cRemove:
 		a.remove()
 		return nil
+	case cEquipment:
+		a.equipment()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -125,6 +128,16 @@ func (a *action) inventory() {
 		fmt.Sprintf("Inventory\n%s\n%s\n%s",
 			"-----------------------------------",
 			strings.Join(inventoryString(a.mob), helpers.Newline),
+			"-----------------------------------",
+		) + helpers.Newline,
+	)
+}
+
+func (a *action) equipment() {
+	a.conn.SendString(
+		fmt.Sprintf("Equipment\n%s\n%s\n%s",
+			"-----------------------------------",
+			strings.Join(equippedString(a.mob), helpers.Newline),
 			"-----------------------------------",
 		) + helpers.Newline,
 	)
@@ -214,6 +227,32 @@ func inventoryString(m *mob) []string {
 	}
 
 	return items
+}
+
+func equippedString(m *mob) []string {
+	var lines []string
+	lines = append(lines, fmt.Sprintf("<light>     %s", m.equipped("light")))
+	lines = append(lines, fmt.Sprintf("<finger>    %s", m.equipped("finger1")))
+	lines = append(lines, fmt.Sprintf("<finger>    %s", m.equipped("finger2")))
+	lines = append(lines, fmt.Sprintf("<neck>      %s", m.equipped("neck1")))
+	lines = append(lines, fmt.Sprintf("<neck>      %s", m.equipped("neck2")))
+	lines = append(lines, fmt.Sprintf("<torso>     %s", m.equipped("torso")))
+	lines = append(lines, fmt.Sprintf("<head>      %s", m.equipped("head")))
+	lines = append(lines, fmt.Sprintf("<legs>      %s", m.equipped("legs")))
+	lines = append(lines, fmt.Sprintf("<feet>      %s", m.equipped("feet")))
+	lines = append(lines, fmt.Sprintf("<hands>     %s", m.equipped("hands")))
+	lines = append(lines, fmt.Sprintf("<arms>      %s", m.equipped("arms")))
+	lines = append(lines, fmt.Sprintf("<shield>    %s", m.equipped("shield")))
+	lines = append(lines, fmt.Sprintf("<body>      %s", m.equipped("body")))
+	lines = append(lines, fmt.Sprintf("<waist>     %s", m.equipped("waist")))
+	lines = append(lines, fmt.Sprintf("<wrist>     %s", m.equipped("wrist1")))
+	lines = append(lines, fmt.Sprintf("<wrist>     %s", m.equipped("wrist2")))
+	lines = append(lines, fmt.Sprintf("<wield>     %s", m.equipped("wield")))
+	lines = append(lines, fmt.Sprintf("<held>      %s", m.equipped("held")))
+	lines = append(lines, fmt.Sprintf("<floating>  %s", m.equipped("floating")))
+	lines = append(lines, fmt.Sprintf("<secondary> %s", m.equipped("secondary")))
+
+	return lines
 }
 
 func (a *action) move(d string) {

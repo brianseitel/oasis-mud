@@ -166,6 +166,14 @@ func (m *mob) ShowStatusBar() {
 	}
 }
 
+func (m *mob) equipped(position position) string {
+	for _, i := range m.Equipped {
+		if i.Position == string(position) {
+			return i.Name
+		}
+	}
+	return "<empty>"
+}
 func (m *mob) notify(message string) {
 	if m.client != nil {
 		m.client.SendString(message)
