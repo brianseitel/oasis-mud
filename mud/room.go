@@ -47,7 +47,7 @@ type exit struct {
 
 func (r *room) decayItems() {
 	for j, item := range r.Items {
-		if item.Decays != decays {
+		if item.Decays == permanent {
 			continue
 		}
 
