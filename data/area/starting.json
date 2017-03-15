@@ -1,76 +1,587 @@
 {
-    "name": "Mud School",
+    "id": 1,
+    "name": "The Meadow",
     "rooms": [
         {
-            "id": 0,
-            "name": "Nowhere",
-            "description": "This is MUD storage.",
-            "exits": [],
+            "id": 1,
+            "area_id": 1,
+            "name": "The Tree of Life",
+            "description": "A tall, scraggly tree looms tall, its branches reaching into the sky. At its base is a small sign that says, \"Life is short. I am tall.\" Small animals scurry up and around the trunk, disappearing into the branches above.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 3
+                },
+                {
+                    "direction": "west",
+                    "room_id": 5
+                },
+                {
+                    "direction": "north",
+                    "room_id": 2
+                },
+                {
+                    "direction": "south",
+                    "room_id": 4
+                }
+            ],
             "items": [],
             "mobs": []
         },
         {
-            "id": 1,
-            "name": "Blue",
-            "description": "This is a blue room.",
+            "id": 2,
+            "area_id": 1,
+            "name": "An open field",
+            "description": "Tall grass blows in the wind. Small gophers poke their heads up and scan the area before disappearing into their burrows. To the south, the Tree looms tall, and there is nothing but open plains in other directions.",
             "exits": [
                 {
                     "direction": "east",
-                    "room_id": 2
+                    "room_id": 7
                 },
-                {
-                    "direction": "south",
-                    "room_id": 3
-                }
-            ],
-            "items": [1],
-            "mobs": []
-        },
-        {
-            "id": 2,
-            "name": "Red",
-            "description": "This is a red room.",
-            "exits": [
                 {
                     "direction": "west",
-                    "room_id": 1
+                    "room_id": 6
+                },
+                {
+                    "direction": "north",
+                    "room_id": 10
                 },
                 {
                     "direction": "south",
-                    "room_id": 4
+                    "room_id": 1
                 }
             ],
-            "items": [2],
-            "mobs": [1]
-        },
-        {
-            "id": 3,
-            "name": "Yellow",
-            "description": "This is a yellow room.",
-            "exits": [
-                {
-                    "direction": "north",
-                    "room_id": 1
-                },
-                {
-                    "direction": "east",
-                    "room_id": 4
-                }
+            "items": [],
+            "mobs": [
+                4
             ]
         },
         {
-            "id": 4,
-            "name": "Green",
-            "description": "This is a green room.",
+            "id": 3,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you.",
             "exits": [
                 {
+                    "direction": "east",
+                    "room_id": 14
+                },
+                {
+                    "direction": "west",
+                    "room_id": 1
+                },
+                {
                     "direction": "north",
+                    "room_id": 7
+                },
+                {
+                    "direction": "south",
+                    "room_id": 8
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 4,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. To the north is the Tree of Life.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 8
+                },
+                {
+                    "direction": "west",
+                    "room_id": 9
+                },
+                {
+                    "direction": "north",
+                    "room_id": 1
+                },
+                {
+                    "direction": "south",
+                    "room_id": 18
+                }
+            ],
+            "items": [],
+            "mobs": [
+                2
+            ]
+        },
+        {
+            "id": 5,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. To the east is the great Tree of Life, stretching up into the sky.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 1
+                },
+                {
+                    "direction": "west",
+                    "room_id": 22
+                },
+                {
+                    "direction": "north",
+                    "room_id": 6
+                },
+                {
+                    "direction": "south",
+                    "room_id": 9
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 6,
+            "area_id": 1,
+            "name": "Grasslands",
+            "description": "The grasslands are amber and wave in the breeze. To the southeast is the Tree of Life. Off in the distance to the west, you see the impassable woods of Grilltown.",
+            "exits": [
+                {
+                    "direction": "east",
                     "room_id": 2
                 },
                 {
                     "direction": "west",
+                    "room_id": 23
+                },
+                {
+                    "direction": "north",
+                    "room_id": 25
+                },
+                {
+                    "direction": "south",
+                    "room_id": 5
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 7,
+            "area_id": 1,
+            "name": "Copse of Trees",
+            "description": "A small copse of trees surrounds you. Birds chirp above, singing a song of nature and harmony. A feeling of peace washes over you.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 13
+                },
+                {
+                    "direction": "west",
+                    "room_id": 2
+                },
+                {
+                    "direction": "north",
+                    "room_id": 11
+                },
+                {
+                    "direction": "south",
                     "room_id": 3
                 }
+            ],
+            "items": [],
+            "mobs": [
+                2
+            ]
+        },
+        {
+            "id": 8,
+            "area_id": 1,
+            "name": "A Small Glen",
+            "description": "A deer darts out of sight as you enter the small glen. A bush covered in some sort of half-eaten berries quivers in response to the deer's flight.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 15
+                },
+                {
+                    "direction": "west",
+                    "room_id": 4
+                },
+                {
+                    "direction": "north",
+                    "room_id": 3
+                },
+                {
+                    "direction": "south",
+                    "room_id": 17
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 9,
+            "area_id": 1,
+            "name": "Strawberry Patch",
+            "description": "A patch of pristine strawberries juts out of the ground conspicuously. There are no animals in sight. Maybe they're poisonous?",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 4
+                },
+                {
+                    "direction": "west",
+                    "room_id": 21
+                },
+                {
+                    "direction": "north",
+                    "room_id": 5
+                },
+                {
+                    "direction": "south",
+                    "room_id": 19
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 10,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. Far off to the south, the tips of the Tree of Life peek over the horizon.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 11
+                },
+                {
+                    "direction": "west",
+                    "room_id": 25
+                },
+                {
+                    "direction": "south",
+                    "room_id": 2
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 11,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. There's nothing interesting here.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 12
+                },
+                {
+                    "direction": "west",
+                    "room_id": 10
+                },
+                {
+                    "direction": "south",
+                    "room_id": 7
+                }
+            ],
+            "items": [],
+            "mobs": [
+                3
+            ]
+        },
+        {
+            "id": 12,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. There's nothing here.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "room_id": 11
+                },
+                {
+                    "direction": "south",
+                    "room_id": 13
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 13,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. Not even a vulture can be found.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "room_id": 7
+                },
+                {
+                    "direction": "north",
+                    "room_id": 12
+                },
+                {
+                    "direction": "south",
+                    "room_id": 14
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 14,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. Boring.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "room_id": 3
+                },
+                {
+                    "direction": "north",
+                    "room_id": 13
+                },
+                {
+                    "direction": "south",
+                    "room_id": 15
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 15,
+            "area_id": 1,
+            "name": "Entrance to Woods",
+            "description": "A well-worn path welcomes you into the wooded area before you. It's dark. You might want to take a lantern.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "room_id": 8
+                },
+                {
+                    "direction": "north",
+                    "room_id": 14
+                },
+                {
+                    "direction": "south",
+                    "room_id": 16
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 16,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "room_id": 17
+                },
+                {
+                    "direction": "north",
+                    "room_id": 15
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 17,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. A vulture circles overhead.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 16
+                },
+                {
+                    "direction": "west",
+                    "room_id": 18
+                },
+                {
+                    "direction": "north",
+                    "room_id": 8
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 18,
+            "area_id": 1,
+            "name": "A Small Path",
+            "description": "A small, almost hidden path leads to the south. Adventure awaits!",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 17
+                },
+                {
+                    "direction": "west",
+                    "room_id": 19
+                },
+                {
+                    "direction": "north",
+                    "room_id": 4
+                }
+            ],
+            "items": [],
+            "mobs": [
+                4
+            ]
+        },
+        {
+            "id": 19,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches out before you. To the north you see a dark smudge on the horizon. Are those bushes?",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 18
+                },
+                {
+                    "direction": "west",
+                    "room_id": 20
+                },
+                {
+                    "direction": "north",
+                    "room_id": 9
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 20,
+            "area_id": 1,
+            "name": "Impassable Woods",
+            "description": "You've reached a forest so dense, there's no possible way through. You'll have to go around.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 20
+                },
+                {
+                    "direction": "north",
+                    "room_id": 21
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 21,
+            "area_id": 1,
+            "name": "Impassable Woods",
+            "description": "You've reached a forest so dense, there's no possible way through. You'll have to go around.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 9
+                },
+                {
+                    "direction": "north",
+                    "room_id": 22
+                },
+                {
+                    "direction": "south",
+                    "room_id": 20
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 22,
+            "area_id": 1,
+            "name": "Impassable Woods",
+            "description": "You've reached a forest so dense, there's no possible way through. You'll have to go around.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 5
+                },
+                {
+                    "direction": "north",
+                    "room_id": 23
+                },
+                {
+                    "direction": "south",
+                    "room_id": 21
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 23,
+            "area_id": 1,
+            "name": "Impassable Woods",
+            "description": "You've reached a forest so dense, there's no possible way through. You'll have to go around.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 6
+                },
+                {
+                    "direction": "north",
+                    "room_id": 24
+                },
+                {
+                    "direction": "south",
+                    "room_id": 22
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 24,
+            "area_id": 1,
+            "name": "Trail of Darkness",
+            "description": "An abnormally dark trail leads to the west. Yellow eyes gleam out of the shadows, and you hear the clacking of teeth and an eerie rattle. Better stay away.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 25
+                },
+                {
+                    "direction": "south",
+                    "room_id": 23
+                }
+            ],
+            "items": [],
+            "mobs": []
+        },
+        {
+            "id": 25,
+            "area_id": 1,
+            "name": "Open Field",
+            "description": "An open field stretches before you.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "room_id": 10
+                },
+                {
+                    "direction": "west",
+                    "room_id": 24
+                },
+                {
+                    "direction": "south",
+                    "room_id": 6
+                }
+            ],
+            "items": [],
+            "mobs": [
+                5
             ]
         }
     ]
