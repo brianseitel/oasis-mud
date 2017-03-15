@@ -63,6 +63,8 @@ type mob struct {
 	Fight   *fight
 	FightID uint
 
+	RecallRoomID uint `json:"recall_room_id"`
+
 	Playable bool
 	client   *connection
 }

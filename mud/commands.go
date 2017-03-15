@@ -21,11 +21,12 @@ const (
 	cEquipment command = "equipment"
 	cStats     command = "stats"
 	cScan      command = "scan"
+	cRecall    command = "recall"
 	cNoop      command = "noop"
 )
 
 var commands []command
 
 func init() {
-	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cGet, cDrop, cWear, cRemove, cKill, cFlee, cInventory, cStats, cFlee, cWear, cEquipment, cScan, cQuit}
+	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cGet, cDrop, cWear, cRemove, cKill, cFlee, cInventory, cStats, cFlee, cWear, cEquipment, cScan, cRecall, cQuit}
 }

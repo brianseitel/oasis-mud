@@ -77,6 +77,9 @@ func newActionWithInput(a *action) error {
 	case cScan:
 		a.scan()
 		return nil
+	case cRecall:
+		a.recall()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -392,6 +395,23 @@ func (a *action) scan() {
 			a.conn.SendString(fmt.Sprintf("    %s(nothing)%s\n", helpers.Blue, helpers.Reset))
 		}
 	}
+}
+
+func (a *action) recall() {
+	if len(a.args) == 1 {
+		room := getRoom(a.mob.RecallRoomID)
+		a.mob.Room = room
+		a.look()
+		return
+	}
+
+	if a.args[1] == "set" {
+		a.mob.RecallRoomID = a.mob.Room.ID
+		a.conn.SendString("Recall set!" + helpers.Newline)
+		return
+	}
+
+	a.conn.SendString("Recall what?" + helpers.Newline)
 }
 
 func (a *action) quit() {
