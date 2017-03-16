@@ -125,7 +125,15 @@ func (a *action) look() {
 				return
 			}
 		}
-		a.conn.SendString("Who?" + helpers.Newline)
+
+		for _, item := range a.mob.Room.Items {
+			if a.matchesSubject(item.Identifiers) {
+				a.conn.SendString(fmt.Sprintf("You look at %s.", item.Name) + helpers.Newline)
+				a.conn.SendString(helpers.WordWrap(item.Description, 50) + helpers.Newline)
+				return
+			}
+		}
+		a.conn.SendString("Look at what?" + helpers.Newline)
 	}
 }
 

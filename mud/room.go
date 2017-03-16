@@ -116,8 +116,9 @@ func newRoomDatabase() {
 				room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
 			}
 
-			for j, x := range room.Mobs {
-				room.Mobs[j] = getMob(x.ID)
+			for _, x := range room.MobIds {
+				fmt.Println("Adding mob", x, " to room ", room.ID)
+				room.Mobs = append(room.Mobs, getMob(uint(x)))
 			}
 
 			exitsList.PushBack(room)
