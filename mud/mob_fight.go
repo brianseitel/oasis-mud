@@ -34,12 +34,6 @@ func (m *mob) die() {
 	m.Room.Items = append(m.Room.Items, corpse)
 
 	// whisk them away to Nowhere
-	for j, mob := range m.Room.Mobs {
-		if mob == m {
-			m.Room.Mobs = append(m.Room.Mobs[0:j], m.Room.Mobs[j+1:]...)
-			break
-		}
-	}
 	m.Room = getRoom(0)
 }
 
@@ -69,6 +63,8 @@ func (m *mob) attack(target *mob, f *fight) {
 
 			// whisk it away
 			target.die()
+			m.Room.removeMob(target)
+			target.Room.removeMob(target)
 			m.ShowStatusBar()
 			return
 		}

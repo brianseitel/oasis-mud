@@ -41,8 +41,9 @@ type mob struct {
 	Movement     int `json:"movement"`
 	MaxMovement  int `json:"max_movement"`
 
-	Exp   int
-	Level int
+	Exp       int
+	Level     int
+	Alignment int
 
 	Job    job  `json:"-"`
 	JobID  int  `json:"job"`
@@ -333,17 +334,18 @@ func xpCompute(killer *mob, target *mob) int {
 	var xp int
 
 	xp = 300 - helpers.Range(-3, killer.Level-target.Level, 6)*50
-	// do align check
-	// align := killer.Alignment - target.Alignment
 
-	// if align > 500 {
-	// 	killer.Aligntment = helpers.Min(killer.Alignment + (align - 500) / 4, 1000)
-	// 	xp = 5 * xp / 4
-	// } else if align < -500 {
-	// 	killer.Alignment = helpers.Max(killer.Alignment + (align + 500) / 4, -1000)
-	// } else {
-	// 	xp = 3 * xp / 4
-	// }
+	// do align check
+	align := killer.Alignment - target.Alignment
+
+	if align > 500 {
+		killer.Alignment = helpers.Min(killer.Alignment+(align-500)/4, 1000)
+		xp = 5 * xp / 4
+	} else if align < -500 {
+		killer.Alignment = helpers.Max(killer.Alignment+(align+500)/4, -1000)
+	} else {
+		xp = 3 * xp / 4
+	}
 
 	xp = helpers.Max(5, int(xp*5/4))
 	mod := int(xp * 3 / 4)

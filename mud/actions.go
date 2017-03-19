@@ -56,8 +56,8 @@ func newActionWithInput(a *action) error {
 	case cInventory:
 		a.inventory()
 		return nil
-	case cStats:
-		a.stats()
+	case cScore:
+		a.score()
 		return nil
 	case cKill:
 		a.kill()
@@ -157,7 +157,7 @@ func (a *action) equipment() {
 	)
 }
 
-func (a *action) stats() {
+func (a *action) score() {
 	const (
 		width int = 50
 	)
@@ -170,7 +170,7 @@ func (a *action) stats() {
 
 	strength := fmt.Sprintf("%s%s%s%s%s%s%s", "Strength", strings.Repeat(" ", 8), strconv.Itoa(a.mob.Strength), strings.Repeat(" ", 11), "Experience", strings.Repeat(" ", 11-len(strconv.Itoa(a.mob.Exp))), strconv.Itoa(a.mob.Exp))
 	wisdom := fmt.Sprintf("%s%s%s%s%s%s%s", "Wisdom", strings.Repeat(" ", 10), strconv.Itoa(a.mob.Wisdom), strings.Repeat(" ", 11), "TNL", strings.Repeat(" ", 18-len(strconv.Itoa(a.mob.TNL()))), strconv.Itoa(a.mob.TNL()))
-	intel := fmt.Sprintf("%s%s%s", "Intelligence", strings.Repeat(" ", 4), strconv.Itoa(a.mob.Intelligence))
+	intel := fmt.Sprintf("%s%s%s%s%s%s%s", "Intelligence", strings.Repeat(" ", 4), strconv.Itoa(a.mob.Intelligence), strings.Repeat(" ", 11), "Alignment", strings.Repeat(" ", 12-len(strconv.Itoa(a.mob.Alignment))), strconv.Itoa(a.mob.Alignment))
 	dexterity := fmt.Sprintf("%s%s%s", "Dexterity", strings.Repeat(" ", 7), strconv.Itoa(a.mob.Dexterity))
 	constitution := fmt.Sprintf("%s%s%s", "Constitution", strings.Repeat(" ", 4), strconv.Itoa(a.mob.Constitution))
 	charisma := fmt.Sprintf("%s%s%s", "Charisma", strings.Repeat(" ", 8), strconv.Itoa(a.mob.Dexterity))
