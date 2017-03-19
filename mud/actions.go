@@ -304,20 +304,20 @@ func (a *action) drop() {
 		}
 		a.mob.Inventory = nil
 		return
-	} else {
-		for j, item := range a.mob.Inventory {
-			if a.matchesSubject(item.Identifiers) {
-				a.mob.Inventory, a.mob.Room.Items = transferItem(j, a.mob.Inventory, a.mob.Room.Items)
-				message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.Name)
-				for _, m := range a.mob.Room.Mobs {
-					if m.ID == a.mob.ID {
-						m.notify(fmt.Sprintf("You drop %s.\n", item.Name))
-					} else {
-						m.notify(message)
-					}
+	}
+
+	for j, item := range a.mob.Inventory {
+		if a.matchesSubject(item.Identifiers) {
+			a.mob.Inventory, a.mob.Room.Items = transferItem(j, a.mob.Inventory, a.mob.Room.Items)
+			message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.Name)
+			for _, m := range a.mob.Room.Mobs {
+				if m.ID == a.mob.ID {
+					m.notify(fmt.Sprintf("You drop %s.\n", item.Name))
+				} else {
+					m.notify(message)
 				}
-				return
 			}
+			return
 		}
 	}
 
@@ -339,22 +339,22 @@ func (a *action) get() {
 		}
 		a.mob.Room.Items = nil
 		return
-	} else {
-		for j, item := range a.mob.Room.Items {
-			if a.args[1] == "all" || a.matchesSubject(item.Identifiers) {
-				a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
-				// a.mob.Room.removeItem(item)
-				// a.mob.addItem(item)
-				message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
-				for _, m := range a.mob.Room.Mobs {
-					if m.ID == a.mob.ID {
-						m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
-					} else {
-						m.notify(message)
-					}
+	}
+
+	for j, item := range a.mob.Room.Items {
+		if a.args[1] == "all" || a.matchesSubject(item.Identifiers) {
+			a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
+			// a.mob.Room.removeItem(item)
+			// a.mob.addItem(item)
+			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
+			for _, m := range a.mob.Room.Mobs {
+				if m.ID == a.mob.ID {
+					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
+				} else {
+					m.notify(message)
 				}
-				return
 			}
+			return
 		}
 	}
 

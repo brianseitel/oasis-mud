@@ -37,6 +37,43 @@ func (m *mob) die() {
 	m.Room = getRoom(0)
 }
 
+func (m *mob) damroll() int {
+	return m.Strength
+}
+
+func (m *mob) damage(victim *mob) int {
+	var dam int
+	if m.Playable == false {
+		dam = dice().Intn(int(m.Level*3/2)) + int(m.Level/2)
+		if m.equippedItem("wield") != nil {
+			dam += int(dam / 2)
+		}
+	} else {
+		if m.equippedItem("wield") != nil {
+			wield := m.equippedItem("wield")
+			dam = dice().Intn(int(wield.Max)) + wield.Min
+		} else {
+			dam = dice().Intn(4) + 1
+		}
+	}
+
+	dam += m.damroll()
+
+	// if m.Playable == true && m.getSkill(sEnhancedDamage) > 0 {
+	// 	dam += int(dam * m.getSkill(sEnhancedDamage) / 100)
+	// }
+
+	if victim.Status < sitting {
+		dam *= 2
+	}
+
+	if dam <= 0 {
+		dam = 1
+	}
+
+	return dam
+}
+
 func (m *mob) takeDamage(damage int) {
 	m.Hitpoints -= damage
 	if m.Hitpoints < 0 {
@@ -47,7 +84,7 @@ func (m *mob) takeDamage(damage int) {
 
 func (m *mob) attack(target *mob, f *fight) {
 	if target.Status != dead {
-		damage := dice().Intn(m.damage()) + m.hit()
+		damage := m.damage(target)
 		target.takeDamage(damage)
 		target.notify(fmt.Sprintf("%s attacks you for %d damagel!%s", m.Name, damage, helpers.Newline))
 		m.notify(fmt.Sprintf("You strike %s for %d damagel!%s", target.Name, damage, helpers.Newline))

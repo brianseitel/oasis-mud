@@ -89,10 +89,6 @@ func (m *mob) isAwake() bool {
 	return m.Status > sleeping
 }
 
-func (m *mob) damage() int {
-	return m.Strength
-}
-
 func (m *mob) hit() int {
 	return int(m.Dexterity / 3)
 }
@@ -137,12 +133,22 @@ func (m *mob) ShowStatusBar() {
 }
 
 func (m *mob) equipped(position position) string {
+	equipped := m.equippedItem(position)
+
+	if equipped == nil {
+		return "<empty>"
+	}
+
+	return equipped.Name
+}
+
+func (m *mob) equippedItem(position position) *item {
 	for _, i := range m.Equipped {
 		if i.Position == string(position) {
-			return i.Name
+			return i
 		}
 	}
-	return "<empty>"
+	return nil
 }
 
 func (m *mob) notify(message string) {
