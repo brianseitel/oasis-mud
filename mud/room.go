@@ -87,6 +87,9 @@ func newRoomDatabase() {
 			db.Create(&ar)
 		}
 
+		void := &room{Model: gorm.Model{ID: 0}, Exits: nil, Items: nil, Mobs: nil, Name: "The Void", Description: "A dark, gaping void lies here."}
+		roomList.PushBack(void)
+
 		for _, ro := range a.Rooms {
 			ro.AreaID = int(a.ID)
 			for _, i := range ro.ItemIds {
@@ -155,4 +158,13 @@ func getMob(id uint) *mob {
 		}
 	}
 	return nil
+}
+
+func (r *room) removeMob(m *mob) {
+	for j, mob := range r.Mobs {
+		if mob == m {
+			r.Mobs = append(r.Mobs[0:j], r.Mobs[j+1:]...)
+			break
+		}
+	}
 }

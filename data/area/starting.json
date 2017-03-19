@@ -466,7 +466,7 @@
             "exits": [
                 {
                     "direction": "east",
-                    "room_id": 20
+                    "room_id": 19
                 },
                 {
                     "direction": "north",

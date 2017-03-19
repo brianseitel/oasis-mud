@@ -77,48 +77,15 @@ func (m mob) setFight(f *fight) {
 	m.Fight = f
 }
 
-func (m *mob) attack(target *mob, f *fight) {
-	if target.Status != dead {
-		damage := dice().Intn(m.damage()) + m.hit()
-		target.takeDamage(damage)
-		target.notify(fmt.Sprintf("%s attacks you for %d damagel!%s", m.Name, damage, helpers.Newline))
-		m.notify(fmt.Sprintf("You strike %s for %d damagel!%s", target.Name, damage, helpers.Newline))
-
-		if target.Status == dead {
-			m.notify(fmt.Sprintf("You have KILLED %s to death!!%s", target.Name, helpers.Newline))
-			m.Status = standing
-
-			// whisk it away
-			target.die()
-			m.ShowStatusBar()
-			return
-		}
-		m.Status = fighting
-		target.Status = fighting
+func (m *mob) checkLevelUp() {
+	if m.Exp > (1000 * m.Level) {
+		m.Level++
+		m.notify(fmt.Sprintf("You have LEVELED UP! You are now Level %d!%s", m.Level, helpers.Newline))
 	}
 }
 
-func (m *mob) die() {
-	// drop corpse in room
-	corpse := &item{itemType: "corpse", Name: "A corpse of " + m.Name, Identifiers: "corpse," + m.Identifiers, Decays: decays, TTL: 1}
-	m.Room.Items = append(m.Room.Items, corpse)
-
-	// whisk them away to Nowhere
-	for j, mob := range m.Room.Mobs {
-		if mob == m {
-			m.Room.Mobs = append(m.Room.Mobs[0:j], m.Room.Mobs[j+1:]...)
-			break
-		}
-	}
-	m.Room = getRoom(0)
-}
-
-func (m *mob) takeDamage(damage int) {
-	m.Hitpoints -= damage
-	if m.Hitpoints < 0 {
-		m.Status = dead
-		m.notify(helpers.Red + "You are DEAD!!!" + helpers.Reset)
-	}
+func (m *mob) isAwake() bool {
+	return m.Status > sleeping
 }
 
 func (m *mob) damage() int {
@@ -176,6 +143,7 @@ func (m *mob) equipped(position position) string {
 	}
 	return "<empty>"
 }
+
 func (m *mob) notify(message string) {
 	if m.client != nil {
 		m.client.SendString(message)
@@ -359,4 +327,28 @@ func newMobDatabase() {
 			}
 		}
 	}
+}
+
+func xpCompute(killer *mob, target *mob) int {
+	var xp int
+
+	xp = 300 - helpers.Range(-3, killer.Level-target.Level, 6)*50
+	// do align check
+	// align := killer.Alignment - target.Alignment
+
+	// if align > 500 {
+	// 	killer.Aligntment = helpers.Min(killer.Alignment + (align - 500) / 4, 1000)
+	// 	xp = 5 * xp / 4
+	// } else if align < -500 {
+	// 	killer.Alignment = helpers.Max(killer.Alignment + (align + 500) / 4, -1000)
+	// } else {
+	// 	xp = 3 * xp / 4
+	// }
+
+	xp = helpers.Max(5, int(xp*5/4))
+	mod := int(xp * 3 / 4)
+	xp = dice().Intn(xp) + mod
+	xp = helpers.Max(0, xp)
+
+	return xp
 }
