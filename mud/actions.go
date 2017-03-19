@@ -290,30 +290,9 @@ func (a *action) move(d string) {
 }
 
 func (a *action) drop() {
-	for j, item := range a.mob.Inventory {
-		if a.matchesSubject(item.Identifiers) {
-			a.mob.Inventory, a.mob.Room.Items = transferItem(j, a.mob.Inventory, a.mob.Room.Items)
-			message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.Name)
-			for _, m := range a.mob.Room.Mobs {
-				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You drop %s.\n", item.Name))
-				} else {
-					m.notify(message)
-				}
-			}
-			return
-		}
-	}
-
-	a.mob.notify("Drop what?")
-}
-
-func (a *action) get() {
-	for j, item := range a.mob.Room.Items {
-		if a.matchesSubject(item.Identifiers) {
-			a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
-			// a.mob.Room.removeItem(item)
-			// a.mob.addItem(item)
+	if a.args[1] == "all" {
+		for _, item := range a.mob.Inventory {
+			a.mob.Room.Items = append(a.mob.Room.Items, item)
 			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
 			for _, m := range a.mob.Room.Mobs {
 				if m.ID == a.mob.ID {
@@ -322,8 +301,60 @@ func (a *action) get() {
 					m.notify(message)
 				}
 			}
+		}
+		a.mob.Inventory = nil
+		return
+	} else {
+		for j, item := range a.mob.Inventory {
+			if a.matchesSubject(item.Identifiers) {
+				a.mob.Inventory, a.mob.Room.Items = transferItem(j, a.mob.Inventory, a.mob.Room.Items)
+				message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.Name)
+				for _, m := range a.mob.Room.Mobs {
+					if m.ID == a.mob.ID {
+						m.notify(fmt.Sprintf("You drop %s.\n", item.Name))
+					} else {
+						m.notify(message)
+					}
+				}
+				return
+			}
+		}
+	}
 
-			return
+	a.mob.notify("Drop what?")
+}
+
+func (a *action) get() {
+	if a.args[1] == "all" {
+		for _, item := range a.mob.Room.Items {
+			a.mob.Inventory = append(a.mob.Inventory, item)
+			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
+			for _, m := range a.mob.Room.Mobs {
+				if m.ID == a.mob.ID {
+					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
+				} else {
+					m.notify(message)
+				}
+			}
+		}
+		a.mob.Room.Items = nil
+		return
+	} else {
+		for j, item := range a.mob.Room.Items {
+			if a.args[1] == "all" || a.matchesSubject(item.Identifiers) {
+				a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
+				// a.mob.Room.removeItem(item)
+				// a.mob.addItem(item)
+				message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
+				for _, m := range a.mob.Room.Mobs {
+					if m.ID == a.mob.ID {
+						m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
+					} else {
+						m.notify(message)
+					}
+				}
+				return
+			}
 		}
 	}
 
