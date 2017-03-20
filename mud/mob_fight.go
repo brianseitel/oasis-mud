@@ -6,34 +6,59 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func (m *mob) parry(attacker *mob) bool {
+func (m *mob) dodge(attacker *mob) bool {
 	var chance int
 
-	if !attacker.isAwake() {
-		chance = helpers.Min(60, 2*attacker.Level)
-	} else {
-		// if attacker.equipped("wield") == "<empty>" {
-		// 	return false
-		// }
-		fmt.Println("Checking parry...")
+	if !m.isAwake() {
+		return false // can't dodge if you're asleep!
+	}
 
-		mobSkill := attacker.skill("parry")
+	if m.isNPC() {
+		chance = helpers.Min(60, 2*m.Level)
+	} else {
+		mobSkill := m.skill("dodge")
 		if mobSkill != nil {
 			chance = int(mobSkill.Level / 2)
-			fmt.Println("CHANCE: ", mobSkill.Level, chance)
 		}
 	}
 
-	fmt.Println("Chance: ", chance+attacker.Level-m.Level)
-	if dice().Intn(100) >= chance+attacker.Level-m.Level {
-		fmt.Println("No Parry :(")
+	if dice().Intn(100) >= chance+m.Level-attacker.Level {
 		return false
 	}
 
-	attacker.notify(fmt.Sprintf("You parry %s's attack.", m.Name))
-	m.notify(fmt.Sprintf("%s parries your attack.", attacker.Name))
+	m.notify(fmt.Sprintf("You dodge %s's attack.", m.Name))
+	attacker.notify(fmt.Sprintf("%s dodges your attack.", attacker.Name))
 
-	fmt.Println("PARRIED!")
+	return true
+}
+
+func (m *mob) parry(attacker *mob) bool {
+	var chance int
+
+	if !m.isAwake() {
+		return false
+	}
+
+	if m.isNPC() {
+		chance = helpers.Min(60, 2*m.Level)
+	} else {
+		if m.equippedItem("wield") == nil {
+			return false
+		}
+
+		mobSkill := m.skill("parry")
+		if mobSkill != nil {
+			chance = int(mobSkill.Level / 2)
+		}
+	}
+
+	if dice().Intn(100) >= chance+m.Level-attacker.Level {
+		return false
+	}
+
+	m.notify(fmt.Sprintf("You parry %s's attack.", m.Name))
+	attacker.notify(fmt.Sprintf("%s parries your attack.", attacker.Name))
+
 	return true
 }
 
@@ -55,13 +80,17 @@ func (m *mob) damage(victim *mob) int {
 		if victim.parry(m) {
 			return 0
 		}
+
+		if victim.dodge(m) {
+			return 0
+		}
 	}
 	return m.oneHit(victim)
 }
 
 func (m *mob) oneHit(victim *mob) int {
 	var dam int
-	if m.Playable == false {
+	if m.isNPC() {
 		dam = dice().Intn(int(m.Level*3/2)) + int(m.Level/2)
 		if m.equippedItem("wield") != nil {
 			dam += int(dam / 2)
@@ -120,7 +149,7 @@ func (m *mob) attack(target *mob, f *fight) {
 			target.die()
 			m.Room.removeMob(target)
 			target.Room.removeMob(target)
-			m.ShowStatusBar()
+			m.statusBar()
 			return
 		}
 		m.Status = fighting

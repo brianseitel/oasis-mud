@@ -362,8 +362,6 @@ func (a *action) get() {
 	for j, item := range a.mob.Room.Items {
 		if a.args[1] == "all" || a.matchesSubject(item.Identifiers) {
 			a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
-			// a.mob.Room.removeItem(item)
-			// a.mob.addItem(item)
 			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
 			for _, m := range a.mob.Room.Mobs {
 				if m.ID == a.mob.ID {

@@ -30,7 +30,7 @@ func (server *Server) handle(c *connection) {
 
 	newAction(c.mob, c, "look")
 	for {
-		c.mob.ShowStatusBar()
+		c.mob.statusBar()
 		input, err := c.buffer.ReadString('\n')
 		if err != nil {
 			panic(err)
@@ -100,7 +100,7 @@ func (server *Server) timing() {
 					m.wander()
 				}
 				m.notify(helpers.Newline)
-				m.ShowStatusBar()
+				m.statusBar()
 				m.regen()
 			}
 

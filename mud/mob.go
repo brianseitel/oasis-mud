@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"strconv"
 
 	"container/list"
 
@@ -77,19 +76,15 @@ type mob struct {
 	client   *connection
 }
 
-func (m *mob) addItem(item *item) {
-	m.Inventory = append(m.Inventory, item)
-}
-
-func (m mob) setFight(f *fight) {
-	m.Fight = f
-}
-
 func (m *mob) checkLevelUp() {
 	if m.Exp > (1000 * m.Level) {
 		m.Level++
 		m.notify(fmt.Sprintf("You have LEVELED UP! You are now Level %d!%s", m.Level, helpers.Newline))
 	}
+}
+
+func (m *mob) isNPC() bool {
+	return !m.Playable
 }
 
 func (m *mob) isAwake() bool {
@@ -129,12 +124,13 @@ func (m *mob) move(e *exit) {
 	}
 }
 
-func (m *mob) ShowStatusBar() {
+func (m *mob) statusBar() {
 	if m.client != nil {
-		m.client.BufferData(helpers.White + "[" + m.getHitpoints() + helpers.Reset + helpers.Cyan + "hp")
-		m.client.BufferData(helpers.White + m.getMana() + helpers.Reset + helpers.Cyan + "mana ")
-		m.client.BufferData(helpers.White + m.getMovement() + helpers.Reset + helpers.Cyan + "mv" + helpers.White)
-		m.client.BufferData("] >> ")
+		m.client.BufferData(fmt.Sprintf("%s[%d%s%shp %s%d%s%smana %s%d%s%smv%s] >>",
+			helpers.White, m.Hitpoints, helpers.Reset, helpers.Cyan,
+			helpers.White, m.Mana, helpers.Reset, helpers.Cyan,
+			helpers.White, m.Movement, helpers.Reset, helpers.Cyan,
+			helpers.White))
 		m.client.SendBuffer()
 	}
 }
@@ -269,48 +265,6 @@ func (m *mob) wander() {
 			return
 		}
 	}
-}
-
-func (m *mob) AddItem(item *item) {
-	m.Inventory = append(m.Inventory, item)
-}
-
-func (m *mob) RemoveItem(item item) {
-	for k, i := range m.Inventory {
-		if i.ID == item.ID {
-			m.Inventory = append(m.Inventory[:k], m.Inventory[k+1:]...)
-			return
-		}
-	}
-}
-
-// Return the inventory, grouped by item. Returns a map[string]int
-// where map["Big Sword"]3 means the Big Sword has a qty of 3
-func (m mob) getInventory() map[string]int {
-	inventory := make(map[string]int)
-	for _, item := range m.Inventory {
-		if _, ok := inventory[item.Name]; ok {
-			inventory[item.Name]++
-		} else {
-			inventory[item.Name] = 1
-		}
-	}
-	return inventory
-}
-
-// Retrieves the mob's hit points as a string
-func (m mob) getHitpoints() string {
-	return strconv.Itoa(m.Hitpoints)
-}
-
-// Retrieves the mob's mana as a string
-func (m mob) getMana() string {
-	return strconv.Itoa(m.Mana)
-}
-
-// Retrieves the mob's movement as a string
-func (m mob) getMovement() string {
-	return strconv.Itoa(m.Movement)
 }
 
 func (m *mob) skill(name string) *mobSkill {
