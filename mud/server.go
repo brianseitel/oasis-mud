@@ -145,8 +145,9 @@ func initializeDatabase() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{})
+	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{}, &skill{}, &mobSkill{}, &skillLevel{})
 
+	newSkillDatabase()
 	newJobDatabase()
 	newRaceDatabase()
 	newItemDatabase()

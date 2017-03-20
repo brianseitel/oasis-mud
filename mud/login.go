@@ -1,6 +1,9 @@
 package mud
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/brianseitel/oasis-mud/helpers"
@@ -43,10 +46,14 @@ func login(c *connection) *mob {
 		return login(c)
 	}
 
-	mob := &m
+	file, _ := ioutil.ReadFile(fmt.Sprintf("./data/players/%s.json", name))
+
+	var mob *mob
+	json.Unmarshal(file, &mob)
 	mob.client = c
 	mob.Status = standing
 	mob.Room = getRoom(uint(m.RoomID))
+	mob.loadSkills()
 	mobList.PushBack(mob)
 	return mob
 }

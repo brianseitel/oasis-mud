@@ -7,6 +7,7 @@
         "description": "What can I say? He's got a huge dong.",
         "identifiers": "jemaclus",
         "status": 6,
+        "skills": [],
         "inventory": [],
         "current_room": 2,
         "exit_verb": "jaunt",
@@ -54,7 +55,13 @@
         "constitution": 3,
         "identifiers": "doe",
         "inventory": [],
-        "equipped": []
+        "equipped": [],
+        "skills": [
+            {
+                "skill_id": 1,
+                "level": 75
+            }
+        ]
     },
     {
         "id": 3,
@@ -108,7 +115,13 @@
         "constitution": 3,
         "identifiers": "squirrel",
         "inventory": [],
-        "equipped": []
+        "equipped": [],
+        "skills": [
+            {
+                "skill_id": 1,
+                "level": 75
+            }
+        ]
     },
     {
         "id": 5,

@@ -80,6 +80,9 @@ func newActionWithInput(a *action) error {
 	case cRecall:
 		a.recall()
 		return nil
+	case cSkill:
+		a.skills()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -98,6 +101,21 @@ func (a *action) getCommand() command {
 
 func isCommand(c command, p string) bool {
 	return strings.HasPrefix(string(c), p)
+}
+
+func (a *action) skills() {
+	const (
+		width int = 40
+	)
+	a.conn.SendString("Skill                              Level\n")
+	a.conn.SendString("----------------------------------------\n")
+	for _, skill := range a.mob.Skills {
+		name := skill.Skill.Name
+		level := skill.Level
+		spaces := width - len(name) - len(strconv.Itoa(int(level)))
+		a.conn.SendString(fmt.Sprintf("%s%s%d%s", name, strings.Repeat(" ", spaces), level, helpers.Newline))
+	}
+	a.conn.SendString("----------------------------------------\n")
 }
 
 func (a *action) look() {

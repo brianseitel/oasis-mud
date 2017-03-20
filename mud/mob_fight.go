@@ -6,25 +6,34 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func (m *mob) parry(target *mob) bool {
+func (m *mob) parry(attacker *mob) bool {
 	var chance int
 
-	if target.isAwake() {
-		chance = helpers.Min(60, 2*target.Level)
+	if !attacker.isAwake() {
+		chance = helpers.Min(60, 2*attacker.Level)
 	} else {
-		if target.equipped("wield") == "<empty>" {
-			return false
+		// if attacker.equipped("wield") == "<empty>" {
+		// 	return false
+		// }
+		fmt.Println("Checking parry...")
+
+		mobSkill := attacker.skill("parry")
+		if mobSkill != nil {
+			chance = int(mobSkill.Level / 2)
+			fmt.Println("CHANCE: ", mobSkill.Level, chance)
 		}
-		chance = 50 / 2
 	}
 
-	if dice().Intn(100) >= chance+target.Level-m.Level {
+	fmt.Println("Chance: ", chance+attacker.Level-m.Level)
+	if dice().Intn(100) >= chance+attacker.Level-m.Level {
+		fmt.Println("No Parry :(")
 		return false
 	}
 
-	target.notify(fmt.Sprintf("You parry %s's attack.", m.Name))
-	m.notify(fmt.Sprintf("%s parries your attack.", target.Name))
+	attacker.notify(fmt.Sprintf("You parry %s's attack.", m.Name))
+	m.notify(fmt.Sprintf("%s parries your attack.", attacker.Name))
 
+	fmt.Println("PARRIED!")
 	return true
 }
 
@@ -42,6 +51,15 @@ func (m *mob) damroll() int {
 }
 
 func (m *mob) damage(victim *mob) int {
+	if m != victim {
+		if victim.parry(m) {
+			return 0
+		}
+	}
+	return m.oneHit(victim)
+}
+
+func (m *mob) oneHit(victim *mob) int {
 	var dam int
 	if m.Playable == false {
 		dam = dice().Intn(int(m.Level*3/2)) + int(m.Level/2)

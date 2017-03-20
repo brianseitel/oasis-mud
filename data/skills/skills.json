@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "name": "parry",
+        "levels": {},
+        "callback": "parry",
+        "target": "defensive",
+        "minMana": 0,
+        "beats": 0,
+        "nounDamage": "",
+        "messageOff": "!Parry!"
+
+    }
+]

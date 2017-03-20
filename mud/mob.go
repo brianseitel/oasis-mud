@@ -19,6 +19,12 @@ var (
 	mobList *list.List
 )
 
+type mobSkill struct {
+	Skill   *skill `json:"-"`
+	SkillID uint   `json:"skill_id"`
+	Level   uint   `json:"level"`
+}
+
 type mob struct {
 	gorm.Model
 
@@ -27,6 +33,7 @@ type mob struct {
 	Password    string `gorm:"password"`
 	Description string `gorm:"type:text"`
 
+	Skills    []*mobSkill
 	Inventory []*item `gorm:"many2many:player_items;"`
 	Equipped  []*item `gorm:"many2many:player_equipped;ForeignKey:item"`
 	ItemIds   []int   `json:"items" gorm:"-"`
@@ -306,6 +313,24 @@ func (m mob) getMovement() string {
 	return strconv.Itoa(m.Movement)
 }
 
+func (m *mob) skill(name string) *mobSkill {
+	for _, s := range m.Skills {
+		if s.Skill.Name == name {
+			return s
+		}
+	}
+	return nil
+}
+
+func (m *mob) loadSkills() {
+	var skills []*mobSkill
+	for _, s := range m.Skills {
+		skill := getSkill(s.SkillID)
+		skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
+	}
+	m.Skills = skills
+}
+
 func newMobDatabase() {
 	mobList = list.New()
 
@@ -329,11 +354,20 @@ func newMobDatabase() {
 			if db.NewRecord(mobs) {
 				db.Create(&m)
 			}
+
+			var skills []*mobSkill
+			for _, s := range m.Skills {
+				skill := getSkill(s.SkillID)
+				skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
+			}
+			mobs.Skills = skills
+
 			if m.Playable == false {
 				mobList.PushBack(&mobs)
 			}
 		}
 	}
+
 }
 
 func xpCompute(killer *mob, target *mob) int {

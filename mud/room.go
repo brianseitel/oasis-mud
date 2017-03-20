@@ -123,7 +123,9 @@ func newRoomDatabase() {
 
 			for _, x := range room.MobIds {
 				fmt.Println("Adding mob", x, " to room ", room.ID)
-				room.Mobs = append(room.Mobs, getMob(uint(x)))
+
+				mob := getMob(uint(x))
+				room.Mobs = append(room.Mobs, mob)
 			}
 
 			exitsList.PushBack(room)
