@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"os"
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
@@ -8,6 +9,11 @@ import (
 
 func Dump(i interface{}) {
 	spew.Dump(i)
+}
+
+func DD(i interface{}) {
+	spew.Dump(i)
+	os.Exit(1)
 }
 
 func WordWrap(text string, lineWidth int) string {
