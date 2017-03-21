@@ -83,6 +83,9 @@ func newActionWithInput(a *action) error {
 	case cSkill:
 		a.skills()
 		return nil
+	case cTrip:
+		a.trip()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -416,6 +419,29 @@ func (a *action) kill() {
 	}
 
 	a.mob.notify("You can't find them." + helpers.Newline)
+}
+
+func (a *action) trip() {
+
+	if a.mob.skill("trip") == nil {
+		a.mob.notify("You don't know how to do this.\n")
+		return
+	}
+
+	if len(a.args) > 1 {
+		for _, m := range a.mob.Room.Mobs {
+			if a.matchesSubject(m.Identifiers) {
+				newFight(a.mob, m)
+				break
+			}
+		}
+
+		if a.mob.Fight == nil {
+			a.mob.notify("Trip who?")
+			return
+		}
+	}
+	a.mob.trip()
 }
 
 func (a *action) flee() {

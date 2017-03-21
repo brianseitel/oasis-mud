@@ -90,6 +90,10 @@ func (server *Server) timing() {
 				if f != nil && m.Status == fighting {
 					f.turn(m)
 				}
+
+				if m.wait < 0 {
+					m.wait--
+				}
 			}
 			break
 		case <-tick.C:

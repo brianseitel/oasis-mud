@@ -22,6 +22,10 @@ func (m *mob) attack(target *mob, f *fight) {
 			m.notify(fmt.Sprintf("You gain %d experience points!%s", exp, helpers.Newline))
 			m.checkLevelUp()
 
+			// Cancel fight
+			m.Fight = nil
+			target.Fight = nil
+
 			// whisk it away
 			target.die()
 			m.Room.removeMob(target)
@@ -154,5 +158,47 @@ func (m *mob) takeDamage(damage int) {
 	if m.Hitpoints < 0 {
 		m.Status = dead
 		m.notify(helpers.Red + "You are DEAD!!!" + helpers.Reset)
+	}
+}
+
+func (m *mob) trip() {
+
+	if m.Fight == nil {
+		m.notify("You aren't fighting anyone.\n")
+		return
+	}
+
+	var victim *mob
+	if m.Fight.Mob1 == m {
+		victim = m.Fight.Mob2
+	} else {
+		victim = m.Fight.Mob1
+	}
+
+	if victim.wait == 0 {
+
+		var chance int
+		if m.isNPC() {
+			chance = helpers.Min(60, 2*m.Level)
+		} else {
+			mobSkill := m.skill("trip")
+			if mobSkill != nil {
+				chance = int(mobSkill.Level / 2)
+			}
+		}
+
+		if dice().Intn(100) >= chance+m.Level-victim.Level {
+			m.notify(fmt.Sprintf("You attempt to trip %s but miss!%s", victim.Name, helpers.Newline))
+			return
+		}
+
+		m.notify(fmt.Sprintf("You trip %s and %s goes down!%s", victim.Name, victim.Name, helpers.Newline))
+		victim.notify(fmt.Sprintf("%s trips you and you go down!%s", m.Name, helpers.Newline))
+
+		m.wait = 2
+		victim.wait = 2
+		victim.Status = sitting
+	} else {
+		m.notify("You can't do this again so soon!\n")
 	}
 }

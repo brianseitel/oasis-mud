@@ -69,6 +69,7 @@ type mob struct {
 
 	Fight   *fight
 	FightID uint
+	wait    uint
 
 	RecallRoomID uint `json:"recall_room_id"`
 

@@ -10,5 +10,17 @@
         "nounDamage": "",
         "messageOff": "!Parry!"
 
+    },
+    {
+        "id": 2,
+        "name": "trip",
+        "levels": {},
+        "callback": "trip",
+        "target": "offensive",
+        "minMana": 0,
+        "beats": 0,
+        "nounDamage": "",
+        "messageOff": "!Trip!"
+
     }
 ]
