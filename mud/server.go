@@ -94,6 +94,14 @@ func (server *Server) timing() {
 				if m.wait < 0 {
 					m.wait--
 				}
+
+				for _, af := range m.Affects {
+					if af.duration > 0 {
+						af.duration--
+					} else {
+						m.removeAffect(af)
+					}
+				}
 			}
 			break
 		case <-tick.C:

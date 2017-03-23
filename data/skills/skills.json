@@ -21,6 +21,16 @@
         "beats": 0,
         "nounDamage": "",
         "messageOff": "!Trip!"
-
+    },
+    {
+        "id": 3,
+        "name": "armor",
+        "levels": {},
+        "callback": "spell_armor",
+        "target": "defensive",
+        "minMana": 5,
+        "beats": 12,
+        "nounDamage": "",
+        "messageOff": "You feel less protected."
     }
 ]

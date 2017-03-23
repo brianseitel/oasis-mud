@@ -32,6 +32,7 @@ type mob struct {
 	Password    string `gorm:"password"`
 	Description string `gorm:"type:text"`
 
+	Affects   []*affect
 	Skills    []*mobSkill
 	Inventory []*item `gorm:"many2many:player_items;"`
 	Equipped  []*item `gorm:"many2many:player_equipped;ForeignKey:item"`
@@ -76,6 +77,20 @@ type mob struct {
 
 	Playable bool
 	client   *connection
+}
+
+func (m *mob) addAffect(af *affect) {
+	m.Affects = append(m.Affects, af)
+}
+
+func (m *mob) removeAffect(af *affect) {
+	for j, affect := range m.Affects {
+		if af == affect {
+			m.Affects = append(m.Affects[0:j], m.Affects[j+1:]...)
+			m.notify(fmt.Sprintf("%s\r\n", af.affectType.Skill.MessageOff))
+			return
+		}
+	}
 }
 
 func (m *mob) checkLevelUp() {

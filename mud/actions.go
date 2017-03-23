@@ -91,6 +91,9 @@ func newActionWithInput(a *action) error {
 	case cTrain:
 		a.train()
 		return nil
+	case cCast:
+		a.cast()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -313,6 +316,107 @@ func (a *action) move(d string) {
 		}
 	}
 	a.conn.SendString("Alas, you cannot go that way." + helpers.Newline)
+}
+
+func (a *action) cast() {
+	var victim *mob
+	var player *mob
+	var mana int
+	var spell *mobSkill
+
+	player = a.mob
+
+	if len(a.args) < 2 {
+		a.mob.notify("Cast which what where?\r\n")
+		return
+	}
+
+	spell = player.skill(a.args[1])
+	if spell == nil {
+		a.mob.notify("You can't do that. \r\n")
+		return
+	}
+
+	mana = 0
+	if !player.isNPC() {
+		mana = helpers.Max(spell.Skill.MinMana, 100/(2+player.Level))
+	}
+
+	// Find targets
+	victim = nil
+
+	switch spell.Skill.Target {
+	case "ignore":
+		break
+
+	case "offensive":
+		if len(a.args) < 3 {
+			a.mob.notify("Cast the spell on whom?\r\n")
+			return
+		}
+
+		arg := a.args[2]
+		for _, mob := range player.Room.Mobs {
+			if strings.HasPrefix(mob.Name, arg) {
+				victim = mob
+				break
+			}
+		}
+
+		if victim == nil {
+			a.mob.notify("They aren't here.\r\n")
+			return
+		}
+
+		if victim == player {
+			a.mob.notify("You can't do that to yourself.\r\n")
+			return
+		}
+		break
+
+	case "defensive":
+		if len(a.args) < 3 {
+			victim = player
+		} else {
+			arg := a.args[2]
+			for _, mob := range player.Room.Mobs {
+				if strings.HasPrefix(mob.Name, arg) {
+					victim = mob
+					break
+				}
+			}
+		}
+		break
+
+	case "self":
+		if len(a.args) > 2 {
+			a.mob.notify("You cannot cast this spell on another.\r\n")
+			return
+		}
+		victim = player
+		break
+
+	case "object":
+		break
+
+	default:
+		fmt.Printf("cast: bad target for %s\r\n", spell.Skill.Name)
+	}
+
+	if !player.isNPC() && player.Mana < mana {
+		a.mob.notify("You don't have enough mana.\r\n")
+		return
+	}
+
+	if !player.isNPC() && dice().Intn(100) > int(spell.Level) {
+		player.notify("You lost your concentration!\r\n")
+		player.Mana -= mana / 2
+	} else {
+		player.Mana -= mana
+		doSpell(spell, player, victim)
+	}
+
+	return
 }
 
 func (a *action) drop() {
