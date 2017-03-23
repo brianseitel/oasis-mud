@@ -50,6 +50,7 @@ type mob struct {
 	Exp       int
 	Level     int
 	Alignment int
+	Practices uint
 
 	Job    job  `json:"-"`
 	JobID  int  `json:"job"`
@@ -84,12 +85,16 @@ func (m *mob) checkLevelUp() {
 	}
 }
 
+func (m *mob) isAwake() bool {
+	return m.Status > sleeping
+}
+
 func (m *mob) isNPC() bool {
 	return !m.Playable
 }
 
-func (m *mob) isAwake() bool {
-	return m.Status > sleeping
+func (m *mob) isTrainer() bool {
+	return true
 }
 
 func (m *mob) hit() int {

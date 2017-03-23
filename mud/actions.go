@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"bytes"
+
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
@@ -85,6 +87,9 @@ func newActionWithInput(a *action) error {
 		return nil
 	case cTrip:
 		a.trip()
+		return nil
+	case cTrain:
+		a.train()
 		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
@@ -189,12 +194,12 @@ func (a *action) score() {
 
 	title := fmt.Sprintf("%s%s%s", username, strings.Repeat(" ", spaces), id)
 
-	strength := fmt.Sprintf("%s%s%s%s%s%s%s", "Strength", strings.Repeat(" ", 8), strconv.Itoa(a.mob.Strength), strings.Repeat(" ", 11), "Experience", strings.Repeat(" ", 11-len(strconv.Itoa(a.mob.Exp))), strconv.Itoa(a.mob.Exp))
-	wisdom := fmt.Sprintf("%s%s%s%s%s%s%s", "Wisdom", strings.Repeat(" ", 10), strconv.Itoa(a.mob.Wisdom), strings.Repeat(" ", 11), "TNL", strings.Repeat(" ", 18-len(strconv.Itoa(a.mob.TNL()))), strconv.Itoa(a.mob.TNL()))
-	intel := fmt.Sprintf("%s%s%s%s%s%s%s", "Intelligence", strings.Repeat(" ", 4), strconv.Itoa(a.mob.Intelligence), strings.Repeat(" ", 11), "Alignment", strings.Repeat(" ", 12-len(strconv.Itoa(a.mob.Alignment))), strconv.Itoa(a.mob.Alignment))
-	dexterity := fmt.Sprintf("%s%s%s", "Dexterity", strings.Repeat(" ", 7), strconv.Itoa(a.mob.Dexterity))
-	constitution := fmt.Sprintf("%s%s%s", "Constitution", strings.Repeat(" ", 4), strconv.Itoa(a.mob.Constitution))
-	charisma := fmt.Sprintf("%s%s%s", "Charisma", strings.Repeat(" ", 8), strconv.Itoa(a.mob.Dexterity))
+	strength := fmt.Sprintf("%s%s%d%s%s%s%d", "Strength", strings.Repeat(" ", 8), a.mob.Strength, strings.Repeat(" ", 11), "Experience", strings.Repeat(" ", 11-len(strconv.Itoa(a.mob.Exp))), a.mob.Exp)
+	wisdom := fmt.Sprintf("%s%s%d%s%s%s%d", "Wisdom", strings.Repeat(" ", 10), a.mob.Wisdom, strings.Repeat(" ", 11), "TNL", strings.Repeat(" ", 18-len(strconv.Itoa(a.mob.TNL()))), a.mob.TNL())
+	intel := fmt.Sprintf("%s%s%d%s%s%s%d", "Intelligence", strings.Repeat(" ", 4), a.mob.Intelligence, strings.Repeat(" ", 11), "Alignment", strings.Repeat(" ", 12-len(strconv.Itoa(a.mob.Alignment))), a.mob.Alignment)
+	dexterity := fmt.Sprintf("%s%s%d%s%s%s%d", "Dexterity", strings.Repeat(" ", 7), a.mob.Dexterity, strings.Repeat(" ", 11), "Practices", strings.Repeat(" ", 12-len(strconv.Itoa(int(a.mob.Practices)))), a.mob.Practices)
+	constitution := fmt.Sprintf("%s%s%d", "Constitution", strings.Repeat(" ", 4), a.mob.Constitution)
+	charisma := fmt.Sprintf("%s%s%d", "Charisma", strings.Repeat(" ", 8), a.mob.Dexterity)
 	a.conn.SendString(
 		fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 			strings.Repeat("=", width),
@@ -419,6 +424,127 @@ func (a *action) kill() {
 	}
 
 	a.mob.notify("You can't find them." + helpers.Newline)
+}
+
+func (a *action) train() {
+	player := a.mob
+	if player.isNPC() {
+		fmt.Println("crap!")
+		return
+	}
+
+	var trainer *mob
+	for _, mob := range player.Room.Mobs {
+		if mob.isTrainer() {
+			trainer = mob
+			break
+		}
+	}
+
+	if trainer == nil {
+		player.notify("You can't do that here\n")
+		return
+	}
+
+	if len(a.args) == 1 {
+		player.notify(fmt.Sprintf("You have %d practice sessions.%s", player.Practices, helpers.Newline))
+		return
+	}
+
+	var cost uint
+
+	costmap := []uint{5, 6, 7, 9, 12, 13, 15}
+
+	var playerAbility int
+	var playerOutput string
+
+	if strings.HasPrefix(a.args[1], "str") {
+		playerAbility = player.Strength
+		playerOutput = "strength"
+	} else if strings.HasPrefix(a.args[1], "int") {
+		playerAbility = player.Intelligence
+		playerOutput = "intelligence"
+	} else if strings.HasPrefix(a.args[1], "wis") {
+		playerAbility = player.Wisdom
+		playerOutput = "wisdom"
+	} else if strings.HasPrefix(a.args[1], "dex") {
+		playerAbility = player.Dexterity
+		playerOutput = "dexterity"
+	} else if strings.HasPrefix(a.args[1], "cha") {
+		playerAbility = player.Charisma
+		playerOutput = "charisma"
+	} else if strings.HasPrefix(a.args[1], "con") {
+		playerAbility = player.Constitution
+		playerOutput = "constitution"
+	} else {
+		var buf bytes.Buffer
+
+		buf.WriteString("You can train:\r\n")
+		if player.Strength < 18 {
+			buf.WriteString(fmt.Sprintf("Strength      %d\r\n", costmap[player.Strength-12]))
+		}
+		if player.Intelligence < 18 {
+			buf.WriteString(fmt.Sprintf("Intelligence  %d\r\n", costmap[player.Intelligence-12]))
+		}
+		if player.Wisdom < 18 {
+			buf.WriteString(fmt.Sprintf("Wisdom        %d\r\n", costmap[player.Wisdom-12]))
+		}
+		if player.Dexterity < 18 {
+			buf.WriteString(fmt.Sprintf("Dexterity     %d\r\n", costmap[player.Dexterity-12]))
+		}
+		if player.Charisma < 18 {
+			buf.WriteString(fmt.Sprintf("Charisma      %d\r\n", costmap[player.Charisma-12]))
+		}
+		if player.Constitution < 18 {
+			buf.WriteString(fmt.Sprintf("Constitution  %d\r\n", costmap[player.Constitution-12]))
+		}
+
+		message := buf.String()
+		if !strings.HasSuffix(message, ":") {
+			buf.WriteString(".\r\n")
+			player.notify(buf.String())
+		} else {
+			player.notify("You have nothing left to train, you badass!\r\n")
+		}
+
+		return
+	}
+
+	cost = costmap[playerAbility-12]
+	if playerAbility >= 18 {
+		player.notify(fmt.Sprintf("Your %s is already at maximum.%s", playerOutput, helpers.Newline))
+		return
+	}
+
+	if cost > player.Practices {
+		player.notify("You don't have enough practices.\r\n")
+		return
+	}
+
+	player.Practices -= cost
+	switch playerOutput {
+	case "strength":
+		player.Strength++
+		break
+	case "intelligence":
+		player.Intelligence++
+		break
+	case "wisdom":
+		player.Wisdom++
+		break
+	case "dexterity":
+		player.Dexterity++
+		break
+	case "charisma":
+		player.Charisma++
+		break
+	case "constitution":
+		player.Constitution++
+		break
+	}
+
+	player.notify(fmt.Sprintf("Your %s increases for %d practice points!%s", playerOutput, cost, helpers.Newline))
+	return
 }
 
 func (a *action) trip() {
