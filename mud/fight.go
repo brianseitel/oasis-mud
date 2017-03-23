@@ -12,6 +12,11 @@ type fight struct {
 }
 
 func newFight(m1 *mob, m2 *mob) *fight {
+	if m2.isSafe() {
+		m1.notify("A voice from the heavens booms, 'Thou shalt not kill!'\r\n")
+		return nil
+	}
+
 	m1.notify(fmt.Sprintf("You scream and attack %s!%s", m2.Name, helpers.Newline))
 
 	m1.Status = fighting

@@ -93,6 +93,10 @@ func (m *mob) isNPC() bool {
 	return !m.Playable
 }
 
+func (m *mob) isSafe() bool {
+	return true
+}
+
 func (m *mob) isTrainer() bool {
 	return true
 }
