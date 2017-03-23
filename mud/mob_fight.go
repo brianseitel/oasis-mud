@@ -108,8 +108,11 @@ func (m *mob) oneHit(victim *mob) int {
 
 	dam += m.damroll()
 
-	if !m.isNPC() && int(m.skill("enhanced_damage").Level) > 0 {
-		dam += int(dam * int(m.skill("enhanced_damage").Level) / 100)
+	enhancedDamage := m.skill("enhanced_damage")
+	if enhancedDamage != nil {
+		if !m.isNPC() && int(m.skill("enhanced_damage").Level) > 0 {
+			dam += int(dam * int(m.skill("enhanced_damage").Level) / 100)
+		}
 	}
 
 	if victim.Status < sitting {
