@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
-
-	"github.com/jinzhu/gorm"
 )
 
 type targetType string
@@ -20,8 +18,7 @@ const (
 )
 
 type skillLevel struct {
-	gorm.Model
-
+	ID      uint
 	Skill   *skill
 	SkillID uint
 	Job     *job
@@ -30,8 +27,7 @@ type skillLevel struct {
 }
 
 type skill struct {
-	gorm.Model
-
+	ID         uint
 	Name       string        `json:"name"`
 	Levels     []*skillLevel `gorm:"ForeignKey:SkillID"`
 	Callback   string        `json:"callback"`

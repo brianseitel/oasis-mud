@@ -23,12 +23,13 @@ func login(c *connection) *mob {
 		name = strings.Trim(input, "\r\n")
 	}
 
-	var m mob
-	db.First(&m, &mob{Name: name})
+	file, err := ioutil.ReadFile(fmt.Sprintf("./data/players/%s.json", name))
 
-	if db.NewRecord(m) {
-		m.Name = name
-		return register(c, &m)
+	var player *mob
+	err = json.Unmarshal(file, &player)
+	if err != nil {
+		player.Name = name
+		return register(c, player)
 	}
 
 	for len(password) == 0 {
@@ -40,25 +41,16 @@ func login(c *connection) *mob {
 		password = strings.Trim(input, "\r\n")
 	}
 
-	notFound := db.Preload("Job").Preload("Race").First(&m, &mob{Name: name, Password: password}).RecordNotFound()
-	if notFound {
+	if player.Password != password {
 		c.SendString(helpers.Red + "Incorrect login. Please try again." + helpers.Reset + helpers.Newline)
 		return login(c)
 	}
 
-	file, _ := ioutil.ReadFile(fmt.Sprintf("./data/players/%s.json", name))
-
-	var player *mob
-	err := json.Unmarshal(file, &player)
-	if err != nil {
-		panic(err)
-	}
-
 	player.client = c
 	player.Status = standing
-	player.Job = m.Job
-	player.Race = m.Race
-	player.Room = getRoom(uint(m.RoomID))
+	player.Job = getJob(uint(player.JobID))
+	player.Race = getRace(uint(player.RaceID))
+	player.Room = getRoom(uint(player.RoomID))
 	player.loadSkills()
 	mobList.PushBack(player)
 	return player

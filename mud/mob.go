@@ -9,9 +9,6 @@ import (
 	"container/list"
 
 	"github.com/brianseitel/oasis-mud/helpers"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
 var (
@@ -34,18 +31,18 @@ type attributeSet struct {
 }
 
 type mob struct {
-	gorm.Model
+	ID uint
 
 	//Mob information
-	Name        string `json:"name" gorm:"name"`
-	Password    string `gorm:"password"`
-	Description string `gorm:"type:text"`
+	Name        string `json:"name"`
+	Password    string
+	Description string
 
 	Affects   []*affect
 	Skills    []*mobSkill
-	Inventory []*item `gorm:"many2many:player_items;"`
-	Equipped  []*item `gorm:"many2many:player_equipped;ForeignKey:item"`
-	ItemIds   []int   `json:"items" gorm:"-"`
+	Inventory []*item
+	Equipped  []*item
+	ItemIds   []int `json:"items"`
 	Room      *room
 	RoomID    int `json:"current_room"`
 	ExitVerb  string
@@ -66,10 +63,10 @@ type mob struct {
 	Alignment int
 	Practices uint
 
-	Job    job  `json:"-"`
-	JobID  int  `json:"job"`
-	Race   race `json:"-"`
-	RaceID int  `json:"race"`
+	Job    *job  `json:"-"`
+	JobID  int   `json:"job"`
+	Race   *race `json:"-"`
+	RaceID int   `json:"race"`
 	Gender string
 
 	Attributes         *attributeSet
@@ -324,29 +321,22 @@ func newMobDatabase() {
 			panic(err)
 		}
 
-		var list []mob
+		var list []*mob
 		err = json.Unmarshal(file, &list)
 		if err != nil {
 			panic(err)
 		}
 
 		for _, m := range list {
-			var mobs mob
-			db.First(&mobs, m.ID)
-			if db.NewRecord(mobs) {
-				db.Create(&m)
-			}
 
 			var skills []*mobSkill
 			for _, s := range m.Skills {
 				skill := getSkill(s.SkillID)
 				skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
 			}
-			mobs.Skills = skills
+			m.Skills = skills
 
-			if m.Playable == false {
-				mobList.PushBack(&mobs)
-			}
+			mobList.PushBack(m)
 		}
 	}
 

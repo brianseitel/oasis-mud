@@ -6,11 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-
 	// "github.com/brianseitel/oasis-mud/helpers"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
 var (
@@ -18,18 +14,17 @@ var (
 )
 
 type area struct {
-	gorm.Model
-
+	ID    uint
 	Name  string  `json:"name"`
 	Rooms []*room `json:"rooms",gorm:"-"`
 }
 
 type room struct {
-	gorm.Model
+	ID   uint
+	Name string
 
 	Area        area
 	AreaID      int
-	Name        string
 	Description string
 	Exits       []*exit `gorm:"many2many:room_exits;"`
 	ItemIds     []int   `json:"items" gorm:"-"`
@@ -39,7 +34,7 @@ type room struct {
 }
 
 type exit struct {
-	gorm.Model
+	ID     uint
 	Dir    string `json:"direction"`
 	Room   *room
 	RoomID uint `json:"room_id",gorm:"-"`
@@ -80,14 +75,7 @@ func newRoomDatabase() {
 			panic(err)
 		}
 
-		ar := &area{Name: a.Name}
-
-		db.First(&ar)
-		if db.NewRecord(&ar) {
-			db.Create(&ar)
-		}
-
-		void := &room{Model: gorm.Model{ID: 0}, Exits: nil, Items: nil, Mobs: nil, Name: "The Void", Description: "A dark, gaping void lies here."}
+		void := &room{ID: 0, Exits: nil, Items: nil, Mobs: nil, Name: "The Void", Description: "A dark, gaping void lies here."}
 		roomList.PushBack(void)
 
 		for _, ro := range a.Rooms {
@@ -98,15 +86,10 @@ func newRoomDatabase() {
 			}
 
 			for _, i := range ro.MobIds {
-				var mob mob
-				db.First(&mob, i)
-			}
-
-			var r room
-			db.First(&r, ro.ID)
-
-			if db.NewRecord(&r) {
-				db.Create(&ro)
+				mob := getMob(uint(i))
+				if mob == nil {
+				}
+				ro.Mobs = append(ro.Mobs, mob)
 			}
 
 			roomList.PushBack(ro)
@@ -119,22 +102,10 @@ func newRoomDatabase() {
 				room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
 			}
 
-			for _, x := range room.MobIds {
-				mob := getMob(uint(x))
-				room.Mobs = append(room.Mobs, mob)
-			}
-
 			exitsList.PushBack(room)
 		}
 
 		roomList = *exitsList
-
-		for e := mobList.Front(); e != nil; e = e.Next() {
-			mob := e.Value.(*mob)
-			room := getRoom(uint(mob.RoomID))
-			mob.Room = room
-		}
-
 	}
 }
 

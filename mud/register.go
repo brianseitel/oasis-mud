@@ -22,8 +22,8 @@ func register(c *connection, m *mob) *mob {
 	newPlayer := &mob{
 		Name:         m.Name,
 		Password:     password,
-		Job:          job,
-		Race:         race,
+		Job:          &job,
+		Race:         &race,
 		Hitpoints:    m.Race.defaultStats("hitpoints"),
 		MaxHitpoints: m.Race.defaultStats("hitpoints"),
 		Mana:         m.Race.defaultStats("mana"),

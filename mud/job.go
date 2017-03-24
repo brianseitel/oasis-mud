@@ -1,14 +1,14 @@
 package mud
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import "container/list"
 
 type job struct {
-	gorm.Model
+	ID   uint
 	Name string
 	Abbr string
 }
+
+var jobList list.List
 
 func newJobDatabase() {
 	jobs := make(map[string]string)
@@ -22,10 +22,16 @@ func newJobDatabase() {
 	for abbr, name := range jobs {
 		j := &job{Name: name, Abbr: abbr}
 
-		var found job
-		db.Find(&found, job{Name: name})
-		if db.NewRecord(&found) {
-			db.Create(&j)
+		jobList.PushBack(j)
+	}
+}
+
+func getJob(id uint) *job {
+	for e := jobList.Front(); e != nil; e = e.Next() {
+		j := e.Value.(*job)
+		if j.ID == id {
+			return j
 		}
 	}
+	return nil
 }

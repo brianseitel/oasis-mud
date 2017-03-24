@@ -151,14 +151,6 @@ func getConnections() []connection {
 }
 
 func initializeDatabase() {
-	var err error
-	db, _ = gorm.Open("mysql", "homestead:secret@tcp(api.guidebox.brian:3306)/mud?charset=utf8&parseTime=True&loc=Local")
-	if err != nil {
-		panic(err)
-	}
-
-	db.AutoMigrate(&mob{}, &job{}, &race{}, &item{}, &area{}, &room{}, &exit{}, &skill{}, &mobSkill{}, &skillLevel{})
-
 	newSkillDatabase()
 	newJobDatabase()
 	newRaceDatabase()

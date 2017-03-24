@@ -1,16 +1,16 @@
 package mud
 
 import (
-	"github.com/jinzhu/gorm"
-	// "github.com/brianseitel/oasis-mud/helpers"
+	"container/list"
 )
 
 type race struct {
-	gorm.Model
-
+	ID   uint
 	Name string
 	Abbr string
 }
+
+var raceList list.List
 
 func (r race) defaultStats(s string) int {
 	defaults := make(map[string]int)
@@ -40,10 +40,16 @@ func newRaceDatabase() {
 	for abbr, name := range races {
 		r := &race{Name: name, Abbr: abbr}
 
-		var found race
-		db.Find(&found, race{Name: name})
-		if db.NewRecord(&found) {
-			db.Create(&r)
+		raceList.PushBack(r)
+	}
+}
+
+func getRace(id uint) *race {
+	for e := raceList.Front(); e != nil; e = e.Next() {
+		r := e.Value.(*race)
+		if r.ID == id {
+			return r
 		}
 	}
+	return nil
 }
