@@ -89,17 +89,11 @@ type mob struct {
 }
 
 func (m *mob) addAffect(af *affect) {
-	m.Affects = append(m.Affects, af)
+	affectModify(m, af, true)
 }
 
 func (m *mob) removeAffect(af *affect) {
-	for j, affect := range m.Affects {
-		if af == affect {
-			m.Affects = append(m.Affects[0:j], m.Affects[j+1:]...)
-			m.notify(fmt.Sprintf("%s\r\n", af.affectType.Skill.MessageOff))
-			return
-		}
-	}
+	affectModify(m, af, false)
 }
 
 func (m *mob) checkLevelUp() {

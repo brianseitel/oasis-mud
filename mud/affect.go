@@ -41,9 +41,16 @@ func affectModify(player *mob, paf *affect, add bool) {
 	mod = paf.modifier
 
 	if add {
-		player.addAffect(paf)
+		player.Affects = append(player.Affects, paf)
+
 	} else {
-		player.removeAffect(paf)
+		for j, affect := range player.Affects {
+			if paf == affect {
+				player.Affects = append(player.Affects[0:j], player.Affects[j+1:]...)
+				player.notify(fmt.Sprintf("%s\r\n", paf.affectType.Skill.MessageOff))
+				return
+			}
+		}
 	}
 
 	if player.isNPC() {

@@ -94,6 +94,9 @@ func newActionWithInput(a *action) error {
 	case cCast:
 		a.cast()
 		return nil
+	case cAffect:
+		a.affect()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -296,6 +299,28 @@ func equippedString(m *mob) []string {
 	lines = append(lines, fmt.Sprintf("<secondary> %s", m.equipped("secondary")))
 
 	return lines
+}
+
+func (a *action) affect() {
+	for _, af := range a.mob.Affects {
+		var duration string
+
+		if af.duration < 30 {
+			duration = "a few more seconds"
+		} else if af.duration < 60 {
+			duration = "less than a minute"
+		} else if af.duration < 150 {
+			duration = "a few minutes"
+		} else if af.duration < 300 {
+			duration = "a while"
+		} else if af.duration < 600 {
+			duration = "a long time"
+		} else if af.duration > 900 {
+			duration = "practifally forever"
+		}
+
+		a.mob.notify(fmt.Sprintf("%s for %s.%s", af.affectType.Skill.Name, duration, helpers.Newline))
+	}
 }
 
 func (a *action) move(d string) {
