@@ -170,12 +170,12 @@ func (m *mob) equipped(position uint) string {
 		return "<empty>"
 	}
 
-	return equipped.name
+	return equipped.Name
 }
 
 func (m *mob) equippedItem(position uint) *item {
 	for _, i := range m.Equipped {
-		if i.wearLocation == position {
+		if i.WearLocation == position {
 			return i
 		}
 	}

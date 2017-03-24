@@ -136,18 +136,19 @@ const (
 type itemAttributeSet struct{}
 
 type item struct {
-	name             string
-	description      string
-	shortDescription string
-	itemType         uint
-	extraFlags       uint
-	wearFlags        uint
-	wearLocation     uint
-	weight           uint
-	cost             int
-	level            int
-	timer            int
-	value            int
+	ID               uint
+	Name             string
+	Description      string
+	ShortDescription string
+	ItemType         uint
+	ExtraFlags       uint
+	WearFlags        uint
+	WearLocation     uint
+	Weight           uint
+	Cost             int
+	Level            int
+	Timer            int
+	Value            int
 }
 
 func newItemDatabase() {
@@ -170,43 +171,43 @@ func newItemDatabase() {
 }
 
 func applyAC(item *item, wear int) int {
-	if item.itemType != itemArmor {
+	if item.ItemType != itemArmor {
 		return 0
 	}
 
 	switch wear {
 	case wearBody:
-		return 3 * item.value
+		return 3 * item.Value
 	case wearHead:
-		return 2 * item.value
+		return 2 * item.Value
 	case wearLegs:
-		return 2 * item.value
+		return 2 * item.Value
 	case wearFeet:
-		return item.value
+		return item.Value
 	case wearHands:
-		return item.value
+		return item.Value
 	case wearArms:
-		return item.value
+		return item.Value
 	case wearShield:
-		return item.value
+		return item.Value
 	case wearFingerLeft:
-		return item.value
+		return item.Value
 	case wearFingerRight:
-		return item.value
+		return item.Value
 	case wearNeck1:
-		return item.value
+		return item.Value
 	case wearNeck2:
-		return item.value
+		return item.Value
 	case wearArmor:
-		return 2 * item.value
+		return 2 * item.Value
 	case wearWaist:
-		return item.value
+		return item.Value
 	case wearWristLeft:
-		return item.value
+		return item.Value
 	case wearWristRight:
-		return item.value
+		return item.Value
 	case wearHold:
-		return item.value
+		return item.Value
 	}
 
 	return 0

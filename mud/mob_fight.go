@@ -57,7 +57,7 @@ func (m *mob) damroll() int {
 
 func (m *mob) die() {
 	// drop corpse in room
-	corpse := &item{itemType: 0, name: "A corpse of " + m.Name, timer: 1}
+	corpse := &item{ItemType: 0, Name: "A corpse of " + m.Name, Timer: 1}
 	m.Room.Items = append(m.Room.Items, corpse)
 
 	// whisk them away to Nowhere
@@ -100,7 +100,7 @@ func (m *mob) oneHit(victim *mob) int {
 	} else {
 		if m.equippedItem(wearWield) != nil {
 			wield := m.equippedItem(wearWield)
-			dam = dice().Intn(int(wield.value)) + wield.value
+			dam = dice().Intn(int(wield.Value)) + wield.Value
 		} else {
 			dam = dice().Intn(4) + 1
 		}

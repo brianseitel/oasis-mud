@@ -159,9 +159,9 @@ func (a *action) look() {
 		}
 
 		for _, item := range a.mob.Room.Items {
-			if a.matchesSubject(item.name) {
-				a.conn.SendString(fmt.Sprintf("You look at %s.", item.name) + helpers.Newline)
-				a.conn.SendString(helpers.WordWrap(item.description, 50) + helpers.Newline)
+			if a.matchesSubject(item.Name) {
+				a.conn.SendString(fmt.Sprintf("You look at %s.", item.Name) + helpers.Newline)
+				a.conn.SendString(helpers.WordWrap(item.Description, 50) + helpers.Newline)
 				return
 			}
 		}
@@ -235,7 +235,7 @@ func itemsString(items []*item) string {
 	var output string
 
 	for _, i := range items {
-		output = fmt.Sprintf("%s is here.\n%s", i.name, output)
+		output = fmt.Sprintf("%s is here.\n%s", i.Name, output)
 	}
 	return output
 }
@@ -256,10 +256,10 @@ func inventoryString(m *mob) []string {
 	inventory := make(map[string]int)
 
 	for _, i := range m.Inventory {
-		if _, ok := inventory[i.name]; ok {
-			inventory[i.name]++
+		if _, ok := inventory[i.Name]; ok {
+			inventory[i.Name]++
 		} else {
-			inventory[i.name] = 1
+			inventory[i.Name] = 1
 		}
 	}
 
@@ -445,10 +445,10 @@ func (a *action) drop() {
 	if a.args[1] == "all" {
 		for _, item := range a.mob.Inventory {
 			a.mob.Room.Items = append(a.mob.Room.Items, item)
-			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.name)
+			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
 			for _, m := range a.mob.Room.Mobs {
 				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You pick up %s.\n", item.name))
+					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
 				} else {
 					m.notify(message)
 				}
@@ -459,12 +459,12 @@ func (a *action) drop() {
 	}
 
 	for j, item := range a.mob.Inventory {
-		if a.matchesSubject(item.name) {
+		if a.matchesSubject(item.Name) {
 			a.mob.Inventory, a.mob.Room.Items = transferItem(j, a.mob.Inventory, a.mob.Room.Items)
-			message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.name)
+			message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.Name)
 			for _, m := range a.mob.Room.Mobs {
 				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You drop %s.\n", item.name))
+					m.notify(fmt.Sprintf("You drop %s.\n", item.Name))
 				} else {
 					m.notify(message)
 				}
@@ -480,10 +480,10 @@ func (a *action) get() {
 	if a.args[1] == "all" {
 		for _, item := range a.mob.Room.Items {
 			a.mob.Inventory = append(a.mob.Inventory, item)
-			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.name)
+			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
 			for _, m := range a.mob.Room.Mobs {
 				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You pick up %s.\n", item.name))
+					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
 				} else {
 					m.notify(message)
 				}
@@ -494,12 +494,12 @@ func (a *action) get() {
 	}
 
 	for j, item := range a.mob.Room.Items {
-		if a.args[1] == "all" || a.matchesSubject(item.name) {
+		if a.args[1] == "all" || a.matchesSubject(item.Name) {
 			a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
-			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.name)
+			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
 			for _, m := range a.mob.Room.Mobs {
 				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You pick up %s.\n", item.name))
+					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
 				} else {
 					m.notify(message)
 				}
@@ -513,15 +513,15 @@ func (a *action) get() {
 
 func (a *action) wear() {
 	for j, item := range a.mob.Inventory {
-		if a.matchesSubject(item.name) {
+		if a.matchesSubject(item.Name) {
 			for k, eq := range a.mob.Equipped {
-				if eq.wearLocation == item.wearLocation {
+				if eq.WearLocation == item.WearLocation {
 					a.mob.Equipped, a.mob.Inventory = transferItem(k, a.mob.Equipped, a.mob.Inventory)
-					a.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.%s", eq.name, helpers.Newline))
+					a.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.%s", eq.Name, helpers.Newline))
 				}
 			}
 			a.mob.Inventory, a.mob.Equipped = transferItem(j, a.mob.Inventory, a.mob.Equipped)
-			a.mob.notify(fmt.Sprintf("You wear %s.%s", item.name, helpers.Newline))
+			a.mob.notify(fmt.Sprintf("You wear %s.%s", item.Name, helpers.Newline))
 			return
 		}
 	}
@@ -531,9 +531,9 @@ func (a *action) wear() {
 
 func (a *action) remove() {
 	for j, item := range a.mob.Equipped {
-		if a.matchesSubject(item.name) {
+		if a.matchesSubject(item.Name) {
 			a.mob.Equipped, a.mob.Inventory = transferItem(j, a.mob.Equipped, a.mob.Inventory)
-			a.mob.notify(fmt.Sprintf("You remove %s.%s", item.name, helpers.Newline))
+			a.mob.notify(fmt.Sprintf("You remove %s.%s", item.Name, helpers.Newline))
 			return
 		}
 	}
@@ -757,7 +757,7 @@ func (a *action) quit() {
 }
 
 func (a *action) matchesSubject(s string) bool {
-	for _, v := range strings.Split(s, " ") {
+	for _, v := range strings.Split(strings.ToLower(s), " ") {
 		if strings.HasPrefix(v, a.args[1]) {
 			return true
 		}

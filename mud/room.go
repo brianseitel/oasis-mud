@@ -47,21 +47,21 @@ type exit struct {
 
 func (r *room) decayItems() {
 	for j, item := range r.Items {
-		if item.timer == -1 {
+		if item.Timer == -1 {
 			continue
 		}
 
-		if item.timer <= 0 {
+		if item.Timer <= 0 {
 			r.Items = append(r.Items[0:j], r.Items[j+1:]...)
 			for _, m := range r.Mobs {
 				if r.ID == m.Room.ID {
-					m.notify(fmt.Sprintf("Rats scurry forth and drag away %s!\n", item.name))
+					m.notify(fmt.Sprintf("Rats scurry forth and drag away %s!\n", item.Name))
 				}
 			}
 			break
 		}
-		item.timer--
-		fmt.Println("Decaying ", item.name, " (", item.timer, " ticks remaining")
+		item.Timer--
+		fmt.Println("Decaying ", item.Name, " (", item.Timer, " ticks remaining")
 	}
 }
 
@@ -93,10 +93,8 @@ func newRoomDatabase() {
 		for _, ro := range a.Rooms {
 			ro.AreaID = int(a.ID)
 			for _, i := range ro.ItemIds {
-				var item item
-				db.First(&item, i)
-
-				ro.Items = append(ro.Items, &item)
+				item := getItem(uint(i))
+				ro.Items = append(ro.Items, item)
 			}
 
 			for _, i := range ro.MobIds {
@@ -122,8 +120,6 @@ func newRoomDatabase() {
 			}
 
 			for _, x := range room.MobIds {
-				fmt.Println("Adding mob", x, " to room ", room.ID)
-
 				mob := getMob(uint(x))
 				room.Mobs = append(room.Mobs, mob)
 			}
@@ -147,6 +143,16 @@ func getRoom(id uint) *room {
 		r := e.Value.(*room)
 		if r.ID == id {
 			return r
+		}
+	}
+	return nil
+}
+
+func getItem(id uint) *item {
+	for e := itemList.Front(); e != nil; e = e.Next() {
+		i := e.Value.(item)
+		if i.ID == id {
+			return &i
 		}
 	}
 	return nil
