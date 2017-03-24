@@ -24,6 +24,15 @@ type mobSkill struct {
 	Level   uint   `json:"level"`
 }
 
+type attributeSet struct {
+	Strength     int
+	Wisdom       int
+	Intelligence int
+	Dexterity    int
+	Charisma     int
+	Constitution int
+}
+
 type mob struct {
 	gorm.Model
 
@@ -48,6 +57,10 @@ type mob struct {
 	Movement     int `json:"movement"`
 	MaxMovement  int `json:"max_movement"`
 
+	Armor   int
+	Hitroll int
+	Damroll int
+
 	Exp       int
 	Level     int
 	Alignment int
@@ -59,12 +72,8 @@ type mob struct {
 	RaceID int  `json:"race"`
 	Gender string
 
-	Strength     int
-	Wisdom       int
-	Intelligence int
-	Dexterity    int
-	Charisma     int
-	Constitution int
+	Attributes         *attributeSet
+	ModifiedAttributes *attributeSet
 
 	Status      status
 	Identifiers string
@@ -117,7 +126,7 @@ func (m *mob) isTrainer() bool {
 }
 
 func (m *mob) hit() int {
-	return int(m.Dexterity / 3)
+	return int(m.Attributes.Dexterity / 3)
 }
 
 func (m mob) TNL() int {
@@ -199,7 +208,7 @@ func (m *mob) regenHitpoints() *mob {
 	if m.Hitpoints >= m.MaxHitpoints {
 		return m
 	}
-	amount := dice().Intn(int(m.MaxHitpoints/20) + (m.Level * m.Constitution))
+	amount := dice().Intn(int(m.MaxHitpoints/20) + (m.Level * m.Attributes.Constitution))
 
 	multiplier := 1.0
 	switch m.Status {
@@ -224,7 +233,7 @@ func (m *mob) regenMana() *mob {
 	if m.Mana >= m.MaxMana {
 		return m
 	}
-	amount := dice().Intn(int(m.MaxMana/20) + (m.Level * m.Intelligence))
+	amount := dice().Intn(int(m.MaxMana/20) + (m.Level * m.Attributes.Intelligence))
 	multiplier := 1.0
 	switch m.Status {
 	case fighting:
@@ -248,7 +257,7 @@ func (m *mob) regenMovement() *mob {
 	if m.Movement >= m.MaxMovement {
 		return m
 	}
-	amount := dice().Intn(int(m.MaxMovement/20) + (m.Level * m.Dexterity))
+	amount := dice().Intn(int(m.MaxMovement/20) + (m.Level * m.Attributes.Dexterity))
 
 	multiplier := 1.0
 	switch m.Status {

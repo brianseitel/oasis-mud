@@ -52,7 +52,7 @@ func (m *mob) damage(victim *mob) int {
 }
 
 func (m *mob) damroll() int {
-	return m.Strength
+	return m.Attributes.Strength
 }
 
 func (m *mob) die() {

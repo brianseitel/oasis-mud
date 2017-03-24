@@ -1,15 +1,5 @@
 package mud
 
-type affect struct {
-	affectType *mobSkill
-	duration   uint
-	location   int
-	modifier   int
-}
-
-const (
-	applyAC = iota
-)
 
 func doSpell(spell *mobSkill, player *mob, victim *mob) {
 	var af affect
