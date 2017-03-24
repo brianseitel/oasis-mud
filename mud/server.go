@@ -165,4 +165,14 @@ func initializeDatabase() {
 	newItemDatabase()
 	newMobDatabase()
 	newRoomDatabase()
+
+	fmt.Println("itemGlow ", itemGlow)
+	fmt.Println("itemHum ", itemHum)
+	fmt.Println("itemDark ", itemDark)
+	fmt.Println("itemLock ", itemLock)
+	fmt.Println("itemEvil ", itemEvil)
+	fmt.Println("itemInvis ", itemInvis)
+	fmt.Println("itemMagic ", itemMagic)
+
+	os.Exit(1)
 }

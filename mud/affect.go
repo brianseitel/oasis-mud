@@ -10,7 +10,7 @@ type affect struct {
 }
 
 const (
-	applyAC = iota
+	applyArmorClass = iota
 	applyStrength
 	applyDexterity
 	applyIntelligence
@@ -101,7 +101,7 @@ func affectModify(player *mob, paf *affect, add bool) {
 	case applyMovement:
 		player.Movement += mod
 		break
-	case applyAC:
+	case applyArmorClass:
 		player.Armor += mod
 		break
 	case applyHitroll:

@@ -163,19 +163,19 @@ func (m *mob) statusBar() {
 	}
 }
 
-func (m *mob) equipped(position position) string {
+func (m *mob) equipped(position uint) string {
 	equipped := m.equippedItem(position)
 
 	if equipped == nil {
 		return "<empty>"
 	}
 
-	return equipped.Name
+	return equipped.name
 }
 
-func (m *mob) equippedItem(position position) *item {
+func (m *mob) equippedItem(position uint) *item {
 	for _, i := range m.Equipped {
-		if i.Position == string(position) {
+		if i.wearLocation == position {
 			return i
 		}
 	}

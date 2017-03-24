@@ -47,21 +47,21 @@ type exit struct {
 
 func (r *room) decayItems() {
 	for j, item := range r.Items {
-		if item.Decays == permanent {
+		if item.timer == -1 {
 			continue
 		}
 
-		if item.TTL <= 0 {
+		if item.timer <= 0 {
 			r.Items = append(r.Items[0:j], r.Items[j+1:]...)
 			for _, m := range r.Mobs {
 				if r.ID == m.Room.ID {
-					m.notify(fmt.Sprintf("Rats scurry forth and drag away %s!\n", item.Name))
+					m.notify(fmt.Sprintf("Rats scurry forth and drag away %s!\n", item.name))
 				}
 			}
 			break
 		}
-		item.TTL--
-		fmt.Println("Decaying ", item.Name, " (", item.TTL, " ticks remaining")
+		item.timer--
+		fmt.Println("Decaying ", item.name, " (", item.timer, " ticks remaining")
 	}
 }
 

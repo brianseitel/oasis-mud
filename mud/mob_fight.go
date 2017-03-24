@@ -57,7 +57,7 @@ func (m *mob) damroll() int {
 
 func (m *mob) die() {
 	// drop corpse in room
-	corpse := &item{itemType: "corpse", Name: "A corpse of " + m.Name, Identifiers: "corpse," + m.Identifiers, Decays: decays, TTL: 1}
+	corpse := &item{itemType: 0, name: "A corpse of " + m.Name, timer: 1}
 	m.Room.Items = append(m.Room.Items, corpse)
 
 	// whisk them away to Nowhere
@@ -94,13 +94,13 @@ func (m *mob) oneHit(victim *mob) int {
 	var dam int
 	if m.isNPC() {
 		dam = dice().Intn(int(m.Level*3/2)) + int(m.Level/2)
-		if m.equippedItem("wield") != nil {
+		if m.equippedItem(wearWield) != nil {
 			dam += int(dam / 2)
 		}
 	} else {
-		if m.equippedItem("wield") != nil {
-			wield := m.equippedItem("wield")
-			dam = dice().Intn(int(wield.Max)) + wield.Min
+		if m.equippedItem(wearWield) != nil {
+			wield := m.equippedItem(wearWield)
+			dam = dice().Intn(int(wield.value)) + wield.value
 		} else {
 			dam = dice().Intn(4) + 1
 		}
@@ -136,7 +136,7 @@ func (m *mob) parry(attacker *mob) bool {
 	if m.isNPC() {
 		chance = helpers.Min(60, 2*m.Level)
 	} else {
-		if m.equippedItem("wield") == nil {
+		if m.equippedItem(wearWield) == nil {
 			return false
 		}
 
