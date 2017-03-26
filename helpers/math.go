@@ -25,3 +25,17 @@ func Max(a int, b int) int {
 
 	return b
 }
+
+func HasBit(flag uint, bit uint) bool {
+	return flag&bit == bit
+}
+
+func SetBit(flag uint, bit uint) uint {
+	flag |= bit
+	return flag
+}
+
+func RemoveBit(flag uint, bit uint) uint {
+	flag ^= bit
+	return flag
+}

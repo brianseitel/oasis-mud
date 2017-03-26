@@ -104,6 +104,18 @@ func (m *mob) isAwake() bool {
 	return m.Status > sleeping
 }
 
+func (m *mob) isEvil() bool {
+	return m.Alignment <= -350
+}
+
+func (m *mob) isGood() bool {
+	return m.Alignment >= 350
+}
+
+func (m *mob) isNeutral() bool {
+	return !m.isEvil() && !m.isGood()
+}
+
 func (m *mob) isNPC() bool {
 	return !m.Playable
 }
@@ -168,6 +180,36 @@ func (m *mob) equipped(position uint) string {
 	}
 
 	return equipped.Name
+}
+
+func (m *mob) equipItem(item *item, position uint) {
+	if m.equippedItem(position) == item {
+		return
+	}
+
+	if (item.hasExtraFlag(itemAntiEvil) && m.isEvil()) || (item.hasExtraFlag(itemAntiGood) && m.isGood()) || (item.hasExtraFlag(itemAntiNeutral) && m.isNeutral()) {
+		m.notify(fmt.Sprintf("You are zapped by %s and drop it!%s", item.Name, helpers.Newline))
+		m.Room.notify(fmt.Sprintf("%s is zapped by %s and drops it!%s", m.Name, item.Name, helpers.Newline), m)
+		// TODO: dropItem()
+		return
+	}
+
+	m.Armor -= applyAC(item, int(position))
+	item.WearLocation = position
+
+	m.Equipped = append(m.Equipped, item)
+	for j, i := range m.Inventory {
+		if i == item {
+			m.Inventory = append(m.Inventory[0:j], m.Inventory[j+1:]...)
+			break
+		}
+	}
+
+	// TODO: item effects
+
+	// TODO: light up room if it's a light
+
+	return
 }
 
 func (m *mob) equippedItem(position uint) *item {

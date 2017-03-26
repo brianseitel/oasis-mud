@@ -16,6 +16,15 @@ func DD(i interface{}) {
 	os.Exit(1)
 }
 
+func SliceContainsUint(s []uint, e uint) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 func WordWrap(text string, lineWidth int) string {
 	words := strings.Fields(strings.TrimSpace(text))
 	if len(words) == 0 {

@@ -512,21 +512,168 @@ func (a *action) get() {
 }
 
 func (a *action) wear() {
-	for j, item := range a.mob.Inventory {
+	var wearable *item
+	for _, item := range a.mob.Inventory {
 		if a.matchesSubject(item.Name) {
-			for k, eq := range a.mob.Equipped {
-				if eq.WearLocation == item.WearLocation {
-					a.mob.Equipped, a.mob.Inventory = transferItem(k, a.mob.Equipped, a.mob.Inventory)
-					a.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.%s", eq.Name, helpers.Newline))
-				}
-			}
-			a.mob.Inventory, a.mob.Equipped = transferItem(j, a.mob.Inventory, a.mob.Equipped)
-			a.mob.notify(fmt.Sprintf("You wear %s.%s", item.Name, helpers.Newline))
-			return
+			wearable = item
+			break
 		}
 	}
 
-	a.mob.notify("You can't find that.")
+	if wearable == nil {
+		a.mob.notify("You can't find that.")
+		return
+	}
+
+	if a.mob.Level < wearable.Level {
+		a.mob.notify(fmt.Sprintf("You must be level %d to wear this.%s", wearable.Level, helpers.Newline))
+		return
+	}
+
+	if wearable.ItemType == itemLight {
+		a.mob.notify(fmt.Sprintf("You light up %s and hold it.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s lights up %s and holds it.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearLight)
+		return
+	}
+
+	if wearable.canWear(itemWearFinger) {
+		if a.mob.equippedItem(wearFingerLeft) != nil && a.mob.equippedItem(wearFingerRight) != nil {
+			return
+		}
+
+		if a.mob.equippedItem(wearFingerLeft) == nil {
+			a.mob.notify(fmt.Sprintf("You wear %s on your left finger.%s", wearable.Name, helpers.Newline))
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their left finger.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.equipItem(wearable, wearFingerLeft)
+			return
+		}
+
+		if a.mob.equippedItem(wearFingerRight) == nil {
+			a.mob.notify(fmt.Sprintf("You wear %s on your right finger.%s", wearable.Name, helpers.Newline))
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their right finger.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.equipItem(wearable, wearFingerRight)
+			return
+		}
+
+		a.mob.notify(fmt.Sprintf("You already wear two rings!%s", helpers.Newline))
+		return
+	}
+
+	if wearable.canWear(itemWearNeck) {
+		if a.mob.equippedItem(wearNeck1) != nil && a.mob.equippedItem(wearNeck2) != nil {
+			return
+		}
+
+		if a.mob.equippedItem(wearNeck1) == nil {
+			a.mob.notify(fmt.Sprintf("You wear %s on your neck.%s", wearable.Name, helpers.Newline))
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their neck.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.equipItem(wearable, wearNeck1)
+			return
+		}
+
+		if a.mob.equippedItem(wearNeck2) == nil {
+			a.mob.notify(fmt.Sprintf("You wear %s on your neck.%s", wearable.Name, helpers.Newline))
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their neck.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.equipItem(wearable, wearNeck2)
+			return
+		}
+
+		a.mob.notify(fmt.Sprintf("You already wear two neck items!%s", helpers.Newline))
+		return
+	}
+	if wearable.canWear(itemWearWrist) {
+		if a.mob.equippedItem(wearWristLeft) != nil && a.mob.equippedItem(wearWristRight) != nil {
+			return
+		}
+
+		if a.mob.equippedItem(wearWristLeft) == nil {
+			a.mob.notify(fmt.Sprintf("You wear %s on your left wrist.%s", wearable.Name, helpers.Newline))
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their left wrist.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.equipItem(wearable, wearWristLeft)
+			return
+		}
+
+		if a.mob.equippedItem(wearWristRight) == nil {
+			a.mob.notify(fmt.Sprintf("You wear %s on your right wrist.%s", wearable.Name, helpers.Newline))
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their right wrist.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.equipItem(wearable, wearWristRight)
+			return
+		}
+
+		a.mob.notify(fmt.Sprintf("You already wear two wrist items!%s", helpers.Newline))
+		return
+	}
+
+	if wearable.canWear(itemWearBody) {
+		a.mob.notify(fmt.Sprintf("You wear %s on your body.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their body.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearBody)
+		return
+	}
+
+	if wearable.canWear(itemWearHead) {
+		a.mob.notify(fmt.Sprintf("You wear %s on your head.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their head.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearHead)
+		return
+	}
+
+	if wearable.canWear(itemWearLegs) {
+		a.mob.notify(fmt.Sprintf("You wear %s on your legs.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their legs.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearLegs)
+		return
+	}
+
+	if wearable.canWear(itemWearFeet) {
+		a.mob.notify(fmt.Sprintf("You wear %s on your feet.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their feet.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearFeet)
+		return
+	}
+
+	if wearable.canWear(itemWearHands) {
+		a.mob.notify(fmt.Sprintf("You wear %s on your hands.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their hands.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearHands)
+		return
+	}
+
+	if wearable.canWear(itemWearWaist) {
+		a.mob.notify(fmt.Sprintf("You wear %s on your waist.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their waist.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearWaist)
+		return
+	}
+
+	if wearable.canWear(itemWearShield) {
+		a.mob.notify(fmt.Sprintf("You wear %s as your shield.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s as their shield.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearShield)
+		return
+	}
+
+	if wearable.canWear(itemWearHold) {
+		a.mob.notify(fmt.Sprintf("You hold %s.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s holds %s.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearHold)
+		return
+	}
+
+	if wearable.canWear(itemWearWield) {
+		if wearable.Weight > uint(a.mob.ModifiedAttributes.Strength) {
+			a.mob.notify(fmt.Sprintf("It is too heavy for you to wield.%s", helpers.Newline))
+			return
+		}
+
+		a.mob.notify(fmt.Sprintf("You wield %s.%s", wearable.Name, helpers.Newline))
+		a.mob.Room.notify(fmt.Sprintf("%s wields %s.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.equipItem(wearable, wearWield)
+		return
+	}
+
+	a.mob.notify(fmt.Sprintf("You can't wear, wield, or hold that.%s", helpers.Newline))
 }
 
 func (a *action) remove() {

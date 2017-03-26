@@ -81,7 +81,8 @@ func newRoomDatabase() {
 		for _, ro := range a.Rooms {
 			ro.AreaID = int(a.ID)
 			for _, i := range ro.ItemIds {
-				item := getItem(uint(i))
+				index := getItem(uint(i))
+				item := newItemFromIndex(index)
 				ro.Items = append(ro.Items, item)
 			}
 
@@ -119,9 +120,9 @@ func getRoom(id uint) *room {
 	return nil
 }
 
-func getItem(id uint) *item {
-	for e := itemList.Front(); e != nil; e = e.Next() {
-		i := e.Value.(item)
+func getItem(id uint) *itemIndex {
+	for e := itemIndexList.Front(); e != nil; e = e.Next() {
+		i := e.Value.(itemIndex)
 		if i.ID == id {
 			return &i
 		}
@@ -137,6 +138,14 @@ func getMob(id uint) *mob {
 		}
 	}
 	return nil
+}
+
+func (r *room) notify(message string, except *mob) {
+	for _, mob := range r.Mobs {
+		if mob != except {
+			mob.notify(message)
+		}
+	}
 }
 
 func (r *room) removeMob(m *mob) {

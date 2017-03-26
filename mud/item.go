@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
+
+	"github.com/brianseitel/oasis-mud/helpers"
 	// "github.com/brianseitel/oasis-mud/helpers"
 )
 
 var (
-	itemList list.List
+	itemList      list.List
+	itemIndexList list.List
 )
 
 const (
@@ -122,6 +125,7 @@ const (
 	itemWearBody
 	itemWearHead
 	itemWearLegs
+	itemWearFinger
 	itemWearFeet
 	itemWearHands
 	itemWearArms
@@ -129,14 +133,29 @@ const (
 	itemWearAbout
 	itemWearWaist
 	itemWearWrist
-	itemWield
-	itemHold
+	itemWearWield
+	itemWearHold
+	itemWearLight
 )
 
 type itemAttributeSet struct{}
 
+type itemIndex struct {
+	ID               uint
+	Name             string
+	Description      string
+	ShortDescription string
+	ItemType         uint `json:"item_type"`
+	Affected         []*affect
+	ExtraFlags       uint `json:"extra_flags"`
+	WearFlags        uint `json:"wear_flags"`
+	Weight           uint
+	Value            int
+}
+
 type item struct {
 	ID               uint
+	index            itemIndex
 	Name             string
 	Description      string
 	ShortDescription string
@@ -160,14 +179,22 @@ func newItemDatabase() {
 			panic(err)
 		}
 
-		var list []item
+		var list []itemIndex
 		json.Unmarshal(file, &list)
 
 		for _, it := range list {
-			itemList.PushBack(it)
+
+			itemIndexList.PushBack(it)
 		}
 
 	}
+}
+
+func newItemFromIndex(index *itemIndex) *item {
+	item := &item{Name: index.Name, Description: index.Description, ShortDescription: index.ShortDescription, ItemType: index.ItemType, ExtraFlags: index.ExtraFlags, WearFlags: index.WearFlags, Weight: index.Weight, Value: index.Value, Timer: -1}
+
+	itemList.PushBack(item)
+	return item
 }
 
 func applyAC(item *item, wear int) int {
@@ -211,4 +238,12 @@ func applyAC(item *item, wear int) int {
 	}
 
 	return 0
+}
+
+func (item *item) canWear(position uint) bool {
+	return helpers.HasBit(item.WearFlags, position)
+}
+
+func (item *item) hasExtraFlag(flag uint) bool {
+	return helpers.HasBit(item.ExtraFlags, flag)
 }
