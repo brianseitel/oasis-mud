@@ -102,10 +102,20 @@ func (m *mob) removeAffect(af *affect) {
 	affectModify(m, af, false)
 }
 
-func (m *mob) checkLevelUp() {
-	if m.Exp > (1000 * m.Level) {
+func (m *mob) advanceLevel() {
+
+}
+
+func (m *mob) gainExp(gain int) {
+	if m.isNPC() || m.Level >= 99 {
+		return
+	}
+
+	m.Exp += helpers.Max(1000, m.Exp+gain)
+	for m.Level < 99 && m.Exp >= 1000*(m.Level+1) {
+		m.notify("You raise a level!")
 		m.Level++
-		m.notify("You have LEVELED UP! You are now Level %d!", m.Level)
+		m.advanceLevel()
 	}
 }
 

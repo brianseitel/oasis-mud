@@ -18,9 +18,8 @@ func (m *mob) attack(target *mob, f *fight) {
 			m.Status = standing
 
 			exp := xpCompute(m, target)
-			m.Exp += exp
 			m.notify("You gain %d experience points!", exp)
-			m.checkLevelUp()
+			m.gainExp(exp)
 
 			// Cancel fight
 			m.Fight = nil
