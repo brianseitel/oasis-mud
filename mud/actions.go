@@ -350,26 +350,6 @@ func (a *action) affect() {
 	}
 }
 
-func (a *action) move(d string) {
-	if a.mob.Status != standing {
-		switch a.mob.Status {
-		case fighting:
-			a.conn.SendString("You can't move while fighting!" + helpers.Newline)
-			break
-		}
-		return
-	}
-
-	for _, e := range a.mob.Room.Exits {
-		if e.Dir == d {
-			a.mob.move(e)
-			newAction(a.mob, a.conn, "look")
-			return
-		}
-	}
-	a.conn.SendString("Alas, you cannot go that way." + helpers.Newline)
-}
-
 func (a *action) cast() {
 	var victim *mob
 	var player *mob
@@ -566,107 +546,21 @@ func (a *action) drop() {
 	return
 }
 
-func (a *action) put() {
-
-	player := a.mob
-	if len(a.args) <= 2 {
-		player.notify(fmt.Sprintf("Put what in what?%s", helpers.Newline))
+func (a *action) flee() {
+	if a.mob.Status != fighting {
+		a.conn.SendString("You can't flee if you're not fighting, fool." + helpers.Newline)
 		return
 	}
 
-	arg1, arg2 := a.args[1], a.args[2]
+	roll := dice().Intn(36 - a.mob.Attributes.Dexterity) // higher the dexterity, better the chance of fleeing successfully
+	if roll == 1 {
+		a.mob.Fight.Mob1.Status = standing
+		a.mob.Fight.Mob2.Status = standing
 
-	if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
-		player.notify(fmt.Sprintf("You can't do that.%s", helpers.Newline))
-		return
-	}
-
-	var container *item
-	for _, i := range player.Inventory {
-		if strings.HasPrefix(i.Name, arg2) {
-			container = i
-			break
-		}
-	}
-
-	if container == nil {
-		// try from room
-		for _, i := range player.Room.Items {
-			if strings.HasPrefix(i.Name, arg2) {
-				container = i
-				break
-			}
-		}
-
-	}
-
-	if container == nil {
-		player.notify(fmt.Sprintf("I see no %s here.%s", arg2, helpers.Newline))
-		return
-	}
-
-	if helpers.HasBit(uint(container.Value), containerClosed) {
-		player.notify(fmt.Sprintf("The %s is closed.%s", container.Name, helpers.Newline))
-		return
-	}
-
-	if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
-		// put obj container
-		var item *item
-		for _, i := range player.Inventory {
-			if helpers.MatchesSubject(i.Name, arg1) {
-				item = i
-				break
-			}
-		}
-
-		if item == nil {
-			player.notify(fmt.Sprintf("You do not have that item.%s", helpers.Newline))
-			return
-		}
-
-		if item == container {
-			player.notify(fmt.Sprintf("You can't fold it into itself!%s", helpers.Newline))
-			return
-		}
-
-		// TODO
-		// if !player.canDropObj(item) {
-		// 	player.notify(fmt.Sprintf("You can't let go of it.%s", helpers.Newline))
-		// 	return
-		// }
-
-		if item.Weight+container.Weight > uint(container.Value) {
-			player.notify(fmt.Sprintf("It won't fit.%s", helpers.Newline))
-			return
-		}
-
-		for j, it := range player.Inventory {
-			if it == item {
-				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
-				break
-			}
-		}
-
-		container.container = append(container.container, item)
-
-		player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
-		player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+		a.mob.wander()
+		a.conn.SendString("You flee!")
 	} else {
-		// put all container or put all.object container
-		words := strings.SplitN(arg1, ".", 2)
-		var name string
-		if len(words) > 1 {
-			name = words[1]
-		}
-		for j, item := range player.Inventory {
-			if (arg1 == "all" || strings.HasPrefix(item.Name, name)) && item.WearLocation == wearNone && item != container && item.Weight+container.Weight > uint(container.Value) {
-				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
-				container.container = append(container.container, item)
-				player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
-				player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
-			}
-		}
+		a.conn.SendString("You tried to flee, but failed!" + helpers.Newline)
 	}
 }
 
@@ -800,6 +694,339 @@ func (a *action) get() {
 			}
 		}
 	}
+}
+
+func (a *action) kill() {
+	for _, m := range a.mob.Room.Mobs {
+		if a.matchesSubject(m.Identifiers) {
+			newFight(a.mob, m)
+			return
+		}
+	}
+
+	a.mob.notify("You can't find them." + helpers.Newline)
+}
+
+func (a *action) move(d string) {
+	if a.mob.Status != standing {
+		switch a.mob.Status {
+		case fighting:
+			a.conn.SendString("You can't move while fighting!" + helpers.Newline)
+			break
+		}
+		return
+	}
+
+	for _, e := range a.mob.Room.Exits {
+		if e.Dir == d {
+			a.mob.move(e)
+			newAction(a.mob, a.conn, "look")
+			return
+		}
+	}
+	a.conn.SendString("Alas, you cannot go that way." + helpers.Newline)
+}
+
+func (a *action) put() {
+
+	player := a.mob
+	if len(a.args) <= 2 {
+		player.notify(fmt.Sprintf("Put what in what?%s", helpers.Newline))
+		return
+	}
+
+	arg1, arg2 := a.args[1], a.args[2]
+
+	if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
+		player.notify(fmt.Sprintf("You can't do that.%s", helpers.Newline))
+		return
+	}
+
+	var container *item
+	for _, i := range player.Inventory {
+		if strings.HasPrefix(i.Name, arg2) {
+			container = i
+			break
+		}
+	}
+
+	if container == nil {
+		// try from room
+		for _, i := range player.Room.Items {
+			if strings.HasPrefix(i.Name, arg2) {
+				container = i
+				break
+			}
+		}
+
+	}
+
+	if container == nil {
+		player.notify(fmt.Sprintf("I see no %s here.%s", arg2, helpers.Newline))
+		return
+	}
+
+	if helpers.HasBit(uint(container.Value), containerClosed) {
+		player.notify(fmt.Sprintf("The %s is closed.%s", container.Name, helpers.Newline))
+		return
+	}
+
+	if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+		// put obj container
+		var item *item
+		for _, i := range player.Inventory {
+			if helpers.MatchesSubject(i.Name, arg1) {
+				item = i
+				break
+			}
+		}
+
+		if item == nil {
+			player.notify(fmt.Sprintf("You do not have that item.%s", helpers.Newline))
+			return
+		}
+
+		if item == container {
+			player.notify(fmt.Sprintf("You can't fold it into itself!%s", helpers.Newline))
+			return
+		}
+
+		// TODO
+		// if !player.canDropObj(item) {
+		// 	player.notify(fmt.Sprintf("You can't let go of it.%s", helpers.Newline))
+		// 	return
+		// }
+
+		if item.Weight+container.Weight > uint(container.Value) {
+			player.notify(fmt.Sprintf("It won't fit.%s", helpers.Newline))
+			return
+		}
+
+		for j, it := range player.Inventory {
+			if it == item {
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				break
+			}
+		}
+
+		container.container = append(container.container, item)
+
+		player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
+		player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+	} else {
+		// put all container or put all.object container
+		words := strings.SplitN(arg1, ".", 2)
+		var name string
+		if len(words) > 1 {
+			name = words[1]
+		}
+		for j, item := range player.Inventory {
+			if (arg1 == "all" || strings.HasPrefix(item.Name, name)) && item.WearLocation == wearNone && item != container && item.Weight+container.Weight > uint(container.Value) {
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				container.container = append(container.container, item)
+				player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
+				player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+			}
+		}
+	}
+}
+
+func (a *action) quit() {
+	if a.mob.Status == fighting {
+		a.conn.SendString("You can't quit now. You're fighting!" + helpers.Newline)
+	} else {
+		a.conn.SendString("Seeya!" + helpers.Newline)
+		a.conn.end()
+	}
+}
+
+func (a *action) recall() {
+	if len(a.args) == 1 {
+		room := getRoom(a.mob.RecallRoomID)
+		a.mob.Room = room
+		a.look()
+		return
+	}
+
+	if a.args[1] == "set" {
+		a.mob.RecallRoomID = a.mob.Room.ID
+		a.conn.SendString("Recall set!" + helpers.Newline)
+		return
+	}
+
+	a.conn.SendString("Recall what?" + helpers.Newline)
+}
+
+func (a *action) remove() {
+	for j, item := range a.mob.Equipped {
+		if a.matchesSubject(item.Name) {
+			a.mob.Equipped, a.mob.Inventory = transferItem(j, a.mob.Equipped, a.mob.Inventory)
+			a.mob.notify(fmt.Sprintf("You remove %s.%s", item.Name, helpers.Newline))
+			return
+		}
+	}
+
+	a.mob.notify(fmt.Sprintf("You aren't wearing that.%s", helpers.Newline))
+}
+
+func (a *action) scan() {
+	room := getRoom(a.mob.Room.ID)
+	for _, x := range room.Exits {
+		a.conn.SendString(fmt.Sprintf("[%s]%s", x.Dir, helpers.Newline))
+
+		if len(x.Room.Mobs) > 0 {
+			mobs := x.Room.Mobs
+			for _, m := range mobs {
+				a.conn.SendString(fmt.Sprintf("    %s\n", m.Name))
+			}
+		} else {
+			a.conn.SendString(fmt.Sprintf("    %s(nothing)%s\n", helpers.Blue, helpers.Reset))
+		}
+	}
+}
+
+func (a *action) train() {
+	player := a.mob
+	if player.isNPC() {
+		fmt.Println("crap!")
+		return
+	}
+
+	var trainer *mob
+	for _, mob := range player.Room.Mobs {
+		if mob.isTrainer() {
+			trainer = mob
+			break
+		}
+	}
+
+	if trainer == nil {
+		player.notify("You can't do that here\n")
+		return
+	}
+
+	if len(a.args) == 1 {
+		player.notify(fmt.Sprintf("You have %d practice sessions.%s", player.Practices, helpers.Newline))
+		return
+	}
+
+	var cost uint
+
+	costmap := []uint{5, 6, 7, 9, 12, 13, 15}
+
+	var playerAbility int
+	var playerOutput string
+
+	if strings.HasPrefix(a.args[1], "str") {
+		playerAbility = player.Attributes.Strength
+		playerOutput = "strength"
+	} else if strings.HasPrefix(a.args[1], "int") {
+		playerAbility = player.Attributes.Intelligence
+		playerOutput = "intelligence"
+	} else if strings.HasPrefix(a.args[1], "wis") {
+		playerAbility = player.Attributes.Wisdom
+		playerOutput = "wisdom"
+	} else if strings.HasPrefix(a.args[1], "dex") {
+		playerAbility = player.Attributes.Dexterity
+		playerOutput = "dexterity"
+	} else if strings.HasPrefix(a.args[1], "cha") {
+		playerAbility = player.Attributes.Charisma
+		playerOutput = "charisma"
+	} else if strings.HasPrefix(a.args[1], "con") {
+		playerAbility = player.Attributes.Constitution
+		playerOutput = "constitution"
+	} else {
+		var buf bytes.Buffer
+
+		buf.WriteString("You can train:\r\n")
+		if player.Attributes.Strength < 18 {
+			buf.WriteString(fmt.Sprintf("Strength      %d\r\n", costmap[player.Attributes.Strength-12]))
+		}
+		if player.Attributes.Intelligence < 18 {
+			buf.WriteString(fmt.Sprintf("Intelligence  %d\r\n", costmap[player.Attributes.Intelligence-12]))
+		}
+		if player.Attributes.Wisdom < 18 {
+			buf.WriteString(fmt.Sprintf("Wisdom        %d\r\n", costmap[player.Attributes.Wisdom-12]))
+		}
+		if player.Attributes.Dexterity < 18 {
+			buf.WriteString(fmt.Sprintf("Dexterity     %d\r\n", costmap[player.Attributes.Dexterity-12]))
+		}
+		if player.Attributes.Charisma < 18 {
+			buf.WriteString(fmt.Sprintf("Charisma      %d\r\n", costmap[player.Attributes.Charisma-12]))
+		}
+		if player.Attributes.Constitution < 18 {
+			buf.WriteString(fmt.Sprintf("Constitution  %d\r\n", costmap[player.Attributes.Constitution-12]))
+		}
+
+		message := buf.String()
+		if !strings.HasSuffix(message, ":") {
+			buf.WriteString(".\r\n")
+			player.notify(buf.String())
+		} else {
+			player.notify("You have nothing left to train, you badass!\r\n")
+		}
+
+		return
+	}
+
+	cost = costmap[playerAbility-12]
+	if playerAbility >= 18 {
+		player.notify(fmt.Sprintf("Your %s is already at maximum.%s", playerOutput, helpers.Newline))
+		return
+	}
+
+	if cost > player.Practices {
+		player.notify("You don't have enough practices.\r\n")
+		return
+	}
+
+	player.Practices -= cost
+	switch playerOutput {
+	case "strength":
+		player.Attributes.Strength++
+		break
+	case "intelligence":
+		player.Attributes.Intelligence++
+		break
+	case "wisdom":
+		player.Attributes.Wisdom++
+		break
+	case "dexterity":
+		player.Attributes.Dexterity++
+		break
+	case "charisma":
+		player.Attributes.Charisma++
+		break
+	case "constitution":
+		player.Attributes.Constitution++
+		break
+	}
+
+	player.notify(fmt.Sprintf("Your %s increases for %d practice points!%s", playerOutput, cost, helpers.Newline))
+	return
+}
+
+func (a *action) trip() {
+
+	if a.mob.skill("trip") == nil {
+		a.mob.notify("You don't know how to do this.\n")
+		return
+	}
+
+	if len(a.args) > 1 {
+		for _, m := range a.mob.Room.Mobs {
+			if a.matchesSubject(m.Identifiers) {
+				newFight(a.mob, m)
+				break
+			}
+		}
+
+		if a.mob.Fight == nil {
+			a.mob.notify("Trip who?")
+			return
+		}
+	}
+	a.mob.trip()
 }
 
 func (a *action) wear() {
@@ -965,233 +1192,6 @@ func (a *action) wear() {
 	}
 
 	a.mob.notify(fmt.Sprintf("You can't wear, wield, or hold that.%s", helpers.Newline))
-}
-
-func (a *action) remove() {
-	for j, item := range a.mob.Equipped {
-		if a.matchesSubject(item.Name) {
-			a.mob.Equipped, a.mob.Inventory = transferItem(j, a.mob.Equipped, a.mob.Inventory)
-			a.mob.notify(fmt.Sprintf("You remove %s.%s", item.Name, helpers.Newline))
-			return
-		}
-	}
-
-	a.mob.notify(fmt.Sprintf("You aren't wearing that.%s", helpers.Newline))
-}
-
-func (a *action) kill() {
-	for _, m := range a.mob.Room.Mobs {
-		if a.matchesSubject(m.Identifiers) {
-			newFight(a.mob, m)
-			return
-		}
-	}
-
-	a.mob.notify("You can't find them." + helpers.Newline)
-}
-
-func (a *action) train() {
-	player := a.mob
-	if player.isNPC() {
-		fmt.Println("crap!")
-		return
-	}
-
-	var trainer *mob
-	for _, mob := range player.Room.Mobs {
-		if mob.isTrainer() {
-			trainer = mob
-			break
-		}
-	}
-
-	if trainer == nil {
-		player.notify("You can't do that here\n")
-		return
-	}
-
-	if len(a.args) == 1 {
-		player.notify(fmt.Sprintf("You have %d practice sessions.%s", player.Practices, helpers.Newline))
-		return
-	}
-
-	var cost uint
-
-	costmap := []uint{5, 6, 7, 9, 12, 13, 15}
-
-	var playerAbility int
-	var playerOutput string
-
-	if strings.HasPrefix(a.args[1], "str") {
-		playerAbility = player.Attributes.Strength
-		playerOutput = "strength"
-	} else if strings.HasPrefix(a.args[1], "int") {
-		playerAbility = player.Attributes.Intelligence
-		playerOutput = "intelligence"
-	} else if strings.HasPrefix(a.args[1], "wis") {
-		playerAbility = player.Attributes.Wisdom
-		playerOutput = "wisdom"
-	} else if strings.HasPrefix(a.args[1], "dex") {
-		playerAbility = player.Attributes.Dexterity
-		playerOutput = "dexterity"
-	} else if strings.HasPrefix(a.args[1], "cha") {
-		playerAbility = player.Attributes.Charisma
-		playerOutput = "charisma"
-	} else if strings.HasPrefix(a.args[1], "con") {
-		playerAbility = player.Attributes.Constitution
-		playerOutput = "constitution"
-	} else {
-		var buf bytes.Buffer
-
-		buf.WriteString("You can train:\r\n")
-		if player.Attributes.Strength < 18 {
-			buf.WriteString(fmt.Sprintf("Strength      %d\r\n", costmap[player.Attributes.Strength-12]))
-		}
-		if player.Attributes.Intelligence < 18 {
-			buf.WriteString(fmt.Sprintf("Intelligence  %d\r\n", costmap[player.Attributes.Intelligence-12]))
-		}
-		if player.Attributes.Wisdom < 18 {
-			buf.WriteString(fmt.Sprintf("Wisdom        %d\r\n", costmap[player.Attributes.Wisdom-12]))
-		}
-		if player.Attributes.Dexterity < 18 {
-			buf.WriteString(fmt.Sprintf("Dexterity     %d\r\n", costmap[player.Attributes.Dexterity-12]))
-		}
-		if player.Attributes.Charisma < 18 {
-			buf.WriteString(fmt.Sprintf("Charisma      %d\r\n", costmap[player.Attributes.Charisma-12]))
-		}
-		if player.Attributes.Constitution < 18 {
-			buf.WriteString(fmt.Sprintf("Constitution  %d\r\n", costmap[player.Attributes.Constitution-12]))
-		}
-
-		message := buf.String()
-		if !strings.HasSuffix(message, ":") {
-			buf.WriteString(".\r\n")
-			player.notify(buf.String())
-		} else {
-			player.notify("You have nothing left to train, you badass!\r\n")
-		}
-
-		return
-	}
-
-	cost = costmap[playerAbility-12]
-	if playerAbility >= 18 {
-		player.notify(fmt.Sprintf("Your %s is already at maximum.%s", playerOutput, helpers.Newline))
-		return
-	}
-
-	if cost > player.Practices {
-		player.notify("You don't have enough practices.\r\n")
-		return
-	}
-
-	player.Practices -= cost
-	switch playerOutput {
-	case "strength":
-		player.Attributes.Strength++
-		break
-	case "intelligence":
-		player.Attributes.Intelligence++
-		break
-	case "wisdom":
-		player.Attributes.Wisdom++
-		break
-	case "dexterity":
-		player.Attributes.Dexterity++
-		break
-	case "charisma":
-		player.Attributes.Charisma++
-		break
-	case "constitution":
-		player.Attributes.Constitution++
-		break
-	}
-
-	player.notify(fmt.Sprintf("Your %s increases for %d practice points!%s", playerOutput, cost, helpers.Newline))
-	return
-}
-
-func (a *action) trip() {
-
-	if a.mob.skill("trip") == nil {
-		a.mob.notify("You don't know how to do this.\n")
-		return
-	}
-
-	if len(a.args) > 1 {
-		for _, m := range a.mob.Room.Mobs {
-			if a.matchesSubject(m.Identifiers) {
-				newFight(a.mob, m)
-				break
-			}
-		}
-
-		if a.mob.Fight == nil {
-			a.mob.notify("Trip who?")
-			return
-		}
-	}
-	a.mob.trip()
-}
-
-func (a *action) flee() {
-	if a.mob.Status != fighting {
-		a.conn.SendString("You can't flee if you're not fighting, fool." + helpers.Newline)
-		return
-	}
-
-	roll := dice().Intn(36 - a.mob.Attributes.Dexterity) // higher the dexterity, better the chance of fleeing successfully
-	if roll == 1 {
-		a.mob.Fight.Mob1.Status = standing
-		a.mob.Fight.Mob2.Status = standing
-
-		a.mob.wander()
-		a.conn.SendString("You flee!")
-	} else {
-		a.conn.SendString("You tried to flee, but failed!" + helpers.Newline)
-	}
-}
-
-func (a *action) scan() {
-	room := getRoom(a.mob.Room.ID)
-	for _, x := range room.Exits {
-		a.conn.SendString(fmt.Sprintf("[%s]%s", x.Dir, helpers.Newline))
-
-		if len(x.Room.Mobs) > 0 {
-			mobs := x.Room.Mobs
-			for _, m := range mobs {
-				a.conn.SendString(fmt.Sprintf("    %s\n", m.Name))
-			}
-		} else {
-			a.conn.SendString(fmt.Sprintf("    %s(nothing)%s\n", helpers.Blue, helpers.Reset))
-		}
-	}
-}
-
-func (a *action) recall() {
-	if len(a.args) == 1 {
-		room := getRoom(a.mob.RecallRoomID)
-		a.mob.Room = room
-		a.look()
-		return
-	}
-
-	if a.args[1] == "set" {
-		a.mob.RecallRoomID = a.mob.Room.ID
-		a.conn.SendString("Recall set!" + helpers.Newline)
-		return
-	}
-
-	a.conn.SendString("Recall what?" + helpers.Newline)
-}
-
-func (a *action) quit() {
-	if a.mob.Status == fighting {
-		a.conn.SendString("You can't quit now. You're fighting!" + helpers.Newline)
-	} else {
-		a.conn.SendString("Seeya!" + helpers.Newline)
-		a.conn.end()
-	}
 }
 
 func (a *action) matchesSubject(s string) bool {
