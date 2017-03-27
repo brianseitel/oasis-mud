@@ -19,6 +19,12 @@ var (
 const (
 	goldSingle = 100001
 	goldMulti  = 100002
+
+	vnumTurd        = 100003
+	vnumSeveredHead = 100004
+	vnumTornHeart   = 100005
+	vnumSlicedArm   = 100006
+	vnumSlicedLeg   = 100007
 )
 
 const (

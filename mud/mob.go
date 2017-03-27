@@ -132,7 +132,7 @@ func (m *mob) isNPC() bool {
 }
 
 func (m *mob) isSafe() bool {
-	return true
+	return false
 }
 
 func (m *mob) isSilenced() bool {
@@ -257,6 +257,7 @@ func (m *mob) regenHitpoints() *mob {
 	if m.Hitpoints >= m.MaxHitpoints {
 		return m
 	}
+
 	amount := dice().Intn(int(m.MaxHitpoints/20) + (m.Level * m.Attributes.Constitution))
 
 	multiplier := 1.0

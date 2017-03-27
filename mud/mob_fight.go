@@ -1,6 +1,8 @@
 package mud
 
 import (
+	"strings"
+
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
@@ -50,14 +52,78 @@ func (m *mob) damage(victim *mob) int {
 }
 
 func (m *mob) damroll() int {
-	return m.Attributes.Strength
+	return 1000
+	// return m.Attributes.Strength
+}
+
+func (m *mob) deathCry() {
+	var msg string
+	var drop int
+	switch dice().Intn(4) {
+	case 0:
+		msg = "$n hits the ground ... DEAD."
+		break
+	case 1:
+		msg = "$n splatters blood on your armor."
+		break
+	case 2:
+		msg = "You smell $n's sphincter releasing in death."
+		drop = vnumTurd
+		break
+	case 3:
+		msg = "$n's severed head plops on the ground."
+		drop = vnumSeveredHead
+		break
+	case 4:
+		msg = "$n's heart is torn from $s chest."
+		drop = vnumTornHeart
+		break
+	case 5:
+		msg = "$n's arm is sliced from $s dead body."
+		drop = vnumSlicedArm
+		break
+	case 6:
+		msg = "$n's leg is sliced from $s dead body."
+		drop = vnumSlicedLeg
+		break
+	default:
+		msg = "You hear $n's death cry."
+	}
+
+	act(msg, m, nil, nil, actToRoom)
+
+	if drop > 0 {
+		item := newItemFromIndex(getItem(uint(drop)))
+		itemList.PushBack(item)
+
+		item.Name = strings.Replace(item.Name, "[name]", m.Name, -1)
+		item.Description = strings.Replace(item.Description, "[name]", m.Name, -1)
+
+		m.Room.Items = append(m.Room.Items, item)
+	}
+
+	if m.isNPC() {
+		msg = "You hear something's death cry."
+	} else {
+		msg = "You hear someone's death cry."
+	}
+
+	oldRoom := m.Room
+	for _, exit := range m.Room.Exits {
+		m.Room = exit.Room
+		act(msg, m, nil, nil, actToRoom)
+	}
+	m.Room = oldRoom
 }
 
 func (m *mob) die() {
+	m.deathCry()
 	// drop corpse in room
 	corpse := &item{ItemType: 0, Name: "A corpse of " + m.Name, Timer: 1}
 	m.Room.Items = append(m.Room.Items, corpse)
 
+	m.Fight = nil
+	m.Status = sitting
 	// whisk them away to Nowhere
 	m.Room = getRoom(0)
 }
