@@ -472,38 +472,98 @@ func (a *action) cast() {
 }
 
 func (a *action) drop() {
-	if a.args[1] == "all" {
-		for _, item := range a.mob.Inventory {
-			a.mob.Room.Items = append(a.mob.Room.Items, item)
-			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
-			for _, m := range a.mob.Room.Mobs {
-				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
-				} else {
-					m.notify(message)
-				}
-			}
-		}
-		a.mob.Inventory = nil
+	player := a.mob
+	if len(a.args) <= 1 {
+		player.notify(fmt.Sprintf("Drop what?%s", helpers.Newline))
 		return
 	}
 
-	for j, item := range a.mob.Inventory {
-		if a.matchesSubject(item.Name) {
-			a.mob.Inventory, a.mob.Room.Items = transferItem(j, a.mob.Inventory, a.mob.Room.Items)
-			message := fmt.Sprintf("%s drops %s.\n", a.mob.Name, item.Name)
-			for _, m := range a.mob.Room.Mobs {
-				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You drop %s.\n", item.Name))
-				} else {
-					m.notify(message)
-				}
-			}
+	arg1 := a.args[1]
+
+	num, err := strconv.Atoi(arg1)
+	isNumber := err == nil
+
+	if isNumber {
+		amount := uint(num)
+		if len(a.args) < 2 || amount <= 0 || !strings.HasPrefix(a.args[2], "gold") {
+			player.notify(fmt.Sprintf("Sorry, you can't do that.%s", helpers.Newline))
 			return
+		}
+
+		if player.Gold < uint(amount) {
+			player.notify(fmt.Sprintf("You haven't got that many coins.%s", helpers.Newline))
+			return
+		}
+
+		player.Gold -= amount
+
+		// TODO: see if we already have gold in the room
+
+		player.Room.Items = append(player.Room.Items, createMoney(amount))
+		player.notify(fmt.Sprintf("OK.%s", helpers.Newline))
+		player.Room.notify(fmt.Sprintf("%s drops some gold.%s", player.Name, helpers.Newline), player)
+		return
+	}
+
+	if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+		// drop obj
+		var item *item
+		for _, i := range player.Inventory {
+			if helpers.MatchesSubject(i.Name, arg1) {
+				item = i
+				break
+			}
+		}
+
+		if item == nil {
+			player.notify(fmt.Sprintf("You don't have that item.%s", helpers.Newline))
+			return
+		}
+
+		// TODO: canDropObj
+
+		for j, i := range player.Inventory {
+			if i == item {
+				player.Inventory, player.Room.Items = transferItem(j, player.Inventory, player.Room.Items)
+				player.notify(fmt.Sprintf("You drop %s.%s", i.Name, helpers.Newline))
+				player.Room.notify(fmt.Sprintf("%s drops %s.%s", player.Name, i.Name, helpers.Newline), player)
+				break
+			}
+		}
+	} else {
+		// drop all
+		found := false
+
+		words := strings.SplitN(arg1, ".", 2)
+		var name string
+		if len(words) > 1 {
+			name = words[1]
+		}
+
+		fmt.Println(name)
+		for j := 0; j < len(player.Inventory); j++ {
+			item := player.Inventory[j]
+			if arg1 == "all" || helpers.MatchesSubject(item.Name, name) {
+				found = true
+
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				j--
+				player.Room.Items = append(player.Room.Items, item)
+				player.notify(fmt.Sprintf("You drop %s.%s", item.Name, helpers.Newline))
+				player.Room.notify(fmt.Sprintf("%s drops %s.%s", player.Name, item.Name, helpers.Newline), player)
+			}
+		}
+
+		if !found {
+			if len(name) == 0 {
+				player.notify(fmt.Sprintf("You are not carrying anything.%s", helpers.Newline))
+			} else {
+				player.notify(fmt.Sprintf("You are not carrying any %s.%s", arg1, helpers.Newline))
+			}
 		}
 	}
 
-	a.mob.notify("Drop what?")
+	return
 }
 
 func (a *action) put() {

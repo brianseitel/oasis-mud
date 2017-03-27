@@ -3,6 +3,7 @@ package mud
 import (
 	"container/list"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -13,6 +14,11 @@ import (
 var (
 	itemList      list.List
 	itemIndexList list.List
+)
+
+const (
+	goldSingle = 100001
+	goldMulti  = 100002
 )
 
 const (
@@ -273,4 +279,21 @@ func (item *item) removeObject(target *item) {
 
 func (item *item) extract() {
 
+}
+
+func createMoney(amount uint) *item {
+	if amount <= 0 {
+		fmt.Printf("create_money: zero or negative money %d.%s", amount, helpers.Newline)
+		amount = 1
+	}
+
+	var obj *item
+	if amount == 1 {
+		obj = newItemFromIndex(getItem(goldSingle))
+	} else {
+		obj = newItemFromIndex(getItem(goldMulti))
+		obj.Value = int(amount)
+	}
+
+	return obj
 }
