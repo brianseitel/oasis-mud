@@ -62,6 +62,12 @@ type mob struct {
 	Level     int
 	Alignment int
 	Practices uint
+	Gold      uint
+
+	Carrying       uint `json:"carrying"`
+	CarryMax       uint `json:"carry_max"`
+	CarryWeight    uint `json:"carry_weight"`
+	CarryWeightMax uint `json:"carry_weight_max"`
 
 	Job    *job  `json:"-"`
 	JobID  int   `json:"job"`

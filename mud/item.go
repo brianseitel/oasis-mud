@@ -29,6 +29,13 @@ const (
 type position string
 
 const (
+	containerClosable = 1 << iota
+	containerPickproof
+	containerClosed
+	containerLocked
+)
+
+const (
 	light     position = "light"
 	finger1   position = "finger"
 	finger2   position = "finger"
@@ -145,7 +152,8 @@ type itemIndex struct {
 	Name             string
 	Description      string
 	ShortDescription string
-	ItemType         uint `json:"item_type"`
+	ItemType         uint   `json:"item_type"`
+	ContainedIDs     []uint `json:"contained_ids"`
 	Affected         []*affect
 	ExtraFlags       uint `json:"extra_flags"`
 	WearFlags        uint `json:"wear_flags"`
@@ -156,6 +164,7 @@ type itemIndex struct {
 type item struct {
 	ID               uint
 	index            itemIndex
+	container        []*item
 	Name             string
 	Description      string
 	ShortDescription string
@@ -191,8 +200,13 @@ func newItemDatabase() {
 }
 
 func newItemFromIndex(index *itemIndex) *item {
+	var contained []*item
 	item := &item{Name: index.Name, Description: index.Description, ShortDescription: index.ShortDescription, ItemType: index.ItemType, ExtraFlags: index.ExtraFlags, WearFlags: index.WearFlags, Weight: index.Weight, Value: index.Value, Timer: -1}
-
+	for _, id := range index.ContainedIDs {
+		i := getItem(id)
+		contained = append(contained, newItemFromIndex(i))
+	}
+	item.container = contained
 	itemList.PushBack(item)
 	return item
 }
@@ -246,4 +260,17 @@ func (item *item) canWear(position uint) bool {
 
 func (item *item) hasExtraFlag(flag uint) bool {
 	return helpers.HasBit(item.ExtraFlags, flag)
+}
+
+func (item *item) removeObject(target *item) {
+	for j, it := range item.container {
+		if it == target {
+			item.container = append(item.container[0:j], item.container[j+1:]...)
+			return
+		}
+	}
+}
+
+func (item *item) extract() {
+
 }

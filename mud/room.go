@@ -156,3 +156,12 @@ func (r *room) removeMob(m *mob) {
 		}
 	}
 }
+
+func (r *room) removeObject(i *item) {
+	for j, item := range r.Items {
+		if item == i {
+			r.Items = append(r.Items[0:j], r.Items[j+1:]...)
+			return
+		}
+	}
+}

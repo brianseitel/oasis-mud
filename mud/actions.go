@@ -504,38 +504,126 @@ func (a *action) drop() {
 }
 
 func (a *action) get() {
-	if a.args[1] == "all" {
-		for _, item := range a.mob.Room.Items {
-			a.mob.Inventory = append(a.mob.Inventory, item)
-			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
-			for _, m := range a.mob.Room.Mobs {
-				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
-				} else {
-					m.notify(message)
-				}
-			}
-		}
-		a.mob.Room.Items = nil
+
+	player := a.mob
+
+	if len(a.args) <= 1 {
+		player.notify(fmt.Sprintf("Get what?%s", helpers.Newline))
 		return
 	}
+	arg1, args := a.args[1], a.args[2:]
 
-	for j, item := range a.mob.Room.Items {
-		if a.args[1] == "all" || a.matchesSubject(item.Name) {
-			a.mob.Room.Items, a.mob.Inventory = transferItem(j, a.mob.Room.Items, a.mob.Inventory)
-			message := fmt.Sprintf("%s picks up %s.\n", a.mob.Name, item.Name)
-			for _, m := range a.mob.Room.Mobs {
-				if m.ID == a.mob.ID {
-					m.notify(fmt.Sprintf("You pick up %s.\n", item.Name))
-				} else {
-					m.notify(message)
+	if len(a.args) == 2 {
+		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+			// get obj
+			for _, i := range player.Room.Items {
+				if helpers.MatchesSubject(i.Name, arg1) {
+					player.get(i, nil)
+					return
 				}
 			}
+
+			player.notify(fmt.Sprintf("I see no %s here.%s", arg1, helpers.Newline))
+		} else {
+			// get all or get all.container
+			words := strings.SplitN(arg1, ".", 2)
+			var name string
+			if len(words) > 1 {
+				name = words[1]
+			}
+			found := false
+			if len(player.Room.Items) > 0 {
+				for _, i := range player.Room.Items {
+					if helpers.MatchesSubject(i.Name, name) || len(name) == 0 {
+						player.get(i, nil)
+						found = true
+					}
+				}
+			}
+
+			if !found {
+				if len(name) == 0 {
+					player.notify(fmt.Sprintf("I see nothing here.%s", helpers.Newline))
+				} else {
+					player.notify(fmt.Sprintf("I see no %s here.%s", name, helpers.Newline))
+				}
+			}
+		}
+	} else {
+		// get ... container
+		arg2 := args[0]
+
+		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+			player.notify(fmt.Sprintf("You can't do that.%s", helpers.Newline))
 			return
 		}
-	}
 
-	a.mob.notify("Get what?" + helpers.Newline)
+		var container *item
+		for _, i := range player.Room.Items {
+			if strings.HasPrefix(i.Name, arg2) {
+				container = i
+				break
+			}
+		}
+
+		if container == nil {
+			player.notify(fmt.Sprintf("I see no %s here.%s", arg2, helpers.Newline))
+			return
+		}
+
+		switch container.ItemType {
+		case itemContainer:
+		case itemCorpseNPC:
+			break
+
+		case itemCorpsePC:
+			player.notify(fmt.Sprintf("You can't do that.%s.", helpers.Newline))
+			return
+		default:
+			player.notify(fmt.Sprintf("That's not a container.%s", helpers.Newline))
+			return
+		}
+
+		if helpers.HasBit(uint(container.Value), containerClosed) {
+			player.notify(fmt.Sprintf("The %s is closed.%s", container.Name, helpers.Newline))
+			return
+		}
+
+		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+			// get obj container
+			var item *item
+			for _, i := range player.Room.Items {
+				if i.Name == arg1 {
+					player.get(item, container)
+					return
+				}
+			}
+
+			player.notify(fmt.Sprintf("I see nothing like that in %s.%s", container.Name, helpers.Newline))
+		} else {
+			// get all container or get all.obj container
+			words := strings.SplitN(arg2, ".", 2)
+			var name string
+			if len(words) > 1 {
+				name = words[1]
+			}
+			found := false
+			for _, i := range container.container {
+				if helpers.MatchesSubject(i.Name, name) || len(name) == 0 {
+					player.get(i, container)
+					found = true
+				}
+			}
+
+			if !found {
+				if len(name) == 0 {
+					player.notify(fmt.Sprintf("I see nothing in the %s.%s", container.Name, helpers.Newline))
+				} else {
+					player.notify(fmt.Sprintf("I see nothing like that in %s.%s", container.Name, helpers.Newline))
+				}
+			}
+		}
+	}
 }
 
 func (a *action) wear() {

@@ -45,6 +45,16 @@ func WordWrap(text string, lineWidth int) string {
 	return wrapped
 }
 
+func MatchesSubject(list string, s string) bool {
+	for _, v := range strings.Split(strings.ToLower(list), " ") {
+		if strings.HasPrefix(v, s) {
+			return true
+		}
+	}
+
+	return false
+}
+
 const (
 	Reset       = "\x1B[0m"
 	Bold        = "\x1B[1m"
