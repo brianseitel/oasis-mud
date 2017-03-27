@@ -530,6 +530,17 @@ func (a *action) put() {
 	}
 
 	if container == nil {
+		// try from room
+		for _, i := range player.Room.Items {
+			if strings.HasPrefix(i.Name, arg2) {
+				container = i
+				break
+			}
+		}
+
+	}
+
+	if container == nil {
 		player.notify(fmt.Sprintf("I see no %s here.%s", arg2, helpers.Newline))
 		return
 	}
@@ -659,6 +670,16 @@ func (a *action) get() {
 			if strings.HasPrefix(i.Name, arg2) {
 				container = i
 				break
+			}
+		}
+
+		if container == nil {
+			// try from inventory
+			for _, i := range player.Inventory {
+				if strings.HasPrefix(i.Name, arg1) {
+					container = i
+					break
+				}
 			}
 		}
 
