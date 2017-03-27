@@ -80,7 +80,7 @@ type mob struct {
 	wait    uint
 
 	RecallRoomID uint `json:"recall_room_id"`
-	reply        *mob
+	replyTarget  *mob
 
 	Playable bool
 	client   *connection

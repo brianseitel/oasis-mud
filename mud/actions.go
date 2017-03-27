@@ -98,31 +98,31 @@ func newActionWithInput(a *action) error {
 		a.affect()
 		return nil
 	case cChat:
-		chatDefault(a.mob, a.args)
+		a.mob.chatDefault(a.args)
 		return nil
 	case cChatAuction:
-		chatAuction(a.mob, a.args)
+		a.mob.chatAuction(a.args)
 		return nil
 	case cChatMusic:
-		chatMusic(a.mob, a.args)
+		a.mob.chatMusic(a.args)
 		return nil
 	case cChatQuestion:
-		chatQuestion(a.mob, a.args)
+		a.mob.chatQuestion(a.args)
 		return nil
 	case cChatAnswer:
-		chatAnswer(a.mob, a.args)
+		a.mob.chatAnswer(a.args)
 		return nil
 	case cChatImmtalk:
-		chatImmtalk(a.mob, a.args)
+		a.mob.chatImmtalk(a.args)
 		return nil
 	case cSay:
-		say(a.mob, a.args)
+		a.mob.say(a.args)
 		return nil
 	case cTell:
-		tell(a.mob, a.args)
+		a.mob.tell(a.args)
 		return nil
 	case cReply:
-		reply(a.mob, a.args)
+		a.mob.reply(a.args)
 		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
@@ -466,10 +466,6 @@ func (a *action) cast() {
 	}
 
 	return
-}
-
-func (a *action) chat() {
-	talkChannel(a.mob, a.args, channelChat, "chat")
 }
 
 func (a *action) drop() {
