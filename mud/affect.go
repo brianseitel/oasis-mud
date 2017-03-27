@@ -1,12 +1,14 @@
 package mud
 
 import "fmt"
+import "github.com/brianseitel/oasis-mud/helpers"
 
 type affect struct {
 	affectType *mobSkill
 	duration   uint
 	location   int
 	modifier   int
+	bitVector  uint
 }
 
 const (
@@ -35,6 +37,30 @@ const (
 	applyNone
 )
 
+const (
+	affectBlind           = 1
+	affectInvisible       = 2
+	affectDetectEvil      = 4
+	affectDetectInvisible = 8
+	affectDetectMagic     = 16
+	affectDetectHidden    = 32
+	affectHold            = 64 /* Unused	*/
+	affectSanctuary       = 128
+	affectFaerieFire      = 256
+	affectInfrared        = 512
+	affectCurse           = 1024
+	affectFlaming         = 2048 /* Unused	*/
+	affectPoison          = 4096
+	affectProtect         = 8192
+	affectParalysis       = 16384 /* Unused	*/
+	affectSneak           = 32768
+	affectHide            = 65536
+	affectSleep           = 131072
+	affectCharm           = 262144
+	affectFlying          = 524288
+	affectPassDoor        = 1048576
+)
+
 func affectModify(player *mob, paf *affect, add bool) {
 	var mod int
 
@@ -42,12 +68,13 @@ func affectModify(player *mob, paf *affect, add bool) {
 
 	if add {
 		player.Affects = append(player.Affects, paf)
-
+		helpers.SetBit(player.AffectedBy, paf.bitVector)
 	} else {
 		for j, affect := range player.Affects {
 			if paf == affect {
 				player.Affects = append(player.Affects[0:j], player.Affects[j+1:]...)
-				player.notify("%d", paf.affectType.Skill.MessageOff)
+				player.notify("%s", paf.affectType.Skill.MessageOff)
+				helpers.RemoveBit(player.AffectedBy, paf.bitVector)
 				return
 			}
 		}

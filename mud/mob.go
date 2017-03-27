@@ -38,7 +38,9 @@ type mob struct {
 	Password    string
 	Description string
 
-	Affects   []*affect
+	Affects    []*affect /* list of affects, incl durations */
+	AffectedBy uint      /* bit flag */
+
 	Skills    []*mobSkill
 	Inventory []*item
 	Equipped  []*item
@@ -107,6 +109,19 @@ func (m *mob) checkLevelUp() {
 	}
 }
 
+func (m *mob) isAffected(flag uint) bool {
+	return helpers.HasBit(m.AffectedBy, flag)
+}
+
+func (m *mob) hasAffect(ms *mobSkill) bool {
+	for _, affect := range m.Affects {
+		if affect.affectType == ms {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *mob) isAwake() bool {
 	return m.Status > sleeping
 }
@@ -160,7 +175,9 @@ func (m *mob) move(e *exit) {
 			if rm == m {
 				m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
 			} else {
-				rm.notify("%s leaves heading %s.", m.Name, e.Dir)
+				if !rm.isAffected(affectSneak) {
+					rm.notify("%s leaves heading %s.", m.Name, e.Dir)
+				}
 			}
 		}
 	}
@@ -171,7 +188,9 @@ func (m *mob) move(e *exit) {
 
 	for _, rm := range m.Room.Mobs {
 		if rm != m {
-			rm.notify("%s arrives in room.", m.Name)
+			if !rm.isAffected(affectSneak) {
+				rm.notify("%s arrives in room.", m.Name)
+			}
 		}
 	}
 }

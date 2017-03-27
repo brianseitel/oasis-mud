@@ -133,6 +133,9 @@ func newActionWithInput(a *action) error {
 	case cConsider:
 		a.consider()
 		return nil
+	case cSneak:
+		a.sneak()
+		return nil
 	default:
 		a.conn.SendString("Eh?")
 	}
@@ -1024,6 +1027,30 @@ func (a *action) remove() {
 	}
 
 	a.mob.notify("You aren't wearing that.")
+}
+
+func (a *action) sneak() {
+	sneak := a.mob.skill("sneak")
+	if sneak == nil {
+		a.mob.notify("You don't know how to sneak.")
+		return
+	}
+	for _, affect := range a.mob.Affects {
+		if affect.affectType == sneak {
+			a.mob.removeAffect(affect)
+			break
+		}
+	}
+
+	var af affect
+	af.affectType = sneak
+	af.duration = uint(helpers.Max(5, a.mob.Level))
+	af.modifier = 0
+	af.location = applyNone
+	af.bitVector = affectSneak
+
+	a.mob.addAffect(&af)
+	a.mob.notify("You are now sneaking.")
 }
 
 func (a *action) scan() {

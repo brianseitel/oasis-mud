@@ -9,7 +9,7 @@ func doSpell(spell *mobSkill, player *mob, victim *mob) {
 	af.location = applyArmorClass
 
 	victim.addAffect(&af)
-	victim.notify("You feel someone protecting you.\r\n")
+
 	if player != victim {
 		player.notify("Ok\r\n")
 	}

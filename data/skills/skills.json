@@ -8,8 +8,8 @@
         "minMana": 0,
         "beats": 0,
         "nounDamage": "",
-        "messageOff": "!Parry!"
-
+        "messageOff": "!Parry!",
+        "bitVector": 0
     },
     {
         "id": 2,
@@ -20,7 +20,8 @@
         "minMana": 0,
         "beats": 0,
         "nounDamage": "",
-        "messageOff": "!Trip!"
+        "messageOff": "!Trip!",
+        "bitVector": 0
     },
     {
         "id": 3,
@@ -31,6 +32,19 @@
         "minMana": 5,
         "beats": 12,
         "nounDamage": "",
-        "messageOff": "You feel less protected."
+        "messageOff": "You feel less protected.",
+        "bitVector": 0
+    },
+    {
+        "id": 4,
+        "name": "sneak",
+        "levels": {},
+        "callback": "do_sneak",
+        "target": "self",
+        "minMana": 0,
+        "beats": 12,
+        "nounDamage": "",
+        "messageOff": "You are no longer sneaking.",
+        "bitVector": 32768
     }
 ]
