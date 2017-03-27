@@ -37,7 +37,7 @@
             "item_type": 10,
             "contained_ids": [1,2],
             "extra_flags": 0,
-            "wear_flags": 0,
+            "wear_flags": 1,
             "wear_location": 0,
             "weight": 1,
             "cost": 1,

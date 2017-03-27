@@ -124,6 +124,9 @@ func newActionWithInput(a *action) error {
 	case cReply:
 		a.mob.reply(a.args)
 		return nil
+	case cPut:
+		a.put()
+		return nil
 	default:
 		a.conn.SendString("Eh?" + helpers.Newline)
 	}
@@ -503,6 +506,99 @@ func (a *action) drop() {
 	a.mob.notify("Drop what?")
 }
 
+func (a *action) put() {
+
+	player := a.mob
+	if len(a.args) <= 2 {
+		player.notify(fmt.Sprintf("Put what in what?%s", helpers.Newline))
+		return
+	}
+
+	arg1, arg2 := a.args[1], a.args[2]
+
+	if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
+		player.notify(fmt.Sprintf("You can't do that.%s", helpers.Newline))
+		return
+	}
+
+	var container *item
+	for _, i := range player.Inventory {
+		if strings.HasPrefix(i.Name, arg2) {
+			container = i
+			break
+		}
+	}
+
+	if container == nil {
+		player.notify(fmt.Sprintf("I see no %s here.%s", arg2, helpers.Newline))
+		return
+	}
+
+	if helpers.HasBit(uint(container.Value), containerClosed) {
+		player.notify(fmt.Sprintf("The %s is closed.%s", container.Name, helpers.Newline))
+		return
+	}
+
+	if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+		// put obj container
+		var item *item
+		for _, i := range player.Inventory {
+			if helpers.MatchesSubject(i.Name, arg1) {
+				item = i
+				break
+			}
+		}
+
+		if item == nil {
+			player.notify(fmt.Sprintf("You do not have that item.%s", helpers.Newline))
+			return
+		}
+
+		if item == container {
+			player.notify(fmt.Sprintf("You can't fold it into itself!%s", helpers.Newline))
+			return
+		}
+
+		// TODO
+		// if !player.canDropObj(item) {
+		// 	player.notify(fmt.Sprintf("You can't let go of it.%s", helpers.Newline))
+		// 	return
+		// }
+
+		if item.Weight+container.Weight > uint(container.Value) {
+			player.notify(fmt.Sprintf("It won't fit.%s", helpers.Newline))
+			return
+		}
+
+		for j, it := range player.Inventory {
+			if it == item {
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				break
+			}
+		}
+
+		container.container = append(container.container, item)
+
+		player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
+		player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+	} else {
+		// put all container or put all.object container
+		words := strings.SplitN(arg1, ".", 2)
+		var name string
+		if len(words) > 1 {
+			name = words[1]
+		}
+		for j, item := range player.Inventory {
+			if (arg1 == "all" || strings.HasPrefix(item.Name, name)) && item.WearLocation == wearNone && item != container && item.Weight+container.Weight > uint(container.Value) {
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				container.container = append(container.container, item)
+				player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
+				player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+			}
+		}
+	}
+}
+
 func (a *action) get() {
 
 	player := a.mob
@@ -553,7 +649,7 @@ func (a *action) get() {
 		// get ... container
 		arg2 := args[0]
 
-		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+		if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
 			player.notify(fmt.Sprintf("You can't do that.%s", helpers.Newline))
 			return
 		}
@@ -591,10 +687,9 @@ func (a *action) get() {
 
 		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
 			// get obj container
-			var item *item
-			for _, i := range player.Room.Items {
-				if i.Name == arg1 {
-					player.get(item, container)
+			for _, i := range container.container {
+				if helpers.MatchesSubject(i.Name, arg1) {
+					player.get(i, container)
 					return
 				}
 			}

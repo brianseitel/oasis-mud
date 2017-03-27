@@ -60,7 +60,7 @@ const (
 
 /* wear locations */
 const (
-	wearNone  = -1
+	wearNone  = 99999
 	wearLight = iota
 	wearArmor
 	wearFingerLeft
