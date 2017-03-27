@@ -101,7 +101,7 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 		}
 
 		if strings.Contains(format, "$N") {
-			format = strings.Replace(format, "$N", player.looksAt(m), -1)
+			format = strings.Replace(format, "$N", player.looksAt(victim), -1)
 		}
 
 		if strings.Contains(format, "$e") {

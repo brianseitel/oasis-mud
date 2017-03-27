@@ -1,9 +1,5 @@
 package mud
 
-import (
-	"fmt"
-)
-
 type fight struct {
 	Mob1 *mob
 	Mob2 *mob
@@ -34,10 +30,8 @@ func newFight(m1 *mob, m2 *mob) *fight {
 
 func (f *fight) turn(m *mob) {
 	if m.ID == f.Mob1.ID {
-		fmt.Println("Mob1 attacks")
 		m.attack(f.Mob2, f)
 	} else if m.ID == f.Mob2.ID {
-		fmt.Println("Mob2 attacks")
 		m.attack(f.Mob1, f)
 	}
 }
