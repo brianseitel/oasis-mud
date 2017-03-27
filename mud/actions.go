@@ -130,6 +130,9 @@ func newActionWithInput(a *action) error {
 	case cGive:
 		a.give()
 		return nil
+	case cConsider:
+		a.consider()
+		return nil
 	default:
 		a.conn.SendString("Eh?")
 	}
@@ -451,6 +454,51 @@ func (a *action) cast() {
 		doSpell(spell, player, victim)
 	}
 
+	return
+}
+
+func (a *action) consider() {
+	player := a.mob
+
+	if len(a.args) <= 1 {
+		player.notify("Consider killing whom?")
+		return
+	}
+
+	arg1 := a.args[1]
+	var victim *mob
+	for _, mob := range player.Room.Mobs {
+		if helpers.MatchesSubject(mob.Name, arg1) {
+			victim = mob
+			break
+		}
+	}
+
+	if victim == nil {
+		player.notify("They aren't here.")
+		return
+	}
+
+	diff := victim.Level - player.Level
+
+	var msg string
+	if diff <= -10 {
+		msg = "You can kill $N naked and weaponless."
+	} else if diff <= -5 {
+		msg = "$N is no match for you."
+	} else if diff <= -2 {
+		msg = "$N looks like an easy kill."
+	} else if diff <= 1 {
+		msg = "The perfect match!"
+	} else if diff <= 4 {
+		msg = "$N says 'Do you feel lucky, punk?'"
+	} else if diff <= 9 {
+		msg = "$N laughs at you mercilessly."
+	} else {
+		msg = "Death will thank you for your gift."
+	}
+
+	act(msg, player, nil, victim, actToChar)
 	return
 }
 
