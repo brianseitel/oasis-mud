@@ -80,6 +80,7 @@ type mob struct {
 	wait    uint
 
 	RecallRoomID uint `json:"recall_room_id"`
+	reply        *mob
 
 	Playable bool
 	client   *connection
@@ -112,6 +113,10 @@ func (m *mob) isGood() bool {
 	return m.Alignment >= 350
 }
 
+func (m *mob) isImmortal() bool {
+	return false
+}
+
 func (m *mob) isNeutral() bool {
 	return !m.isEvil() && !m.isGood()
 }
@@ -122,6 +127,10 @@ func (m *mob) isNPC() bool {
 
 func (m *mob) isSafe() bool {
 	return true
+}
+
+func (m *mob) isSilenced() bool {
+	return false
 }
 
 func (m *mob) isTrainer() bool {
@@ -350,6 +359,18 @@ func (m *mob) loadSkills() {
 		skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
 	}
 	m.Skills = skills
+}
+
+func getPlayerByName(name string) *mob {
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		mob := e.Value.(*mob)
+
+		if mob.Playable && mob.Name == name {
+			return mob
+		}
+	}
+
+	return nil
 }
 
 func newMobDatabase() {
