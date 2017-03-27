@@ -47,7 +47,7 @@ func affectModify(player *mob, paf *affect, add bool) {
 		for j, affect := range player.Affects {
 			if paf == affect {
 				player.Affects = append(player.Affects[0:j], player.Affects[j+1:]...)
-				player.notify(fmt.Sprintf("%s\r\n", paf.affectType.Skill.MessageOff))
+				player.notify("%d", paf.affectType.Skill.MessageOff)
 				return
 			}
 		}
@@ -59,7 +59,7 @@ func affectModify(player *mob, paf *affect, add bool) {
 
 	switch paf.location {
 	default:
-		fmt.Printf("affectModify: unknown location %s\r\n", paf.location)
+		fmt.Printf("affectModify: unknown location %d\r\n", paf.location)
 		return
 
 	case applySex:

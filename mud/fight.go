@@ -2,8 +2,6 @@ package mud
 
 import (
 	"fmt"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 type fight struct {
@@ -17,7 +15,7 @@ func newFight(m1 *mob, m2 *mob) *fight {
 		return nil
 	}
 
-	m1.notify(fmt.Sprintf("You scream and attack %s!%s", m2.Name, helpers.Newline))
+	m1.notify("You scream and attack %s!", m2.Name)
 
 	m1.Status = fighting
 	m2.Status = fighting

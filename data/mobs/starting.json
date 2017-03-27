@@ -30,7 +30,11 @@
                 "skill_id": 1,
                 "level": 75
             }
-        ]
+        ],
+        "carrying": 0,
+        "carry_max": 100,
+        "carry_weight": 0,
+        "carry_weight_max": 100
     },
     {
         "id": 3,
@@ -57,7 +61,11 @@
         "constitution": 3,
         "identifiers": "eagle",
         "inventory": [],
-        "equipped": []
+        "equipped": [],
+        "carrying": 0,
+        "carry_max": 100,
+        "carry_weight": 0,
+        "carry_weight_max": 100
     },
     {
         "id": 4,
@@ -90,7 +98,11 @@
                 "skill_id": 1,
                 "level": 75
             }
-        ]
+        ],
+        "carrying": 0,
+        "carry_max": 100,
+        "carry_weight": 0,
+        "carry_weight_max": 100
     },
     {
         "id": 5,
@@ -117,6 +129,10 @@
         "constitution": 3,
         "identifiers": "horse",
         "inventory": [],
-        "equipped": []
+        "equipped": [],
+        "carrying": 0,
+        "carry_max": 100,
+        "carry_weight": 0,
+        "carry_weight_max": 100
     }
 ]

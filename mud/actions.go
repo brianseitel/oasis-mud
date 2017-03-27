@@ -127,8 +127,11 @@ func newActionWithInput(a *action) error {
 	case cPut:
 		a.put()
 		return nil
+	case cGive:
+		a.give()
+		return nil
 	default:
-		a.conn.SendString("Eh?" + helpers.Newline)
+		a.conn.SendString("Eh?")
 	}
 	return nil
 }
@@ -157,7 +160,7 @@ func (a *action) skills() {
 		name := skill.Skill.Name
 		level := skill.Level
 		spaces := width - len(name) - len(strconv.Itoa(int(level)))
-		a.conn.SendString(fmt.Sprintf("%s%s%d%s", name, strings.Repeat(" ", spaces), level, helpers.Newline))
+		a.conn.SendString(fmt.Sprintf("%s%s%d", name, strings.Repeat(" ", spaces), level))
 	}
 	a.conn.SendString("----------------------------------------\n")
 }
@@ -182,20 +185,20 @@ func (a *action) look() {
 	} else {
 		for _, mob := range a.mob.Room.Mobs {
 			if a.matchesSubject(mob.Identifiers) {
-				a.conn.SendString(fmt.Sprintf("You look at %s.", mob.Name) + helpers.Newline)
-				a.conn.SendString(helpers.WordWrap(mob.Description, 50) + helpers.Newline)
+				a.conn.SendString(fmt.Sprintf("You look at %s.", mob.Name))
+				a.conn.SendString(helpers.WordWrap(mob.Description, 50))
 				return
 			}
 		}
 
 		for _, item := range a.mob.Room.Items {
 			if a.matchesSubject(item.Name) {
-				a.conn.SendString(fmt.Sprintf("You look at %s.", item.Name) + helpers.Newline)
-				a.conn.SendString(helpers.WordWrap(item.Description, 50) + helpers.Newline)
+				a.conn.SendString(fmt.Sprintf("You look at %s.", item.Name))
+				a.conn.SendString(helpers.WordWrap(item.Description, 50))
 				return
 			}
 		}
-		a.conn.SendString("Look at what?" + helpers.Newline)
+		a.conn.SendString("Look at what?")
 	}
 }
 
@@ -205,7 +208,7 @@ func (a *action) inventory() {
 			"-----------------------------------",
 			strings.Join(inventoryString(a.mob), helpers.Newline),
 			"-----------------------------------",
-		) + helpers.Newline,
+		),
 	)
 }
 
@@ -215,7 +218,7 @@ func (a *action) equipment() {
 			"-----------------------------------",
 			strings.Join(equippedString(a.mob), helpers.Newline),
 			"-----------------------------------",
-		) + helpers.Newline,
+		),
 	)
 }
 
@@ -258,14 +261,14 @@ func exitsString(exits []*exit) string {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
 	}
 
-	return fmt.Sprintf("[%s]%s%s", strings.Trim(output, " "), helpers.Newline, helpers.Newline)
+	return fmt.Sprintf("[%s]%s", strings.Trim(output, " "), output)
 }
 
 func itemsString(items []*item) string {
 	var output string
 
 	for _, i := range items {
-		output = fmt.Sprintf("%s is here.\n%s", i.Name, output)
+		output = fmt.Sprintf("%s is here.%s%s", i.Name, helpers.Newline, output)
 	}
 	return output
 }
@@ -275,7 +278,7 @@ func mobsString(mobs []*mob, player *mob) string {
 	output = ""
 	for _, m := range mobs {
 		if m != player {
-			output = fmt.Sprintf("%s is here.\n%s", m.Name, output)
+			output = fmt.Sprintf("%s is here.%s%s", m.Name, helpers.Newline, output)
 		}
 	}
 
@@ -346,7 +349,7 @@ func (a *action) affect() {
 			duration = "practifally forever"
 		}
 
-		a.mob.notify(fmt.Sprintf("%s for %s.%s", af.affectType.Skill.Name, duration, helpers.Newline))
+		a.mob.notify("%s for %s.", af.affectType.Skill.Name, duration)
 	}
 }
 
@@ -436,12 +439,12 @@ func (a *action) cast() {
 	}
 
 	if !player.isNPC() && player.Mana < mana {
-		a.mob.notify("You don't have enough mana.\r\n")
+		a.mob.notify("You don't have enough mana.")
 		return
 	}
 
 	if !player.isNPC() && dice().Intn(100) > int(spell.Level) {
-		player.notify("You lost your concentration!\r\n")
+		player.notify("You lost your concentration!")
 		player.Mana -= mana / 2
 	} else {
 		player.Mana -= mana
@@ -454,7 +457,7 @@ func (a *action) cast() {
 func (a *action) drop() {
 	player := a.mob
 	if len(a.args) <= 1 {
-		player.notify(fmt.Sprintf("Drop what?%s", helpers.Newline))
+		player.notify("Drop what?")
 		return
 	}
 
@@ -466,12 +469,12 @@ func (a *action) drop() {
 	if isNumber {
 		amount := uint(num)
 		if len(a.args) < 2 || amount <= 0 || !strings.HasPrefix(a.args[2], "gold") {
-			player.notify(fmt.Sprintf("Sorry, you can't do that.%s", helpers.Newline))
+			player.notify("Sorry, you can't do that.")
 			return
 		}
 
 		if player.Gold < uint(amount) {
-			player.notify(fmt.Sprintf("You haven't got that many coins.%s", helpers.Newline))
+			player.notify("You haven't got that many coins.")
 			return
 		}
 
@@ -480,8 +483,8 @@ func (a *action) drop() {
 		// TODO: see if we already have gold in the room
 
 		player.Room.Items = append(player.Room.Items, createMoney(amount))
-		player.notify(fmt.Sprintf("OK.%s", helpers.Newline))
-		player.Room.notify(fmt.Sprintf("%s drops some gold.%s", player.Name, helpers.Newline), player)
+		player.notify("OK.")
+		player.Room.notify(fmt.Sprintf("%s drops some gold.", player.Name), player)
 		return
 	}
 
@@ -496,7 +499,7 @@ func (a *action) drop() {
 		}
 
 		if item == nil {
-			player.notify(fmt.Sprintf("You don't have that item.%s", helpers.Newline))
+			player.notify("You don't have that item.")
 			return
 		}
 
@@ -505,8 +508,8 @@ func (a *action) drop() {
 		for j, i := range player.Inventory {
 			if i == item {
 				player.Inventory, player.Room.Items = transferItem(j, player.Inventory, player.Room.Items)
-				player.notify(fmt.Sprintf("You drop %s.%s", i.Name, helpers.Newline))
-				player.Room.notify(fmt.Sprintf("%s drops %s.%s", player.Name, i.Name, helpers.Newline), player)
+				player.notify("You drop %s.", i.Name)
+				player.Room.notify(fmt.Sprintf("%s drops %s.", player.Name, i.Name), player)
 				break
 			}
 		}
@@ -529,16 +532,18 @@ func (a *action) drop() {
 				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
 				j--
 				player.Room.Items = append(player.Room.Items, item)
-				player.notify(fmt.Sprintf("You drop %s.%s", item.Name, helpers.Newline))
-				player.Room.notify(fmt.Sprintf("%s drops %s.%s", player.Name, item.Name, helpers.Newline), player)
+				act("$n drops $p.", player, item, nil, actToRoom)
+				act("You drop $p.", player, item, nil, actToChar)
+				// player.notify("You drop %s.", item.Name)
+				// player.Room.notify(fmt.Sprintf("%s drops %s.", player.Name, item.Name), player)
 			}
 		}
 
 		if !found {
 			if len(name) == 0 {
-				player.notify(fmt.Sprintf("You are not carrying anything.%s", helpers.Newline))
+				player.notify("You are not carrying anything.")
 			} else {
-				player.notify(fmt.Sprintf("You are not carrying any %s.%s", arg1, helpers.Newline))
+				player.notify("You are not carrying any %s.", arg1)
 			}
 		}
 	}
@@ -548,7 +553,7 @@ func (a *action) drop() {
 
 func (a *action) flee() {
 	if a.mob.Status != fighting {
-		a.conn.SendString("You can't flee if you're not fighting, fool." + helpers.Newline)
+		a.conn.SendString("You can't flee if you're not fighting, fool.")
 		return
 	}
 
@@ -560,7 +565,7 @@ func (a *action) flee() {
 		a.mob.wander()
 		a.conn.SendString("You flee!")
 	} else {
-		a.conn.SendString("You tried to flee, but failed!" + helpers.Newline)
+		a.conn.SendString("You tried to flee, but failed!")
 	}
 }
 
@@ -569,7 +574,7 @@ func (a *action) get() {
 	player := a.mob
 
 	if len(a.args) <= 1 {
-		player.notify(fmt.Sprintf("Get what?%s", helpers.Newline))
+		player.notify("Get what?")
 		return
 	}
 	arg1, args := a.args[1], a.args[2:]
@@ -584,7 +589,7 @@ func (a *action) get() {
 				}
 			}
 
-			player.notify(fmt.Sprintf("I see no %s here.%s", arg1, helpers.Newline))
+			player.notify("I see no %s here.", arg1)
 		} else {
 			// get all or get all.container
 			words := strings.SplitN(arg1, ".", 2)
@@ -604,9 +609,9 @@ func (a *action) get() {
 
 			if !found {
 				if len(name) == 0 {
-					player.notify(fmt.Sprintf("I see nothing here.%s", helpers.Newline))
+					player.notify("I see nothing here.")
 				} else {
-					player.notify(fmt.Sprintf("I see no %s here.%s", name, helpers.Newline))
+					player.notify("I see no %s here.", name)
 				}
 			}
 		}
@@ -615,7 +620,7 @@ func (a *action) get() {
 		arg2 := args[0]
 
 		if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
-			player.notify(fmt.Sprintf("You can't do that.%s", helpers.Newline))
+			player.notify("You can't do that.")
 			return
 		}
 
@@ -638,7 +643,7 @@ func (a *action) get() {
 		}
 
 		if container == nil {
-			player.notify(fmt.Sprintf("I see no %s here.%s", arg2, helpers.Newline))
+			player.notify("I see no %s here.", arg2)
 			return
 		}
 
@@ -648,15 +653,15 @@ func (a *action) get() {
 			break
 
 		case itemCorpsePC:
-			player.notify(fmt.Sprintf("You can't do that.%s.", helpers.Newline))
+			player.notify("You can't do that.%s.")
 			return
 		default:
-			player.notify(fmt.Sprintf("That's not a container.%s", helpers.Newline))
+			player.notify("That's not a container.")
 			return
 		}
 
 		if helpers.HasBit(uint(container.Value), containerClosed) {
-			player.notify(fmt.Sprintf("The %s is closed.%s", container.Name, helpers.Newline))
+			player.notify("The %s is closed.", container.Name)
 			return
 		}
 
@@ -669,7 +674,7 @@ func (a *action) get() {
 				}
 			}
 
-			player.notify(fmt.Sprintf("I see nothing like that in %s.%s", container.Name, helpers.Newline))
+			player.notify("I see nothing like that in %s.", container.Name)
 		} else {
 			// get all container or get all.obj container
 			words := strings.SplitN(arg2, ".", 2)
@@ -687,13 +692,117 @@ func (a *action) get() {
 
 			if !found {
 				if len(name) == 0 {
-					player.notify(fmt.Sprintf("I see nothing in the %s.%s", container.Name, helpers.Newline))
+					player.notify("I see nothing in the %s.", container.Name)
 				} else {
-					player.notify(fmt.Sprintf("I see nothing like that in %s.%s", container.Name, helpers.Newline))
+					player.notify("I see nothing like that in %s.", container.Name)
 				}
 			}
 		}
 	}
+}
+
+func (a *action) give() {
+	player := a.mob
+	if len(a.args) <= 2 {
+		player.notify("Give what to whom?")
+		return
+	}
+
+	arg1, arg2 := a.args[1], a.args[2]
+
+	var victim *mob
+	for _, mob := range player.Room.Mobs {
+		if helpers.MatchesSubject(mob.Name, arg2) {
+			victim = mob
+			break
+		}
+	}
+
+	num, err := strconv.Atoi(arg1)
+	isNumeric := err == nil
+
+	var amount uint
+	if isNumeric {
+		if num <= 0 || !strings.HasPrefix(arg2, "coin") {
+			player.notify("You can't do that.")
+			return
+		}
+		amount = uint(num)
+
+		if victim == nil {
+			player.notify("They aren't here.")
+			return
+		}
+
+		if player.Gold < amount {
+			player.notify("You don't have that much gold.")
+			return
+		}
+
+		player.Gold -= amount
+		victim.Gold += amount
+		player.notify("You give %s some gold.", victim.Name)
+		victim.notify("%s gives you some gold.", player.Name)
+		return
+	}
+
+	var item *item
+	for _, i := range player.Inventory {
+		if helpers.MatchesSubject(i.Name, arg1) {
+			item = i
+			break
+		}
+	}
+
+	if item == nil {
+		player.notify("You do not have that item.")
+		return
+	}
+
+	// TODO:
+	// if item.WearLocation != wearNone {
+	// 	player.notify("You must remove it first.")
+	// 	return
+	// }
+
+	// TODO:
+	// if victim.Room.ID != player.Room.ID {
+	// 	player.notify("They are not here.")
+	// 	return
+	// }
+
+	// TODO:
+	// if !item.canDrop(player) {
+	// 	player.notify("You can't let go of it.")
+	// 	return
+	// }
+
+	if victim.Carrying+1 > victim.CarryMax {
+		player.notify("%s has their hands full.", victim.Name)
+		return
+	}
+
+	if victim.CarryWeight+item.Weight > victim.CarryWeightMax {
+		player.notify("%s can't carry that much weight.", victim.Name)
+		return
+	}
+
+	// TODO:
+	// if item.canSee(victim) {
+	// 	player.notify("%s can't see it.", victim.Name)
+	// }
+
+	for j, it := range player.Inventory {
+		if it == item {
+			player.Inventory = append(player.Inventory[:j], player.Inventory[j+1:]...)
+			break
+		}
+	}
+	victim.Inventory = append(victim.Inventory, item)
+
+	player.notify("You give %s to %s.", item.Name, victim.Name)
+	victim.notify("%s gives you %s.", player.Name, item.Name)
+	return
 }
 
 func (a *action) kill() {
@@ -704,14 +813,14 @@ func (a *action) kill() {
 		}
 	}
 
-	a.mob.notify("You can't find them." + helpers.Newline)
+	a.mob.notify("You can't find them.")
 }
 
 func (a *action) move(d string) {
 	if a.mob.Status != standing {
 		switch a.mob.Status {
 		case fighting:
-			a.conn.SendString("You can't move while fighting!" + helpers.Newline)
+			a.conn.SendString("You can't move while fighting!")
 			break
 		}
 		return
@@ -724,21 +833,21 @@ func (a *action) move(d string) {
 			return
 		}
 	}
-	a.conn.SendString("Alas, you cannot go that way." + helpers.Newline)
+	a.conn.SendString("Alas, you cannot go that way.")
 }
 
 func (a *action) put() {
 
 	player := a.mob
 	if len(a.args) <= 2 {
-		player.notify(fmt.Sprintf("Put what in what?%s", helpers.Newline))
+		player.notify("Put what in what?")
 		return
 	}
 
 	arg1, arg2 := a.args[1], a.args[2]
 
 	if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
-		player.notify(fmt.Sprintf("You can't do that.%s", helpers.Newline))
+		player.notify("You can't do that.")
 		return
 	}
 
@@ -762,12 +871,12 @@ func (a *action) put() {
 	}
 
 	if container == nil {
-		player.notify(fmt.Sprintf("I see no %s here.%s", arg2, helpers.Newline))
+		player.notify("I see no %s here.", arg2)
 		return
 	}
 
 	if helpers.HasBit(uint(container.Value), containerClosed) {
-		player.notify(fmt.Sprintf("The %s is closed.%s", container.Name, helpers.Newline))
+		player.notify("The %s is closed.", container.Name)
 		return
 	}
 
@@ -782,23 +891,23 @@ func (a *action) put() {
 		}
 
 		if item == nil {
-			player.notify(fmt.Sprintf("You do not have that item.%s", helpers.Newline))
+			player.notify("You do not have that item.")
 			return
 		}
 
 		if item == container {
-			player.notify(fmt.Sprintf("You can't fold it into itself!%s", helpers.Newline))
+			player.notify("You can't fold it into itself!")
 			return
 		}
 
 		// TODO
 		// if !player.canDropObj(item) {
-		// 	player.notify(fmt.Sprintf("You can't let go of it.%s", helpers.Newline))
+		// 	player.notify("You can't let go of it.")
 		// 	return
 		// }
 
 		if item.Weight+container.Weight > uint(container.Value) {
-			player.notify(fmt.Sprintf("It won't fit.%s", helpers.Newline))
+			player.notify("It won't fit.")
 			return
 		}
 
@@ -811,8 +920,8 @@ func (a *action) put() {
 
 		container.container = append(container.container, item)
 
-		player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
-		player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+		player.notify("You put %s in %s.", item.Name, container.Name)
+		player.Room.notify(fmt.Sprintf("%s puts %s in %s.", player.Name, item.Name, container.Name), player)
 	} else {
 		// put all container or put all.object container
 		words := strings.SplitN(arg1, ".", 2)
@@ -824,8 +933,8 @@ func (a *action) put() {
 			if (arg1 == "all" || strings.HasPrefix(item.Name, name)) && item.WearLocation == wearNone && item != container && item.Weight+container.Weight > uint(container.Value) {
 				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
 				container.container = append(container.container, item)
-				player.notify(fmt.Sprintf("You put %s in %s.%s", item.Name, container.Name, helpers.Newline))
-				player.Room.notify(fmt.Sprintf("%s puts %s in %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+				player.notify("You put %s in %s.", item.Name, container.Name)
+				player.Room.notify(fmt.Sprintf("%s puts %s in %s.", player.Name, item.Name, container.Name), player)
 			}
 		}
 	}
@@ -833,9 +942,9 @@ func (a *action) put() {
 
 func (a *action) quit() {
 	if a.mob.Status == fighting {
-		a.conn.SendString("You can't quit now. You're fighting!" + helpers.Newline)
+		a.conn.SendString("You can't quit now. You're fighting!")
 	} else {
-		a.conn.SendString("Seeya!" + helpers.Newline)
+		a.conn.SendString("Seeya!")
 		a.conn.end()
 	}
 }
@@ -850,37 +959,37 @@ func (a *action) recall() {
 
 	if a.args[1] == "set" {
 		a.mob.RecallRoomID = a.mob.Room.ID
-		a.conn.SendString("Recall set!" + helpers.Newline)
+		a.conn.SendString("Recall set!")
 		return
 	}
 
-	a.conn.SendString("Recall what?" + helpers.Newline)
+	a.conn.SendString("Recall what?")
 }
 
 func (a *action) remove() {
 	for j, item := range a.mob.Equipped {
 		if a.matchesSubject(item.Name) {
 			a.mob.Equipped, a.mob.Inventory = transferItem(j, a.mob.Equipped, a.mob.Inventory)
-			a.mob.notify(fmt.Sprintf("You remove %s.%s", item.Name, helpers.Newline))
+			a.mob.notify("You remove %s.", item.Name)
 			return
 		}
 	}
 
-	a.mob.notify(fmt.Sprintf("You aren't wearing that.%s", helpers.Newline))
+	a.mob.notify("You aren't wearing that.")
 }
 
 func (a *action) scan() {
 	room := getRoom(a.mob.Room.ID)
 	for _, x := range room.Exits {
-		a.conn.SendString(fmt.Sprintf("[%s]%s", x.Dir, helpers.Newline))
+		a.mob.notify("[%s]", x.Dir)
 
 		if len(x.Room.Mobs) > 0 {
 			mobs := x.Room.Mobs
 			for _, m := range mobs {
-				a.conn.SendString(fmt.Sprintf("    %s\n", m.Name))
+				a.mob.notify("    %s", m.Name)
 			}
 		} else {
-			a.conn.SendString(fmt.Sprintf("    %s(nothing)%s\n", helpers.Blue, helpers.Reset))
+			a.mob.notify("    %s(nothing)%s", helpers.Blue, helpers.Reset)
 		}
 	}
 }
@@ -888,7 +997,6 @@ func (a *action) scan() {
 func (a *action) train() {
 	player := a.mob
 	if player.isNPC() {
-		fmt.Println("crap!")
 		return
 	}
 
@@ -901,12 +1009,12 @@ func (a *action) train() {
 	}
 
 	if trainer == nil {
-		player.notify("You can't do that here\n")
+		player.notify("You can't do that here.")
 		return
 	}
 
 	if len(a.args) == 1 {
-		player.notify(fmt.Sprintf("You have %d practice sessions.%s", player.Practices, helpers.Newline))
+		player.notify("You have %d practice sessions.", player.Practices)
 		return
 	}
 
@@ -963,7 +1071,7 @@ func (a *action) train() {
 			buf.WriteString(".\r\n")
 			player.notify(buf.String())
 		} else {
-			player.notify("You have nothing left to train, you badass!\r\n")
+			player.notify("You have nothing left to train, you badass!")
 		}
 
 		return
@@ -971,12 +1079,12 @@ func (a *action) train() {
 
 	cost = costmap[playerAbility-12]
 	if playerAbility >= 18 {
-		player.notify(fmt.Sprintf("Your %s is already at maximum.%s", playerOutput, helpers.Newline))
+		player.notify("Your %s is already at maximum.", playerOutput)
 		return
 	}
 
 	if cost > player.Practices {
-		player.notify("You don't have enough practices.\r\n")
+		player.notify("You don't have enough practices.")
 		return
 	}
 
@@ -1002,14 +1110,14 @@ func (a *action) train() {
 		break
 	}
 
-	player.notify(fmt.Sprintf("Your %s increases for %d practice points!%s", playerOutput, cost, helpers.Newline))
+	player.notify("Your %s increases for %d practice points!", playerOutput, cost)
 	return
 }
 
 func (a *action) trip() {
 
 	if a.mob.skill("trip") == nil {
-		a.mob.notify("You don't know how to do this.\n")
+		a.mob.notify("You don't know how to do this.")
 		return
 	}
 
@@ -1044,13 +1152,13 @@ func (a *action) wear() {
 	}
 
 	if a.mob.Level < wearable.Level {
-		a.mob.notify(fmt.Sprintf("You must be level %d to wear this.%s", wearable.Level, helpers.Newline))
+		a.mob.notify("You must be level %d to wear this.", wearable.Level)
 		return
 	}
 
 	if wearable.ItemType == itemLight {
-		a.mob.notify(fmt.Sprintf("You light up %s and hold it.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s lights up %s and holds it.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You light up %s and hold it.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s lights up %s and holds it.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearLight)
 		return
 	}
@@ -1061,20 +1169,20 @@ func (a *action) wear() {
 		}
 
 		if a.mob.equippedItem(wearFingerLeft) == nil {
-			a.mob.notify(fmt.Sprintf("You wear %s on your left finger.%s", wearable.Name, helpers.Newline))
-			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their left finger.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.notify("You wear %s on your left finger.", wearable.Name)
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their left finger.", a.mob.Name, wearable.Name), a.mob)
 			a.mob.equipItem(wearable, wearFingerLeft)
 			return
 		}
 
 		if a.mob.equippedItem(wearFingerRight) == nil {
-			a.mob.notify(fmt.Sprintf("You wear %s on your right finger.%s", wearable.Name, helpers.Newline))
-			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their right finger.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.notify("You wear %s on your right finger.", wearable.Name)
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their right finger.", a.mob.Name, wearable.Name), a.mob)
 			a.mob.equipItem(wearable, wearFingerRight)
 			return
 		}
 
-		a.mob.notify(fmt.Sprintf("You already wear two rings!%s", helpers.Newline))
+		a.mob.notify("You already wear two rings!")
 		return
 	}
 
@@ -1084,20 +1192,20 @@ func (a *action) wear() {
 		}
 
 		if a.mob.equippedItem(wearNeck1) == nil {
-			a.mob.notify(fmt.Sprintf("You wear %s on your neck.%s", wearable.Name, helpers.Newline))
-			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their neck.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.notify("You wear %s on your neck.", wearable.Name)
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their neck.", a.mob.Name, wearable.Name), a.mob)
 			a.mob.equipItem(wearable, wearNeck1)
 			return
 		}
 
 		if a.mob.equippedItem(wearNeck2) == nil {
-			a.mob.notify(fmt.Sprintf("You wear %s on your neck.%s", wearable.Name, helpers.Newline))
-			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their neck.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.notify("You wear %s on your neck.", wearable.Name)
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their neck.", a.mob.Name, wearable.Name), a.mob)
 			a.mob.equipItem(wearable, wearNeck2)
 			return
 		}
 
-		a.mob.notify(fmt.Sprintf("You already wear two neck items!%s", helpers.Newline))
+		a.mob.notify("You already wear two neck items!")
 		return
 	}
 	if wearable.canWear(itemWearWrist) {
@@ -1106,92 +1214,92 @@ func (a *action) wear() {
 		}
 
 		if a.mob.equippedItem(wearWristLeft) == nil {
-			a.mob.notify(fmt.Sprintf("You wear %s on your left wrist.%s", wearable.Name, helpers.Newline))
-			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their left wrist.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.notify("You wear %s on your left wrist.", wearable.Name)
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their left wrist.", a.mob.Name, wearable.Name), a.mob)
 			a.mob.equipItem(wearable, wearWristLeft)
 			return
 		}
 
 		if a.mob.equippedItem(wearWristRight) == nil {
-			a.mob.notify(fmt.Sprintf("You wear %s on your right wrist.%s", wearable.Name, helpers.Newline))
-			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their right wrist.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+			a.mob.notify("You wear %s on your right wrist.", wearable.Name)
+			a.mob.Room.notify(fmt.Sprintf("%s wears %s on their right wrist.", a.mob.Name, wearable.Name), a.mob)
 			a.mob.equipItem(wearable, wearWristRight)
 			return
 		}
 
-		a.mob.notify(fmt.Sprintf("You already wear two wrist items!%s", helpers.Newline))
+		a.mob.notify("You already wear two wrist items!")
 		return
 	}
 
 	if wearable.canWear(itemWearBody) {
-		a.mob.notify(fmt.Sprintf("You wear %s on your body.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their body.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wear %s on your body.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their body.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearBody)
 		return
 	}
 
 	if wearable.canWear(itemWearHead) {
-		a.mob.notify(fmt.Sprintf("You wear %s on your head.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their head.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wear %s on your head.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their head.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearHead)
 		return
 	}
 
 	if wearable.canWear(itemWearLegs) {
-		a.mob.notify(fmt.Sprintf("You wear %s on your legs.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their legs.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wear %s on your legs.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their legs.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearLegs)
 		return
 	}
 
 	if wearable.canWear(itemWearFeet) {
-		a.mob.notify(fmt.Sprintf("You wear %s on your feet.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their feet.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wear %s on your feet.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their feet.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearFeet)
 		return
 	}
 
 	if wearable.canWear(itemWearHands) {
-		a.mob.notify(fmt.Sprintf("You wear %s on your hands.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their hands.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wear %s on your hands.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their hands.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearHands)
 		return
 	}
 
 	if wearable.canWear(itemWearWaist) {
-		a.mob.notify(fmt.Sprintf("You wear %s on your waist.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their waist.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wear %s on your waist.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s on their waist.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearWaist)
 		return
 	}
 
 	if wearable.canWear(itemWearShield) {
-		a.mob.notify(fmt.Sprintf("You wear %s as your shield.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wears %s as their shield.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wear %s as your shield.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wears %s as their shield.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearShield)
 		return
 	}
 
 	if wearable.canWear(itemWearHold) {
-		a.mob.notify(fmt.Sprintf("You hold %s.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s holds %s.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You hold %s.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s holds %s.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearHold)
 		return
 	}
 
 	if wearable.canWear(itemWearWield) {
 		if wearable.Weight > uint(a.mob.ModifiedAttributes.Strength) {
-			a.mob.notify(fmt.Sprintf("It is too heavy for you to wield.%s", helpers.Newline))
+			a.mob.notify("It is too heavy for you to wield.")
 			return
 		}
 
-		a.mob.notify(fmt.Sprintf("You wield %s.%s", wearable.Name, helpers.Newline))
-		a.mob.Room.notify(fmt.Sprintf("%s wields %s.%s", a.mob.Name, wearable.Name, helpers.Newline), a.mob)
+		a.mob.notify("You wield %s.", wearable.Name)
+		a.mob.Room.notify(fmt.Sprintf("%s wields %s.", a.mob.Name, wearable.Name), a.mob)
 		a.mob.equipItem(wearable, wearWield)
 		return
 	}
 
-	a.mob.notify(fmt.Sprintf("You can't wear, wield, or hold that.%s", helpers.Newline))
+	a.mob.notify("You can't wear, wield, or hold that.")
 }
 
 func (a *action) matchesSubject(s string) bool {

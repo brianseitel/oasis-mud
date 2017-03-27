@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 const (
@@ -21,22 +19,22 @@ const (
 
 func (player *mob) talkChannel(args []string, channel int, verb string) {
 	if len(args) <= 1 {
-		player.notify(fmt.Sprintf("%s what?%s", strings.Title(verb), helpers.Newline))
+		player.notify("%s what?", strings.Title(verb))
 		return
 	}
 
 	if player.isNPC() || player.isSilenced() {
-		player.notify(fmt.Sprintf("You can't %s.%s", strings.Title(verb), helpers.Newline))
+		player.notify("You can't %s.", strings.Title(verb))
 		return
 	}
 
 	message := strings.Join(args[1:], " ")
 	switch channel {
 	case channelImmtalk:
-		player.notify(fmt.Sprintf("You: %s%s", message, helpers.Newline))
+		player.notify("You: %s", message)
 		break
 	default:
-		player.notify(fmt.Sprintf("You %s '%s'%s", verb, message, helpers.Newline))
+		player.notify("You %s '%s'", verb, message)
 	}
 
 	for e := mobList.Front(); e != nil; e = e.Next() {
@@ -47,7 +45,7 @@ func (player *mob) talkChannel(args []string, channel int, verb string) {
 			}
 
 			if mob != player {
-				mob.notify(fmt.Sprintf("%s %ss '%s'%s", player.Name, verb, message, helpers.Newline))
+				mob.notify("%s %ss '%s'", player.Name, verb, message)
 			}
 		}
 	}
@@ -79,23 +77,23 @@ func (player *mob) chatImmtalk(args []string) {
 
 func (player *mob) say(args []string) {
 	if len(args) <= 1 {
-		player.notify(fmt.Sprintf("Say what?%s", helpers.Newline))
+		player.notify("Say what?")
 		return
 	}
 
-	message := strings.Join(args, " ")
-	player.notify(fmt.Sprintf("You say '%s'%s", message, helpers.Newline))
-	player.Room.notify(fmt.Sprintf("%s says '%s'%s", strings.Title(player.Name), message, helpers.Newline), player)
+	message := strings.Join(args[1:], " ")
+	act("You say '$T'.", player, nil, message, actToChar)
+	act("$n says '$T'.", player, nil, message, actToRoom)
 }
 
 func (player *mob) tell(args []string) {
 	if player.isNPC() || player.isSilenced() {
-		player.notify(fmt.Sprintf("Your message didn't get through.%s", helpers.Newline))
+		player.notify("Your message didn't get through.")
 		return
 	}
 
 	if len(args) <= 1 {
-		player.notify(fmt.Sprintf("Tell whom what?%s", helpers.Newline))
+		player.notify("Tell whom what?")
 		return
 	}
 
@@ -105,17 +103,17 @@ func (player *mob) tell(args []string) {
 	victim := getPlayerByName(name)
 
 	if victim == nil {
-		player.notify(fmt.Sprintf("They aren't here.%s", helpers.Newline))
+		player.notify("They aren't here.")
 		return
 	}
 
 	if !victim.isNPC() && victim.client == nil {
-		player.notify(fmt.Sprintf("They aren't here.%s", helpers.Newline))
+		player.notify("They aren't here.")
 		return
 	}
 
-	player.notify(fmt.Sprintf("You tell %s '%s'%s", strings.Title(name), message, helpers.Newline))
-	victim.notify(fmt.Sprintf("%s tells you '%s'%s", strings.Title(player.Name), message, helpers.Newline))
+	player.notify("You tell %s '%s'", strings.Title(name), message)
+	victim.notify("%s tells you '%s'", strings.Title(player.Name), message)
 
 	victim.replyTarget = player
 
@@ -123,7 +121,7 @@ func (player *mob) tell(args []string) {
 
 func (player *mob) reply(args []string) {
 	if player.isNPC() || player.isSilenced() {
-		player.notify(fmt.Sprintf("Your message didn't get through.%s", helpers.Newline))
+		player.notify("Your message didn't get through.")
 		return
 	}
 
@@ -131,29 +129,29 @@ func (player *mob) reply(args []string) {
 
 	victim := player.replyTarget
 	if victim == nil {
-		player.notify(fmt.Sprintf("They aren't here.%s", helpers.Newline))
+		player.notify("They aren't here.")
 		return
 	}
 
 	if !victim.isNPC() && victim.client == nil {
-		player.notify(fmt.Sprintf("They aren't here.%s", helpers.Newline))
+		player.notify("They aren't here.")
 		return
 	}
 
-	player.notify(fmt.Sprintf("You tell %s '%s'%s", strings.Title(victim.Name), message, helpers.Newline))
-	victim.notify(fmt.Sprintf("%s tells you '%s'%s", strings.Title(player.Name), message, helpers.Newline))
+	player.notify("You tell %s '%s'", strings.Title(victim.Name), message)
+	victim.notify("%s tells you '%s'", strings.Title(player.Name), message)
 
 	victim.replyTarget = player
 }
 
 func (player *mob) emote(args []string) {
 	if player.isNPC() || player.isSilenced() {
-		player.notify(fmt.Sprintf("You can't show your emotions.%s", helpers.Newline))
+		player.notify("You can't show your emotions.")
 		return
 	}
 
 	if len(args) <= 1 {
-		player.notify(fmt.Sprintf("Emote what?%s", helpers.Newline))
+		player.notify("Emote what?")
 		return
 	}
 
@@ -163,6 +161,6 @@ func (player *mob) emote(args []string) {
 		message += "."
 	}
 
-	player.notify(fmt.Sprintf("You %s%s", message, helpers.Newline))
-	player.Room.notify(fmt.Sprintf("%s %s%s", strings.Title(player.Name), message, helpers.Newline), player)
+	player.notify("You %s", message)
+	player.Room.notify(fmt.Sprintf("%s %s", strings.Title(player.Name), message), player)
 }

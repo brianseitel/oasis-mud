@@ -22,7 +22,7 @@
             "item_type": 0,
             "extra_flags": 0,
             "wear_flags": 32769,
-            "wear_location": 0,
+            "wear_location": 99999,
             "weight": 1,
             "cost": 1,
             "level": 1,

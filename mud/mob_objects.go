@@ -8,26 +8,26 @@ import (
 
 func (player *mob) get(item *item, container *item) {
 	if !item.canWear(itemTake) {
-		player.notify(fmt.Sprintf("You can't take that.%s", helpers.Newline))
+		player.notify("You can't take that.")
 		return
 	}
 
 	if player.Carrying+1 > player.CarryMax {
-		player.notify(fmt.Sprintf("You can't carry that many items.%s", helpers.Newline))
+		player.notify("You can't carry that many items.")
 		return
 	}
 
 	if player.CarryWeight+item.Weight > player.CarryWeightMax {
-		player.notify(fmt.Sprintf("You can't carry that much weight.%s", helpers.Newline))
+		player.notify("You can't carry that much weight.")
 		return
 	}
 
 	if container != nil {
-		player.notify(fmt.Sprintf("You get %s from %s.%s", item.Name, container.Name, helpers.Newline))
+		player.notify("You get %s from %s.", item.Name, container.Name)
 		player.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
 		container.removeObject(item)
 	} else {
-		player.notify(fmt.Sprintf("You get %s.%s", item.Name, helpers.Newline))
+		player.notify("You get %s.%s", item.Name)
 		player.Room.notify(fmt.Sprintf("%s gets %s.%s", player.Name, item.Name, helpers.Newline), player)
 		player.Room.removeObject(item)
 	}

@@ -51,6 +51,7 @@ func login(c *connection) *mob {
 	player.Job = getJob(uint(player.JobID))
 	player.Race = getRace(uint(player.RaceID))
 	player.Room = getRoom(uint(player.RoomID))
+	player.Room.Mobs = append(player.Room.Mobs, player)
 	player.loadSkills()
 	mobList.PushBack(player)
 	return player

@@ -73,7 +73,7 @@ type mob struct {
 	JobID  int   `json:"job"`
 	Race   *race `json:"-"`
 	RaceID int   `json:"race"`
-	Gender string
+	Gender int
 
 	Attributes         *attributeSet
 	ModifiedAttributes *attributeSet
@@ -103,7 +103,7 @@ func (m *mob) removeAffect(af *affect) {
 func (m *mob) checkLevelUp() {
 	if m.Exp > (1000 * m.Level) {
 		m.Level++
-		m.notify(fmt.Sprintf("You have LEVELED UP! You are now Level %d!%s", m.Level, helpers.Newline))
+		m.notify("You have LEVELED UP! You are now Level %d!", m.Level)
 	}
 }
 
@@ -160,7 +160,7 @@ func (m *mob) move(e *exit) {
 			if rm == m {
 				m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
 			} else {
-				rm.notify(fmt.Sprintf("%s leaves heading %s.\n", m.Name, e.Dir))
+				rm.notify("%s leaves heading %s.", m.Name, e.Dir)
 			}
 		}
 	}
@@ -171,7 +171,7 @@ func (m *mob) move(e *exit) {
 
 	for _, rm := range m.Room.Mobs {
 		if rm != m {
-			rm.notify(fmt.Sprintf("%s arrives in room.\n", m.Name))
+			rm.notify("%s arrives in room.", m.Name)
 		}
 	}
 }
@@ -203,7 +203,7 @@ func (m *mob) equipItem(item *item, position uint) {
 	}
 
 	if (item.hasExtraFlag(itemAntiEvil) && m.isEvil()) || (item.hasExtraFlag(itemAntiGood) && m.isGood()) || (item.hasExtraFlag(itemAntiNeutral) && m.isNeutral()) {
-		m.notify(fmt.Sprintf("You are zapped by %s and drop it!%s", item.Name, helpers.Newline))
+		m.notify("You are zapped by %s and drop it!%s", item.Name, helpers.Newline)
 		m.Room.notify(fmt.Sprintf("%s is zapped by %s and drops it!%s", m.Name, item.Name, helpers.Newline), m)
 		// TODO: dropItem()
 		return
@@ -236,9 +236,10 @@ func (m *mob) equippedItem(position uint) *item {
 	return nil
 }
 
-func (m *mob) notify(message string) {
+func (m *mob) notify(message string, a ...interface{}) {
 	if m.client != nil {
-		m.client.SendString(message)
+		message = fmt.Sprintf("%s%s", message, helpers.Newline)
+		m.client.SendString(fmt.Sprintf(message, a...))
 	}
 }
 
@@ -365,6 +366,24 @@ func (m *mob) loadSkills() {
 		skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
 	}
 	m.Skills = skills
+}
+
+func (m *mob) looksAt(target interface{}) string {
+	// try mob first
+
+	var (
+		victim *mob
+		obj    *item
+	)
+	switch target.(type) {
+	case *mob:
+		victim = target.(*mob)
+		return victim.Name
+	case *item:
+		obj = target.(*item)
+		return obj.Name
+	}
+	return ""
 }
 
 func getPlayerByName(name string) *mob {

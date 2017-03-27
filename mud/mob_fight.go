@@ -1,8 +1,6 @@
 package mud
 
 import (
-	"fmt"
-
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
@@ -10,16 +8,16 @@ func (m *mob) attack(target *mob, f *fight) {
 	if target.Status != dead {
 		damage := m.damage(target)
 		target.takeDamage(damage)
-		target.notify(fmt.Sprintf("%s attacks you for %d damagel!%s", m.Name, damage, helpers.Newline))
-		m.notify(fmt.Sprintf("You strike %s for %d damagel!%s", target.Name, damage, helpers.Newline))
+		target.notify("%s attacks you for %d damagel!", m.Name, damage)
+		m.notify("You strike %s for %d damagel!", target.Name, damage)
 
 		if target.Status == dead {
-			m.notify(fmt.Sprintf("You have KILLED %s to death!!%s", target.Name, helpers.Newline))
+			m.notify("You have KILLED %s to death!!", target.Name)
 			m.Status = standing
 
 			exp := xpCompute(m, target)
 			m.Exp += exp
-			m.notify(fmt.Sprintf("You gain %d experience points!%s", exp, helpers.Newline))
+			m.notify("You gain %d experience points!", exp)
 			m.checkLevelUp()
 
 			// Cancel fight
@@ -84,8 +82,8 @@ func (m *mob) dodge(attacker *mob) bool {
 		return false
 	}
 
-	m.notify(fmt.Sprintf("You dodge %s's attack.", m.Name))
-	attacker.notify(fmt.Sprintf("%s dodges your attack.", attacker.Name))
+	m.notify("You dodge %s's attack.", m.Name)
+	attacker.notify("%s dodges your attack.", attacker.Name)
 
 	return true
 }
@@ -150,8 +148,8 @@ func (m *mob) parry(attacker *mob) bool {
 		return false
 	}
 
-	m.notify(fmt.Sprintf("You parry %s's attack.", m.Name))
-	attacker.notify(fmt.Sprintf("%s parries your attack.", attacker.Name))
+	m.notify("You parry %s's attack.", m.Name)
+	attacker.notify("%s parries your attack.", attacker.Name)
 
 	return true
 }
@@ -191,12 +189,12 @@ func (m *mob) trip() {
 		}
 
 		if dice().Intn(100) >= chance+m.Level-victim.Level {
-			m.notify(fmt.Sprintf("You attempt to trip %s but miss!%s", victim.Name, helpers.Newline))
+			m.notify("You attempt to trip %s but miss!", victim.Name)
 			return
 		}
 
-		m.notify(fmt.Sprintf("You trip %s and %s goes down!%s", victim.Name, victim.Name, helpers.Newline))
-		victim.notify(fmt.Sprintf("%s trips you and you go down!%s", m.Name, helpers.Newline))
+		m.notify("You trip %s and %s goes down!", victim.Name, victim.Name)
+		victim.notify("%s trips you and you go down!", m.Name)
 
 		m.wait = 2
 		victim.wait = 2

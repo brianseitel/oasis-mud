@@ -50,7 +50,7 @@ func (r *room) decayItems() {
 			r.Items = append(r.Items[0:j], r.Items[j+1:]...)
 			for _, m := range r.Mobs {
 				if r.ID == m.Room.ID {
-					m.notify(fmt.Sprintf("Rats scurry forth and drag away %s!\n", item.Name))
+					m.notify("Rats scurry forth and drag away %s!", item.Name)
 				}
 			}
 			break
@@ -107,6 +107,13 @@ func newRoomDatabase() {
 		}
 
 		roomList = *exitsList
+	}
+
+	for e := roomList.Front(); e != nil; e = e.Next() {
+		room := e.Value.(*room)
+		for _, mob := range room.Mobs {
+			mob.Room = room
+		}
 	}
 }
 
