@@ -52,6 +52,93 @@ func aggroUpdate() {
 	}
 }
 
+func charUpdate() {
+
+	for e := mobList.Front(); e != nil; e.Next() {
+		player := e.Value.(*mob)
+
+		if player.client == nil {
+			continue
+		}
+
+		if player.Status >= stunned {
+			if player.Hitpoints < player.MaxHitpoints {
+				player.regenHitpoints()
+			}
+
+			if player.Mana < player.MaxMana {
+				player.regenMana()
+			}
+
+			if player.Movement < player.MaxMovement {
+				player.regenMovement()
+			}
+		}
+
+		if player.Status == stunned {
+			player.updateStatus()
+		}
+
+		if !player.isNPC() && !player.isImmortal() {
+
+			light := player.equippedItem(itemWearLight)
+			if light != nil && light.Value > 0 {
+				light.Value--
+				if light.Value == 0 && player.Room != nil {
+					act("$p goes out.", player, light, nil, actToRoom)
+					act("$p goes out.", player, light, nil, actToChar)
+
+					for j, i := range player.Equipped {
+						if i == light {
+							player.Equipped = append(player.Equipped[:j], player.Equipped[j+1:]...)
+							break
+						}
+					}
+				}
+			}
+
+			player.Timer++
+			if player.Timer >= 12 {
+				if player.WasInRoom == nil && player.Room != nil {
+					player.WasInRoom = player.Room
+					player.stopFighting(true)
+					act("$n disappears into the void.", player, nil, nil, actToRoom)
+					player.notify("You disappear into the void.")
+					player.Room.removeMob(player)
+					player.Room = getRoom(0)
+				}
+			}
+
+			for _, af := range player.Affects {
+				if af.duration > 0 {
+					af.duration--
+				} else if af.duration < 0 {
+
+				} else {
+					if af.affectType != nil && af.affectType.Skill.MessageOff != "" {
+						player.notify(af.affectType.Skill.MessageOff)
+					}
+				}
+
+				player.removeAffect(af)
+			}
+
+			if helpers.HasBit(player.AffectedBy, affectPoison) {
+				act("$n shivers and suffers.", player, nil, nil, actToRoom)
+				player.notify("You shifer and suffer.")
+				player.damage(player, 2, typePoison)
+			} else if player.Status == incapacitated {
+				player.damage(player, 1, typeUndefined)
+			} else if player.Status == mortal {
+				player.damage(player, 2, typeUndefined)
+			}
+		}
+
+		// save and quit if necessary
+		return
+	}
+}
+
 func mobUpdate() {
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		ch := e.Value.(*mob)
@@ -178,7 +265,7 @@ func updateHandler() {
 	if pulseTimerPoint <= 0 {
 		pulseTimerPoint = dice().Intn(3*pulseTick/2) + (pulseTick / 2)
 		// weather_update()
-		// char_update()
+		charUpdate()
 		objUpdate()
 	}
 

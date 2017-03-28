@@ -144,6 +144,9 @@ type mob struct {
 
 	wait uint
 
+	Timer     int
+	WasInRoom *room
+
 	RecallRoomID uint `json:"recall_room_id"`
 	replyTarget  *mob
 

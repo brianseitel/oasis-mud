@@ -7,6 +7,7 @@ const (
 	typeHit       = iota
 	typeBackstab
 	typeKick
+	typePoison
 )
 
 func violenceUpdate() {
