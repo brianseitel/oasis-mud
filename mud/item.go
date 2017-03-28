@@ -170,6 +170,8 @@ type item struct {
 	ID               uint
 	index            itemIndex
 	container        []*item
+	carriedBy        *mob
+	Room             *room
 	Name             string
 	Description      string
 	ShortDescription string

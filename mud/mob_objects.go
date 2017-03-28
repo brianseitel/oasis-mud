@@ -34,8 +34,8 @@ func (player *mob) get(item *item, container *item) {
 
 	if item.ItemType == itemMoney {
 		player.Gold += uint(item.Value)
-		item.extract()
 	} else {
 		player.Inventory = append(player.Inventory, item)
+		item.carriedBy = player
 	}
 }

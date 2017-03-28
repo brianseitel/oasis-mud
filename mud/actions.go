@@ -566,6 +566,8 @@ func (a *action) drop() {
 
 		for j, i := range player.Inventory {
 			if i == item {
+				item.carriedBy = nil
+				item.Room = player.Room
 				player.Inventory, player.Room.Items = transferItem(j, player.Inventory, player.Room.Items)
 				player.notify("You drop %s.", i.Name)
 				player.Room.notify(fmt.Sprintf("%s drops %s.", player.Name, i.Name), player)
@@ -588,6 +590,8 @@ func (a *action) drop() {
 			if arg1 == "all" || helpers.MatchesSubject(item.Name, name) {
 				found = true
 
+				item.carriedBy = nil
+				item.Room = player.Room
 				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
 				j--
 				player.Room.Items = append(player.Room.Items, item)

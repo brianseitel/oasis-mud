@@ -17,6 +17,48 @@ var (
 	pulseTimerPoint    = pulseTick
 )
 
+func objUpdate() {
+	for e := itemList.Front(); e != nil; e = e.Next() {
+		item := e.Value.(*item)
+
+		if item.Timer <= 0 {
+			continue
+		}
+
+		item.Timer--
+
+		if item.Timer > 0 {
+			continue
+		}
+
+		var message string
+		switch item.ItemType {
+		default:
+			message = "$p vanishes."
+			break
+		case itemFountain:
+			message = "$p dries up."
+			break
+		case itemCorpseNPC:
+			message = "$p crumbles into dust."
+			break
+		case itemCorpsePC:
+			message = "$p decays into dust."
+			break
+		case itemFood:
+			message = "$p decomposes."
+			break
+		}
+
+		if item.carriedBy != nil {
+			act(message, item.carriedBy, item, nil, actToChar)
+		} else if item.Room != nil && len(item.Room.Mobs) > 0 {
+			act(message, nil, item, nil, actToRoom)
+			act(message, nil, item, nil, actToChar)
+		}
+	}
+}
+
 func updateHandler() {
 
 	pulseTimerArea--
