@@ -17,6 +17,100 @@ var (
 	pulseTimerPoint    = pulseTick
 )
 
+func aggroUpdate() {
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		ch := e.Value.(*mob)
+
+		if ch.isNPC() || ch.isImmortal() || ch.Room == nil {
+			continue
+		}
+
+		for _, m := range ch.Room.Mobs {
+			var count int
+
+			if !m.isNPC() || !helpers.HasBit(m.Act, actAggressive) || m.Fight != nil || !m.isAwake() || !m.canSee(ch) {
+				continue
+			}
+
+			count = 0
+			var victim *mob
+			for _, v := range m.Room.Mobs {
+				if !v.isNPC() && v.isImmortal() && v.canSee(m) {
+					if dice().Intn(count) == 0 {
+						victim = v
+					}
+					count++
+				}
+			}
+
+			if victim == nil {
+				continue
+			}
+
+			multiHit(m, victim, typeUndefined)
+		}
+	}
+}
+
+func mobUpdate() {
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		ch := e.Value.(*mob)
+
+		if !ch.isNPC() || ch.Room == nil {
+			continue
+		}
+
+		if ch.Status != standing {
+			continue
+		}
+
+		/* Scavenge */
+		if helpers.HasBit(ch.Act, actScavenger) && len(ch.Room.Items) > 0 && dBits(2) == 0 {
+			max := 1
+			var objectBest *item
+			objKey := 0
+			for j, item := range ch.Room.Items {
+				if item.canWear(itemTake) && item.Cost > max {
+					objectBest = item
+					objKey = j
+					max = item.Cost
+				}
+			}
+
+			if objectBest != nil {
+				ch.Inventory, ch.Room.Items = transferItem(objKey, ch.Inventory, ch.Room.Items)
+				act("$n gets $p.", ch, objectBest, nil, actToRoom)
+			}
+		}
+
+		/* wander */
+		if !helpers.HasBit(ch.Act, actSentinel) {
+			ch.wander()
+		}
+
+		/* flee */
+		door := dBits(3)
+		var exit *exit
+		if door <= 5 {
+			exit = ch.Room.Exits[door]
+		}
+
+		if ch.Hitpoints < ch.MaxHitpoints/2 && exit != nil && !helpers.HasBit(exit.Room.RoomFlags, roomNoMob) {
+			found := false
+			for _, rch := range exit.Room.Mobs {
+				if !rch.isNPC() {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				ch.move(exit)
+			}
+		}
+	}
+}
+
 func objUpdate() {
 	for e := itemList.Front(); e != nil; e = e.Next() {
 		item := e.Value.(*item)
@@ -73,7 +167,7 @@ func updateHandler() {
 
 	if pulseTimerMobs <= 0 {
 		pulseTimerMobs = pulseMobile
-		// mob_update()
+		mobUpdate()
 	}
 
 	if pulseTimerViolence <= 0 {
@@ -85,10 +179,10 @@ func updateHandler() {
 		pulseTimerPoint = dice().Intn(3*pulseTick/2) + (pulseTick / 2)
 		// weather_update()
 		// char_update()
-		// obj_update()
+		objUpdate()
 	}
 
-	// aggr_update()
+	aggroUpdate()
 	return
 }
 

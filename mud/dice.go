@@ -16,3 +16,7 @@ func dInt(d int) int {
 func dice() *rand.Rand {
 	return rand.New(rand.NewSource(time.Now().UnixNano()))
 }
+
+func dBits(width uint) int {
+	return dice().Intn(100) & ((1 << width) - 1)
+}

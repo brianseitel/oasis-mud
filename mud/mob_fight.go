@@ -273,7 +273,7 @@ func (m *mob) damroll() int {
 func (m *mob) deathCry() {
 	var msg string
 	var drop int
-	switch dice().Intn(4) {
+	switch dBits(4) {
 	case 0:
 		msg = "$n hits the ground ... DEAD."
 		break
@@ -349,7 +349,7 @@ func (m *mob) disarm(victim *mob) {
 	}
 
 	wield := m.equippedItem(itemWearWield)
-	if wield == nil {
+	if wield == nil && dBits(1) == 0 {
 		return
 	}
 
@@ -425,7 +425,7 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 
 	diceroll := 99
 	for diceroll >= 20 {
-		diceroll = dice().Intn(40)
+		diceroll = dBits(5)
 	}
 
 	if diceroll == 0 || (diceroll != 19 && diceroll < thac0-victimAC) {

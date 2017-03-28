@@ -44,7 +44,7 @@ func violenceUpdate() {
 				}
 
 				if m.isNPC() {
-					if attacker.index == m.index || dice().Intn(8) == 1 {
+					if attacker.index == m.index || dBits(3) == 0 {
 						number := 0
 						var target *mob
 

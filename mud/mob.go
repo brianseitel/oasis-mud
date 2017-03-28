@@ -6,6 +6,18 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
+const (
+	actIsNPC      = 1    /* Auto set for mobs */
+	actSentinel   = 2    /* Stays in one room */
+	actScavenger  = 4    /* picks up objects */
+	actAggressive = 8    /* attacks PCs */
+	actStayArea   = 64   /* won't leave area */
+	actWimpy      = 128  /* flees when hurt */
+	actPet        = 256  /* auto set for pets */
+	actTrain      = 512  /* can train PCs */
+	actPractice   = 1024 /* can practice PCs */
+)
+
 type mobSkill struct {
 	Skill   *skill `json:"-"`
 	SkillID uint   `json:"skill_id"`
@@ -28,6 +40,7 @@ type mobIndex struct {
 	Description string
 	Affects     []*affect
 	AffectedBy  uint
+	Act         uint
 
 	Skills      []*mobSkill
 	ItemIds     []int `json:"items"`
@@ -85,6 +98,7 @@ type mob struct {
 
 	Affects    []*affect /* list of affects, incl durations */
 	AffectedBy uint      /* bit flag */
+	Act        uint
 
 	Skills    []*mobSkill
 	Inventory []*item
