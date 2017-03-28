@@ -1,12 +1,5 @@
 package mud
 
-import (
-	"container/list"
-	"encoding/json"
-	"io/ioutil"
-	"path/filepath"
-)
-
 type targetType string
 
 const (
@@ -36,28 +29,6 @@ type skill struct {
 	Beats      int           `json:"beats"`
 	NounDamage string        `json:"nounDamage"` // noun containing message for damage, if applicable
 	MessageOff string        `json:"messageOff"` // when skill/spell wears off
-}
-
-var (
-	skillList list.List
-)
-
-func newSkillDatabase() {
-	skillFiles, _ := filepath.Glob("./data/skills/*.json")
-
-	for _, skillFile := range skillFiles {
-		file, err := ioutil.ReadFile(skillFile)
-		if err != nil {
-			panic(err)
-		}
-
-		var list []*skill
-		json.Unmarshal(file, &list)
-
-		for _, sk := range list {
-			skillList.PushBack(sk)
-		}
-	}
 }
 
 func getSkill(id uint) *skill {

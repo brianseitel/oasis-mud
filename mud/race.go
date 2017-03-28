@@ -1,16 +1,10 @@
 package mud
 
-import (
-	"container/list"
-)
-
 type race struct {
 	ID   uint
 	Name string
 	Abbr string
 }
-
-var raceList list.List
 
 func (r race) defaultStats(s string) int {
 	defaults := make(map[string]int)
@@ -26,22 +20,6 @@ func (r race) defaultStats(s string) int {
 	defaults["constitution"] = 12
 
 	return defaults[s]
-}
-
-func newRaceDatabase() {
-	races := make(map[string]string)
-	races["hum"] = "Human"
-	races["elf"] = "Elf"
-	races["dwf"] = "Dwarf"
-	races["drw"] = "Dark Elf"
-	races["gob"] = "Goblin"
-	races["drg"] = "Dragon"
-
-	for abbr, name := range races {
-		r := &race{Name: name, Abbr: abbr}
-
-		raceList.PushBack(r)
-	}
 }
 
 func getRace(id uint) *race {

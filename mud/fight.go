@@ -5,6 +5,10 @@ type fight struct {
 	Mob2 *mob
 }
 
+const (
+	typeHit = iota
+)
+
 func newFight(m1 *mob, m2 *mob) *fight {
 	if m2.isSafe() {
 		m1.notify("A voice from the heavens booms, 'Thou shalt not kill!'\r\n")

@@ -143,18 +143,9 @@ var (
 )
 
 func (server *Server) init() {
-	initializeDatabase()
+	bootDB()
 }
 
 func getConnections() []connection {
 	return gameServer.connections
-}
-
-func initializeDatabase() {
-	newSkillDatabase()
-	newJobDatabase()
-	newRaceDatabase()
-	newItemDatabase()
-	newMobDatabase()
-	newRoomDatabase()
 }

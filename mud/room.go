@@ -1,22 +1,15 @@
 package mud
 
 import (
-	"container/list"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 	// "github.com/brianseitel/oasis-mud/helpers"
-)
-
-var (
-	roomList list.List
 )
 
 type area struct {
 	ID    uint
 	Name  string  `json:"name"`
 	Rooms []*room `json:"rooms",gorm:"-"`
+	age   int
 }
 
 type room struct {
@@ -57,63 +50,6 @@ func (r *room) decayItems() {
 		}
 		item.Timer--
 		fmt.Println("Decaying ", item.Name, " (", item.Timer, " ticks remaining")
-	}
-}
-
-func newRoomDatabase() {
-	areaFiles, _ := filepath.Glob("./data/area/*.json")
-
-	for _, areaFile := range areaFiles {
-		file, err := ioutil.ReadFile(areaFile)
-		if err != nil {
-			panic(err)
-		}
-
-		var a area
-		json.Unmarshal(file, &a)
-		if err != nil {
-			panic(err)
-		}
-
-		void := &room{ID: 0, Exits: nil, Items: nil, Mobs: nil, Name: "The Void", Description: "A dark, gaping void lies here."}
-		roomList.PushBack(void)
-
-		for _, ro := range a.Rooms {
-			ro.AreaID = int(a.ID)
-			for _, i := range ro.ItemIds {
-				index := getItem(uint(i))
-				item := newItemFromIndex(index)
-				ro.Items = append(ro.Items, item)
-			}
-
-			for _, i := range ro.MobIds {
-				mob := getMob(uint(i))
-				if mob == nil {
-				}
-				ro.Mobs = append(ro.Mobs, mob)
-			}
-
-			roomList.PushBack(ro)
-		}
-
-		exitsList := list.New()
-		for e := roomList.Front(); e != nil; e = e.Next() {
-			room := e.Value.(*room)
-			for j, x := range room.Exits {
-				room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
-			}
-
-			exitsList.PushBack(room)
-		}
-
-		roomList = *exitsList
-	}
-
-	for e := roomList.Front(); e != nil; e = e.Next() {
-		room := e.Value.(*room)
-		for _, mob := range room.Mobs {
-			mob.Room = room
-		}
 	}
 }
 

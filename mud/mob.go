@@ -1,18 +1,9 @@
 package mud
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
-
-	"container/list"
 
 	"github.com/brianseitel/oasis-mud/helpers"
-)
-
-var (
-	mobList *list.List
 )
 
 type mobSkill struct {
@@ -428,38 +419,6 @@ func getPlayerByName(name string) *mob {
 	return nil
 }
 
-func newMobDatabase() {
-	mobList = list.New()
-
-	mobFiles, _ := filepath.Glob("./data/mobs/*.json")
-
-	for _, mobFile := range mobFiles {
-		file, err := ioutil.ReadFile(mobFile)
-		if err != nil {
-			panic(err)
-		}
-
-		var list []*mob
-		err = json.Unmarshal(file, &list)
-		if err != nil {
-			panic(err)
-		}
-
-		for _, m := range list {
-
-			var skills []*mobSkill
-			for _, s := range m.Skills {
-				skill := getSkill(s.SkillID)
-				skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
-			}
-			m.Skills = skills
-
-			mobList.PushBack(m)
-		}
-	}
-
-}
-
 func xpCompute(killer *mob, target *mob) int {
 	var xp int
 
@@ -474,6 +433,7 @@ func xpCompute(killer *mob, target *mob) int {
 	} else if align < -500 {
 		killer.Alignment = helpers.Max(killer.Alignment+(align+500)/4, -1000)
 	} else {
+		killer.Alignment -= killer.Alignment / 4
 		xp = 3 * xp / 4
 	}
 

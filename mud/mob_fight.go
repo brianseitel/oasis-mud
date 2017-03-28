@@ -1,6 +1,7 @@
 package mud
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/brianseitel/oasis-mud/helpers"
@@ -10,8 +11,6 @@ func (m *mob) attack(target *mob, f *fight) {
 	if target.Status != dead {
 		damage := m.damage(target)
 		target.takeDamage(damage)
-		target.notify("%s attacks you for %d damagel!", m.Name, damage)
-		m.notify("You strike %s for %d damagel!", target.Name, damage)
 
 		if target.Status == dead {
 			m.notify("You have KILLED %s to death!!", target.Name)
@@ -48,6 +47,96 @@ func (m *mob) damage(victim *mob) int {
 		}
 	}
 	return m.oneHit(victim)
+}
+
+func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
+	attackTable := []string{"hit", "slice", "stab", "slash", "whip", "claw", "blast", "pound", "crush", "bite", "pierce"}
+
+	var (
+		vs     string
+		vp     string
+		attack string
+		punct  string
+	)
+
+	if dam == 0 {
+		vs = "miss"
+		vp = "misses"
+	} else if dam <= 4 {
+		vp = "scratch"
+		vs = "scratches"
+	} else if dam <= 8 {
+		vs = "graze"
+		vp = "grazes"
+	} else if dam <= 12 {
+		vs = "hit"
+		vp = "hits"
+	} else if dam <= 16 {
+		vs = "injure"
+		vp = "injures"
+	} else if dam <= 20 {
+		vs = "wound"
+		vp = "wounds"
+	} else if dam <= 24 {
+		vs = "maul"
+		vp = "mauls"
+	} else if dam <= 28 {
+		vs = "decimate"
+		vp = "decimates"
+	} else if dam <= 32 {
+		vs = "devastate"
+		vp = "devastates"
+	} else if dam <= 36 {
+		vs = "maim"
+		vp = "maims"
+	} else if dam <= 40 {
+		vs = "MUTLIATE"
+		vp = "MUTILATES"
+	} else if dam <= 44 {
+		vs = "DISEMBOWEL"
+		vp = "DISEMBOWELS"
+	} else if dam <= 48 {
+		vs = "EVISCERATE"
+		vp = "EVISCERATES"
+	} else if dam <= 52 {
+		vs = "MASSACRE"
+		vp = "MASSACRES"
+	} else if dam <= 100 {
+		vs = "*** DEMOLISH ***"
+		vp = "*** DEMOLISHES ***"
+	} else {
+		vs = "*** ANNIHILATE ***"
+		vp = "*** ANIHILIATES ***"
+	}
+
+	punct = ":"
+	if dam <= 24 {
+		punct = "."
+	}
+
+	var buf1 string
+	var buf2 string
+	var buf3 string
+	if damageType == typeHit {
+		buf1 = fmt.Sprintf("$n %s $N%s", vp, punct)
+		buf2 = fmt.Sprintf("You %s $N%s", vs, punct)
+		buf3 = fmt.Sprintf("$n %s you%s", vp, punct)
+	} else {
+		// if damageType >= 0 && damageType < MAX_SKILL {
+		// 	attack = skillTable[damageType].nounDamage
+		// } else
+		if damageType >= typeHit && damageType <= typeHit+len(attackTable) {
+			attack = attackTable[damageType-typeHit]
+		}
+
+		buf1 = fmt.Sprintf("$n's %s %s $N%s", attack, vp, punct)
+		buf2 = fmt.Sprintf("Your %s %s $N%s", attack, vp, punct)
+		buf3 = fmt.Sprintf("$n's %s %s you%s", attack, vp, punct)
+	}
+
+	act(buf1, m, nil, victim, actToNotVict)
+	act(buf2, m, nil, victim, actToChar)
+	act(buf3, m, nil, victim, actToVict)
 }
 
 func (m *mob) damroll() int {
@@ -186,6 +275,7 @@ func (m *mob) oneHit(victim *mob) int {
 		dam = 1
 	}
 
+	m.damageMessage(victim, dam, typeHit)
 	return dam
 }
 

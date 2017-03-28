@@ -1,19 +1,10 @@
 package mud
 
 import (
-	"container/list"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 
 	"github.com/brianseitel/oasis-mud/helpers"
 	// "github.com/brianseitel/oasis-mud/helpers"
-)
-
-var (
-	itemList      list.List
-	itemIndexList list.List
 )
 
 const (
@@ -189,26 +180,6 @@ type item struct {
 	Level            int
 	Timer            int
 	Value            int
-}
-
-func newItemDatabase() {
-	itemFiles, _ := filepath.Glob("./data/items/*.json")
-
-	for _, itemFile := range itemFiles {
-		file, err := ioutil.ReadFile(itemFile)
-		if err != nil {
-			panic(err)
-		}
-
-		var list []itemIndex
-		json.Unmarshal(file, &list)
-
-		for _, it := range list {
-
-			itemIndexList.PushBack(it)
-		}
-
-	}
 }
 
 func newItemFromIndex(index *itemIndex) *item {
