@@ -9,6 +9,7 @@ const (
 	stunned
 	sleeping
 	sitting
+	resting
 	fighting
 	standing
 )

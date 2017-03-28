@@ -364,79 +364,76 @@ func (m *mob) regen() {
 	m.regenMovement()
 }
 
-func (m *mob) regenHitpoints() *mob {
-	if m.Hitpoints >= m.MaxHitpoints {
-		return m
+func (m *mob) regenHitpoints() int {
+	var gain int
+	if m.isNPC() {
+		gain = m.Level * 3 / 2
+	} else {
+		gain = helpers.Min(5, m.Level)
+
+		switch m.Status {
+		case sleeping:
+			gain += m.ModifiedAttributes.Constitution
+			break
+		case resting:
+			gain += m.ModifiedAttributes.Constitution / 2
+			break
+		}
 	}
 
-	amount := dice().Intn(int(m.MaxHitpoints/20) + (m.Level * m.Attributes.Constitution))
-
-	multiplier := 1.0
-	switch m.Status {
-	case fighting:
-		multiplier = 0.0
-		break
-	case sleeping:
-		multiplier = 1.5
-		break
+	if helpers.HasBit(m.AffectedBy, affectPoison) {
+		gain /= 4
 	}
 
-	amount = int(float64(amount) * multiplier)
-
-	m.Hitpoints += amount
-	if m.Hitpoints > m.MaxHitpoints {
-		m.Hitpoints = m.MaxHitpoints
-	}
-	return m
+	return helpers.Min(gain, m.MaxHitpoints-m.Hitpoints)
 }
 
-func (m *mob) regenMana() *mob {
-	if m.Mana >= m.MaxMana {
-		return m
-	}
-	amount := dice().Intn(int(m.MaxMana/20) + (m.Level * m.Attributes.Intelligence))
-	multiplier := 1.0
-	switch m.Status {
-	case fighting:
-		multiplier = 0.0
-		break
-	case sleeping:
-		multiplier = 1.5
-		break
+func (m *mob) regenMana() int {
+	var gain int
+	if m.isNPC() {
+		gain = m.Level * 3 / 2
+	} else {
+		gain = helpers.Min(5, m.Level)
+
+		switch m.Status {
+		case sleeping:
+			gain += m.ModifiedAttributes.Intelligence
+			break
+		case resting:
+			gain += m.ModifiedAttributes.Intelligence / 2
+			break
+		}
 	}
 
-	amount = int(float64(amount) * multiplier)
-
-	m.Mana += amount
-	if m.Mana > m.MaxMana {
-		m.Mana = m.MaxMana
+	if helpers.HasBit(m.AffectedBy, affectPoison) {
+		gain /= 4
 	}
-	return m
+
+	return helpers.Min(gain, m.MaxMana-m.Mana)
 }
 
-func (m *mob) regenMovement() *mob {
-	if m.Movement >= m.MaxMovement {
-		return m
-	}
-	amount := dice().Intn(int(m.MaxMovement/20) + (m.Level * m.Attributes.Dexterity))
+func (m *mob) regenMovement() int {
+	var gain int
+	if m.isNPC() {
+		gain = m.Level * 3 / 2
+	} else {
+		gain = helpers.Min(5, m.Level)
 
-	multiplier := 1.0
-	switch m.Status {
-	case fighting:
-		multiplier = 0.0
-		break
-	case sleeping:
-		multiplier = 1.5
-		break
+		switch m.Status {
+		case sleeping:
+			gain += m.ModifiedAttributes.Dexterity
+			break
+		case resting:
+			gain += m.ModifiedAttributes.Dexterity / 2
+			break
+		}
+
+	}
+	if helpers.HasBit(m.AffectedBy, affectPoison) {
+		gain /= 4
 	}
 
-	amount = int(float64(amount) * multiplier)
-
-	m.Movement += amount
-	if m.Movement > m.MaxMovement {
-		m.Movement = m.MaxMovement
-	}
-	return m
+	return helpers.Min(gain, m.MaxMovement-m.Movement)
 }
 
 func (m *mob) stripAffect(name string) {
