@@ -267,7 +267,7 @@ func exitsString(exits []*exit) string {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
 	}
 
-	return fmt.Sprintf("[%s]%s", strings.Trim(output, " "), output)
+	return fmt.Sprintf("[%s]%s", strings.Trim(output, " "), helpers.Newline)
 }
 
 func itemsString(items []*item) string {
