@@ -176,13 +176,17 @@ func (a *action) look() {
 		return
 	}
 
+	description := a.mob.Room.Description
+	if a.mob.Room.isDark() && !a.mob.isAffected(affectInfrared) {
+		description = "It is pitch black...\r\n"
+	}
 	if len(a.args) == 1 {
 		a.conn.SendString(
 			fmt.Sprintf(
 				"%s [ID: %d]\n%s\n%s%s%s",
 				a.mob.Room.Name,
 				a.mob.Room.ID,
-				a.mob.Room.Description,
+				description,
 				exitsString(a.mob.Room.Exits),
 				itemsString(a.mob.Room.Items),
 				mobsString(a.mob.Room.Mobs, a.mob),
@@ -284,7 +288,11 @@ func mobsString(mobs []*mob, player *mob) string {
 	output = ""
 	for _, m := range mobs {
 		if m != player {
-			output = fmt.Sprintf("%s is here.%s%s", m.Name, helpers.Newline, output)
+			if player.canSee(m) {
+				output = fmt.Sprintf("%s is here.%s%s", m.Name, helpers.Newline, output)
+			} else {
+				output = fmt.Sprintf("You see glowing red eyes watching YOU!%s%s", helpers.Newline, output)
+			}
 		}
 	}
 
@@ -610,8 +618,8 @@ func (a *action) flee() {
 
 	roll := dice().Intn(36 - a.mob.Attributes.Dexterity) // higher the dexterity, better the chance of fleeing successfully
 	if roll == 1 {
-		a.mob.Fight.Mob1.Status = standing
-		a.mob.Fight.Mob2.Status = standing
+		a.mob.Fight.Status = standing
+		a.mob.Status = standing
 
 		a.mob.wander()
 		a.conn.SendString("You flee!")
@@ -857,14 +865,47 @@ func (a *action) give() {
 }
 
 func (a *action) kill() {
+	attacker := a.mob
+	var victim *mob
 	for _, m := range a.mob.Room.Mobs {
 		if a.matchesSubject(m.Name) {
-			newFight(a.mob, m)
-			return
+			victim = m
 		}
 	}
 
-	a.mob.notify("You can't find them.")
+	if len(a.args) < 1 {
+		attacker.notify("Kill whom?")
+		return
+	}
+
+	if victim == nil {
+		attacker.notify("They aren't here.")
+		return
+	}
+
+	if !victim.isNPC() {
+		attacker.notify("You cannot attack other attackers.")
+		return
+	}
+
+	if victim == attacker {
+		attacker.notify("You hit yourself. Ouch!")
+		multiHit(attacker, attacker, typeUndefined)
+		return
+	}
+
+	if victim.isSafe() {
+		return
+	}
+
+	if attacker.Status == fighting {
+		attacker.notify("You do the best you can!")
+	}
+
+	wait(attacker, 1*pulseViolence)
+	multiHit(attacker, victim, typeHit)
+
+	return
 }
 
 func (a *action) move(d string) {
@@ -1199,7 +1240,7 @@ func (a *action) trip() {
 	if len(a.args) > 1 {
 		for _, m := range a.mob.Room.Mobs {
 			if a.matchesSubject(m.Identifiers) {
-				newFight(a.mob, m)
+				// newFight(a.mob, m)
 				break
 			}
 		}

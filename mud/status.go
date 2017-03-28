@@ -4,6 +4,7 @@ type status int
 
 const (
 	dead status = iota
+	mortal
 	incapacitated
 	stunned
 	sleeping

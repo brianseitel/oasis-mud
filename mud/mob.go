@@ -67,8 +67,7 @@ type mobIndex struct {
 	Status      status
 	Identifiers string
 
-	Fight *fight
-	wait  uint
+	wait uint
 
 	RecallRoomID uint `json:"recall_room_id"`
 
@@ -77,6 +76,8 @@ type mobIndex struct {
 
 type mob struct {
 	ID uint
+
+	index *mobIndex
 
 	//Mob information
 	Name        string `json:"name"`
@@ -125,9 +126,9 @@ type mob struct {
 	Status      status
 	Identifiers string
 
-	Fight   *fight
-	FightID uint
-	wait    uint
+	Fight *mob
+
+	wait uint
 
 	RecallRoomID uint `json:"recall_room_id"`
 	replyTarget  *mob
@@ -140,12 +141,40 @@ func (m *mob) addAffect(af *affect) {
 	affectModify(m, af, true)
 }
 
+func (m *mob) advanceLevel() {
+
+}
+
 func (m *mob) removeAffect(af *affect) {
 	affectModify(m, af, false)
 }
 
-func (m *mob) advanceLevel() {
+func (m *mob) canSee(victim *mob) bool {
+	if m == victim {
+		return true
+	}
 
+	if !victim.isNPC() {
+		return false
+	}
+
+	if m.isAffected(affectBlind) {
+		return false
+	}
+
+	if m.Room.isDark() && !m.isAffected(affectInfrared) {
+		return false
+	}
+
+	if victim.isAffected(affectInvisible) && !m.isAffected(affectDetectInvisible) {
+		return false
+	}
+
+	if victim.isAffected(affectHide) && !m.isAffected(affectDetectHidden) && victim.Fight == nil {
+		return false
+	}
+
+	return true
 }
 
 func (m *mob) gainExp(gain int) {
@@ -394,6 +423,14 @@ func (m *mob) regenMovement() *mob {
 		m.Movement = m.MaxMovement
 	}
 	return m
+}
+
+func (m *mob) stripAffect(name string) {
+	for _, af := range m.Affects {
+		if af.affectType.Skill.Name == name {
+			m.removeAffect(af)
+		}
+	}
 }
 
 func (m *mob) wander() {

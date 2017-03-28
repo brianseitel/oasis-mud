@@ -1,41 +1,152 @@
 package mud
 
-type fight struct {
-	Mob1 *mob
-	Mob2 *mob
-}
+import "github.com/brianseitel/oasis-mud/helpers"
 
 const (
-	typeHit = iota
+	typeUndefined = -1
+	typeHit       = iota
+	typeBackstab
 )
 
-func newFight(m1 *mob, m2 *mob) *fight {
-	if m2.isSafe() {
-		m1.notify("A voice from the heavens booms, 'Thou shalt not kill!'\r\n")
-		return nil
+func violenceUpdate() {
+
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		attacker := e.Value.(*mob)
+
+		victim := attacker.Fight
+
+		if victim == nil {
+			continue
+		}
+
+		if attacker.isAwake() && attacker.Room == victim.Room {
+			multiHit(attacker, victim, typeUndefined)
+		} else {
+			attacker.stopFighting(false)
+		}
+
+		victim = attacker.Fight
+
+		if victim == nil {
+			continue
+		}
+
+		for _, m := range attacker.Room.Mobs {
+
+			if m.isAwake() && m.Fight == nil {
+				// auto-assist other players in group
+
+				if !attacker.isNPC() {
+					if !m.isNPC() /* && attacker.GroupedWith(m) */ {
+						multiHit(m, attacker, typeUndefined)
+					}
+				}
+
+				if m.isNPC() {
+					if attacker.index == m.index || dice().Intn(8) == 1 {
+						number := 0
+						var target *mob
+
+						for _, neighbor := range m.Room.Mobs {
+							if m.canSee(neighbor) /* && m.GroupedWith(neighbor) */ && dice().Intn(number) == 0 {
+								target = neighbor
+								number++
+							}
+						}
+
+						if target != nil {
+							multiHit(m, target, typeUndefined)
+						}
+					}
+				}
+			}
+		}
 	}
-
-	m1.notify("You scream and attack %s!", m2.Name)
-
-	m1.Status = fighting
-	m2.Status = fighting
-
-	f := &fight{
-		Mob1: m1,
-		Mob2: m2,
-	}
-
-	m1.Fight = f
-	m2.Fight = f
-	f.turn(m1)
-
-	return f
 }
 
-func (f *fight) turn(m *mob) {
-	if m.ID == f.Mob1.ID {
-		m.attack(f.Mob2, f)
-	} else if m.ID == f.Mob2.ID {
-		m.attack(f.Mob1, f)
+func multiHit(attacker *mob, victim *mob, damageType int) {
+	var chance int
+
+	attacker.oneHit(victim, damageType)
+
+	if attacker.Fight != victim || damageType == typeBackstab {
+		return
 	}
+
+	if attacker.isNPC() {
+		chance = attacker.Level
+	} else {
+		secondAttack := attacker.skill("second_attack")
+		if secondAttack != nil {
+			chance = int(secondAttack.Level / 2)
+		} else {
+			chance = 0
+		}
+	}
+
+	if dice().Intn(100) < chance {
+		attacker.oneHit(victim, damageType)
+		if attacker.Fight != victim {
+			return
+		}
+	}
+	if attacker.isNPC() {
+		chance = attacker.Level
+	} else {
+		thirdAttack := attacker.skill("third_attack")
+		if thirdAttack != nil {
+			chance = int(thirdAttack.Level / 4)
+		} else {
+			chance = 0
+		}
+	}
+
+	if dice().Intn(100) < chance {
+		attacker.oneHit(victim, damageType)
+		if attacker.Fight != victim {
+			return
+		}
+	}
+
+	if attacker.isNPC() {
+		chance = attacker.Level
+	} else {
+		chance = 0
+	}
+
+	if dice().Intn(100) < chance {
+		attacker.oneHit(victim, damageType)
+		if attacker.Fight != victim {
+			return
+		}
+	}
+
+	return
+}
+
+func rawKill(victim *mob) {
+	victim.stopFighting(false)
+	victim.deathCry()
+	// victim.makeCorpse() TODO
+
+	if victim.isNPC() {
+		// victim.extract(true) TODO
+		return
+	}
+
+	// victim.extract(false) // TODO
+	for _, af := range victim.Affects {
+		victim.removeAffect(af)
+	}
+
+	victim.AffectedBy = 0
+	victim.Armor = 100
+	victim.Status = sitting
+	victim.Hitpoints = helpers.Max(1, victim.Hitpoints)
+	victim.Mana = helpers.Max(1, victim.Mana)
+	victim.Movement = helpers.Max(1, victim.Movement)
+
+	// victim.Save() // TODO
+
+	return
 }

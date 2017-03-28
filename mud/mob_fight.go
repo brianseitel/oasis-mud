@@ -7,46 +7,172 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func (m *mob) attack(target *mob, f *fight) {
-	if target.Status != dead {
-		damage := m.damage(target)
-		target.takeDamage(damage)
+func (m *mob) attack(target *mob) {
+	// if target.Status != dead {
+	// 	damage := m.damage(target)
+	// 	target.takeDamage(damage)
 
-		if target.Status == dead {
-			m.notify("You have KILLED %s to death!!", target.Name)
-			m.Status = standing
+	// 	if target.Status == dead {
+	// 		m.notify("You have KILLED %s to death!!", target.Name)
+	// 		m.Status = standing
 
-			exp := xpCompute(m, target)
-			m.notify("You gain %d experience points!", exp)
-			m.gainExp(exp)
+	// 		exp := xpCompute(m, target)
+	// 		m.notify("You gain %d experience points!", exp)
+	// 		m.gainExp(exp)
 
-			// Cancel fight
-			m.Fight = nil
-			target.Fight = nil
+	// 		// Cancel fight
+	// 		m.Fight = nil
+	// 		target.Fight = nil
 
-			// whisk it away
-			target.die()
-			m.Room.removeMob(target)
-			target.Room.removeMob(target)
-			m.statusBar()
-			return
-		}
-		m.Status = fighting
-		target.Status = fighting
-	}
+	// 		// whisk it away
+	// 		target.die()
+	// 		m.Room.removeMob(target)
+	// 		target.Room.removeMob(target)
+	// 		m.statusBar()
+	// 		return
+	// 	}
+	// 	m.Status = fighting
+	// 	target.Status = fighting
+	// }
 }
 
-func (m *mob) damage(victim *mob) int {
-	if m != victim {
-		if victim.parry(m) {
-			return 0
+func (m *mob) damage(victim *mob, dam int, damageType int) {
+	if victim.Status == dead {
+		return
+	}
+
+	if dam > 1000 {
+		dam = 1000
+	}
+
+	if victim != m {
+		if victim.isSafe() {
+			return
 		}
 
-		if victim.dodge(m) {
-			return 0
+		if victim.Status == stunned {
+			victim.Fight = m
+			victim.Status = fighting
+		}
+
+		if victim.Status > stunned {
+			if m.Fight == nil {
+				m.Fight = victim
+			}
+		}
+
+		/*
+		 * If they're invisible, fade them in
+		 */
+		if helpers.HasBit(m.AffectedBy, affectInvisible) {
+			helpers.RemoveBit(m.AffectedBy, affectInvisible)
+			m.stripAffect("invis")
+			act("$n fades into existence.", m, nil, nil, actToRoom)
+		}
+
+		if helpers.HasBit(victim.AffectedBy, affectSanctuary) {
+			dam /= 2
+		}
+
+		if helpers.HasBit(victim.AffectedBy, affectProtect) && m.isEvil() {
+			dam -= dam / 4
+		}
+
+		if dam < 0 {
+			dam = 0
+		}
+
+		if damageType >= typeHit {
+			// TODO:
+			// if m.isNPC() && dice().Intn(100) < m.Level / 2 {
+			// 	m.disarm(victim)
+			// }
+			// if m.isNPC() && dice().Intn(100) < m.Level / 2 {
+			// 	m.trip(victim)
+			// }
+			if m.parry(victim) {
+				return
+			}
+			if m.dodge(victim) {
+				return
+			}
+		}
+
+		m.damageMessage(victim, dam, damageType)
+	}
+
+	// hurt the victim
+	victim.Hitpoints -= dam
+
+	victim.updateStatus()
+
+	switch victim.Status {
+	case mortal:
+		act("$n is mortally wounded and will die soon if not aided.", victim, nil, nil, actToRoom)
+		victim.notify("You are mortally wounded and will die soon if not aided.")
+		break
+
+	case incapacitated:
+		act("$n is incapacitated and will slowly die if not aided.", victim, nil, nil, actToRoom)
+		victim.notify("You are incapacitated and will slowly die if not aided.")
+		break
+
+	case stunned:
+		act("$n is stunned, but will probably recover", victim, nil, nil, actToRoom)
+		victim.notify("You are stunned, but will probably recover.")
+		break
+
+	case dead:
+		act("$n is DEAD!!", victim, 0, 0, actToRoom)
+		victim.notify("You have been KILLED!!\r\n")
+		break
+
+	default:
+		if dam > victim.MaxHitpoints/4 {
+			victim.notify("That really did HURT!")
+		}
+		if victim.Hitpoints < victim.MaxHitpoints/4 {
+			victim.notify("%sYou really are BLEEDING!%s", helpers.Red, helpers.Reset)
+		}
+		break
+	}
+
+	if !victim.isAwake() {
+		victim.stopFighting(false)
+	}
+
+	if victim.Status == dead {
+		// TODO: groupGain()
+
+		if !victim.isNPC() {
+			if victim.Exp > 1000*victim.Level {
+				victim.gainExp((1000*victim.Level - victim.Exp) / 2)
+			}
+		}
+
+		rawKill(victim)
+
+		if !m.isNPC() && victim.isNPC() {
+			// TODO: autoloot, autosacrifice
 		}
 	}
-	return m.oneHit(victim)
+
+	if victim == m {
+		return
+	}
+
+	if !victim.isNPC() && victim.client == nil {
+		if dice().Intn(int(victim.wait)) == 0 {
+			newAction(victim, victim.client, "recall")
+			return
+		}
+	}
+
+	// TODO: wimpy
+
+	// TODO: flee
+
+	return
 }
 
 func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
@@ -242,23 +368,61 @@ func (m *mob) dodge(attacker *mob) bool {
 	return true
 }
 
-func (m *mob) oneHit(victim *mob) int {
-	var dam int
-	if m.isNPC() {
-		dam = dice().Intn(int(m.Level*3/2)) + int(m.Level/2)
-		if m.equippedItem(wearWield) != nil {
-			dam += int(dam / 2)
-		}
-	} else {
-		if m.equippedItem(wearWield) != nil {
-			wield := m.equippedItem(wearWield)
-			dam = dice().Intn(int(wield.Value)) + wield.Value
-		} else {
-			dam = dice().Intn(4) + 1
+func (m *mob) oneHit(victim *mob, damageType int) {
+	if victim.Status == dead || victim.Room != m.Room {
+		return
+	}
+
+	wield := m.equippedItem(itemWearWield)
+
+	if damageType == typeUndefined {
+		damageType = typeHit
+		if wield != nil && wield.ItemType == itemWeapon {
+			damageType += wield.Min
 		}
 	}
 
-	dam += m.damroll()
+	var dam int
+	var thac0_00 int
+	var thac0_32 int
+	if m.isNPC() {
+		thac0_00 = 20
+		thac0_32 = 0
+	} else {
+		thac0_00 = 32
+		thac0_32 = 0
+	}
+
+	thac0 := helpers.Interpolate(m.Level, thac0_00, thac0_32) - m.Hitroll
+
+	victimAC := helpers.Max(-15, victim.Armor/10)
+	if !m.canSee(victim) {
+		victim.Armor -= 4
+	}
+
+	diceroll := 99
+	for diceroll >= 20 {
+		diceroll = dice().Intn(40)
+	}
+
+	if diceroll == 0 || (diceroll != 19 && diceroll < thac0-victimAC) {
+		// miss. //
+		m.damage(victim, 0, damageType)
+		return
+	}
+
+	if m.isNPC() {
+		dam = dice().Intn(m.Level*3/2) + (m.Level / 2)
+		if wield == nil {
+			dam += dam / 2
+		}
+	} else {
+		if wield != nil {
+			dam = dice().Intn(wield.Max) + wield.Min
+		} else {
+			dam = dice().Intn(4)
+		}
+	}
 
 	enhancedDamage := m.skill("enhanced_damage")
 	if enhancedDamage != nil {
@@ -275,8 +439,7 @@ func (m *mob) oneHit(victim *mob) int {
 		dam = 1
 	}
 
-	m.damageMessage(victim, dam, typeHit)
-	return dam
+	m.damage(victim, dam, typeHit)
 }
 
 func (m *mob) parry(attacker *mob) bool {
@@ -309,6 +472,19 @@ func (m *mob) parry(attacker *mob) bool {
 	return true
 }
 
+func (m *mob) stopFighting(both bool) {
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		fighter := e.Value.(*mob)
+
+		if fighter == m || (both && fighter.Fight == m) {
+			fighter.Fight = nil
+			fighter.Status = standing
+			fighter.updateStatus()
+		}
+	}
+	return
+}
+
 func (m *mob) takeDamage(damage int) {
 	m.Hitpoints -= damage
 	if m.Hitpoints < 0 {
@@ -325,11 +501,7 @@ func (m *mob) trip() {
 	}
 
 	var victim *mob
-	if m.Fight.Mob1 == m {
-		victim = m.Fight.Mob2
-	} else {
-		victim = m.Fight.Mob1
-	}
+	victim = m.Fight
 
 	if victim.wait == 0 {
 
@@ -357,4 +529,28 @@ func (m *mob) trip() {
 	} else {
 		m.notify("You can't do this again so soon!\n")
 	}
+}
+
+func (m *mob) updateStatus() {
+	if m.Hitpoints > 0 {
+		if m.Status <= stunned {
+			m.Status = standing
+		}
+		return
+	}
+
+	if m.isNPC() || m.Hitpoints <= -11 {
+		m.Status = dead
+		return
+	}
+
+	if m.Hitpoints <= 6 {
+		m.Status = mortal
+	} else if m.Hitpoints <= -3 {
+		m.Status = incapacitated
+	} else {
+		m.Status = stunned
+	}
+
+	return
 }

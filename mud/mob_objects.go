@@ -27,7 +27,7 @@ func (player *mob) get(item *item, container *item) {
 		player.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
 		container.removeObject(item)
 	} else {
-		player.notify("You get %s.%s", item.Name)
+		player.notify("You get %s.", item.Name)
 		player.Room.notify(fmt.Sprintf("%s gets %s.%s", player.Name, item.Name, helpers.Newline), player)
 		player.Room.removeObject(item)
 	}

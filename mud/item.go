@@ -162,6 +162,8 @@ type itemIndex struct {
 	WearFlags        uint `json:"wear_flags"`
 	Weight           uint
 	Value            int
+	Min              int
+	Max              int
 }
 
 type item struct {
@@ -180,6 +182,8 @@ type item struct {
 	Level            int
 	Timer            int
 	Value            int
+	Min              int
+	Max              int
 }
 
 func applyAC(item *item, wear int) int {

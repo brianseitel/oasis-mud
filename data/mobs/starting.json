@@ -16,6 +16,7 @@
         "race_id": 1,
         "room_id": 3,
         "gender": null,
+        "status": 7,
         "attributes": {
             "strength": 3,
             "wisdom": 3,
@@ -55,6 +56,7 @@
         "race_id": 1,
         "room_id": 6,
         "gender": null,
+        "status": 7,
         "attributes": {
             "strength": 3,
             "wisdom": 3,
@@ -88,6 +90,7 @@
         "race_id": 1,
         "room_id": 8,
         "gender": null,
+        "status": 7,
         "attributes": {
             "strength": 3,
             "wisdom": 3,
@@ -127,6 +130,7 @@
         "race_id": 2,
         "room_id": 13,
         "gender": null,
+        "status": 7,
         "attributes": {
             "strength": 3,
             "wisdom": 3,

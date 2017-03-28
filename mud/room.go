@@ -2,7 +2,35 @@ package mud
 
 import (
 	"fmt"
+
+	"github.com/brianseitel/oasis-mud/helpers"
 	// "github.com/brianseitel/oasis-mud/helpers"
+)
+
+const (
+	roomDark     = 1
+	roomNoMob    = 2
+	roomIndoors  = 4
+	roomPrivate  = 8
+	roomSafe     = 16
+	roomSolitary = 32
+	roomPetShop  = 64
+	roomNoRecall = 128
+)
+
+const (
+	sectorInside = iota
+	sectorCity
+	sectorField
+	sectorForest
+	sectorHills
+	sectorMountain
+	sectorWaterSwim
+	sectorWaterNoSwim
+	sectorUnused
+	sectorAir
+	sectorDesert
+	sectorMax = 99999
 )
 
 type area struct {
@@ -24,6 +52,10 @@ type room struct {
 	Items       []*item `gorm:"many2many:room_items;"`
 	Mobs        []*mob  `gorm:"many2many:room_mobs;"`
 	MobIds      []int   `gorm:"-" json:"mobs"`
+
+	Light      int  `json:"light"`
+	RoomFlags  uint `json:"room_flags"`
+	SectorType int  `json:"sector_type"`
 }
 
 type exit struct {
@@ -81,6 +113,22 @@ func getMob(id uint) *mobIndex {
 		}
 	}
 	return nil
+}
+
+func (r *room) isDark() bool {
+	if r.Light > 0 {
+		return false
+	}
+
+	if helpers.HasBit(r.RoomFlags, uint(roomDark)) {
+		return true
+	}
+
+	if r.SectorType == sectorInside || r.SectorType == sectorCity {
+		return true
+	}
+
+	return false
 }
 
 func (r *room) notify(message string, except *mob) {

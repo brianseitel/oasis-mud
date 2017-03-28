@@ -73,53 +73,17 @@ func (server *Server) Serve(port int) {
 }
 
 func (server *Server) timing() {
-	const (
-		tickLen time.Duration = 5
-	)
-
 	pulse := time.NewTicker(time.Second)
-	tick := time.NewTicker(time.Second * tickLen)
+	tick := time.NewTicker(time.Second * 5)
 
 	for {
 		select {
 		case <-pulse.C:
 			fmt.Printf(".")
-			for e := mobList.Front(); e != nil; e = e.Next() {
-				m := e.Value.(*mob)
-				f := m.Fight
-				if f != nil && m.Status == fighting {
-					f.turn(m)
-				}
-
-				if m.wait < 0 {
-					m.wait--
-				}
-
-				for _, af := range m.Affects {
-					if af.duration > 0 {
-						af.duration--
-					} else {
-						m.removeAffect(af)
-					}
-				}
-			}
+			updateHandler()
 			break
 		case <-tick.C:
 			fmt.Printf("o")
-			for e := mobList.Front(); e != nil; e = e.Next() {
-				m := e.Value.(*mob)
-				if m.Playable == false {
-					m.wander()
-				}
-				m.notify(helpers.Newline)
-				m.statusBar()
-				m.regen()
-			}
-
-			for e := roomList.Front(); e != nil; e = e.Next() {
-				r := e.Value.(*room)
-				r.decayItems()
-			}
 			break
 		}
 	}

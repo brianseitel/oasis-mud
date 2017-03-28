@@ -72,6 +72,8 @@ func createItem(index *itemIndex) *item {
 func createMob(index *mobIndex) *mob {
 
 	m := &mob{}
+
+	m.index = index
 	m.Name = index.Name
 	m.Description = index.Description
 	m.Affects = index.Affects
@@ -128,6 +130,9 @@ func createMob(index *mobIndex) *mob {
 	}
 	m.Skills = skills
 
+	if m.isNPC() && m.Room.isDark() {
+		helpers.SetBit(m.AffectedBy, affectInfrared)
+	}
 	return m
 }
 
@@ -240,6 +245,7 @@ func loadRooms() {
 			}
 
 			roomList.PushBack(ro)
+
 			area.Rooms = append(area.Rooms, ro)
 		}
 
