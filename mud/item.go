@@ -182,18 +182,6 @@ type item struct {
 	Value            int
 }
 
-func newItemFromIndex(index *itemIndex) *item {
-	var contained []*item
-	item := &item{Name: index.Name, Description: index.Description, ShortDescription: index.ShortDescription, ItemType: index.ItemType, ExtraFlags: index.ExtraFlags, WearFlags: index.WearFlags, Weight: index.Weight, Value: index.Value, Timer: -1}
-	for _, id := range index.ContainedIDs {
-		i := getItem(id)
-		contained = append(contained, newItemFromIndex(i))
-	}
-	item.container = contained
-	itemList.PushBack(item)
-	return item
-}
-
 func applyAC(item *item, wear int) int {
 	if item.ItemType != itemArmor {
 		return 0
@@ -266,9 +254,9 @@ func createMoney(amount uint) *item {
 
 	var obj *item
 	if amount == 1 {
-		obj = newItemFromIndex(getItem(goldSingle))
+		obj = createItem(getItem(goldSingle))
 	} else {
-		obj = newItemFromIndex(getItem(goldMulti))
+		obj = createItem(getItem(goldMulti))
 		obj.Value = int(amount)
 	}
 

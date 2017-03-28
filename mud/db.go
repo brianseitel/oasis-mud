@@ -16,21 +16,11 @@ var (
 	itemIndexList list.List
 	jobList       list.List
 	mobList       *list.List
+	mobIndexList  list.List
 	raceList      list.List
 	roomList      list.List
 	skillList     list.List
 )
-
-func bootDB() {
-	loadSkills()
-	loadJobs()
-	loadRaces()
-	loadItems()
-	loadMobs()
-	loadRooms()
-
-	areaUpdate()
-}
 
 func areaUpdate() {
 	for e := areaList.Front(); e != nil; e = e.Next() {
@@ -56,6 +46,91 @@ func areaUpdate() {
 	}
 }
 
+func bootDB() {
+	loadSkills()
+	loadJobs()
+	loadRaces()
+	loadItems()
+	loadMobs()
+	loadRooms()
+
+	areaUpdate()
+}
+
+func createItem(index *itemIndex) *item {
+	var contained []*item
+	item := &item{Name: index.Name, Description: index.Description, ShortDescription: index.ShortDescription, ItemType: index.ItemType, ExtraFlags: index.ExtraFlags, WearFlags: index.WearFlags, Weight: index.Weight, Value: index.Value, Timer: -1}
+	for _, id := range index.ContainedIDs {
+		i := getItem(id)
+		contained = append(contained, createItem(i))
+	}
+	item.container = contained
+	itemList.PushBack(item)
+	return item
+}
+
+func createMob(index *mobIndex) *mob {
+
+	m := &mob{}
+	m.Name = index.Name
+	m.Description = index.Description
+	m.Affects = index.Affects
+	m.AffectedBy = index.AffectedBy
+
+	m.Skills = index.Skills
+
+	for _, i := range index.ItemIds {
+		m.Inventory = append(m.Inventory, createItem(getItem(uint(i))))
+	}
+	for _, i := range index.EquippedIds {
+		m.Equipped = append(m.Equipped, createItem(getItem(uint(i))))
+	}
+
+	m.ExitVerb = index.ExitVerb
+	m.Room = getRoom(uint(index.RoomID))
+
+	m.Hitpoints = index.Hitpoints
+	m.MaxHitpoints = index.MaxHitpoints
+	m.Mana = index.Mana
+	m.MaxMana = index.MaxMana
+	m.Movement = index.Movement
+	m.MaxMovement = index.MaxMovement
+
+	m.Armor = index.Armor
+	m.Hitroll = index.Hitroll
+	m.Damroll = index.Damroll
+
+	m.Exp = index.Exp
+	m.Level = index.Level
+	m.Alignment = index.Alignment
+	m.Practices = index.Practices
+	m.Gold = index.Gold
+
+	m.Carrying = index.Carrying
+	m.CarryMax = index.CarryMax
+	m.CarryWeight = index.CarryWeight
+	m.CarryWeightMax = index.CarryWeightMax
+
+	m.Job = getJob(uint(index.JobID))
+	m.Race = getRace(uint(index.RaceID))
+	m.Gender = index.Gender
+
+	m.Attributes = index.Attributes
+	m.ModifiedAttributes = index.ModifiedAttributes
+
+	m.Status = index.Status
+	m.Playable = index.Playable
+
+	var skills []*mobSkill
+	for _, s := range m.Skills {
+		skill := getSkill(s.SkillID)
+		skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
+	}
+	m.Skills = skills
+
+	return m
+}
+
 func loadItems() {
 	itemFiles, _ := filepath.Glob("./data/items/*.json")
 
@@ -69,7 +144,6 @@ func loadItems() {
 		json.Unmarshal(file, &list)
 
 		for _, it := range list {
-
 			itemIndexList.PushBack(it)
 		}
 
@@ -103,22 +177,14 @@ func loadMobs() {
 			panic(err)
 		}
 
-		var list []*mob
+		var list []*mobIndex
 		err = json.Unmarshal(file, &list)
 		if err != nil {
 			panic(err)
 		}
 
 		for _, m := range list {
-
-			var skills []*mobSkill
-			for _, s := range m.Skills {
-				skill := getSkill(s.SkillID)
-				skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
-			}
-			m.Skills = skills
-
-			mobList.PushBack(m)
+			mobIndexList.PushBack(m)
 		}
 	}
 
@@ -164,14 +230,12 @@ func loadRooms() {
 			ro.AreaID = int(a.ID)
 			for _, i := range ro.ItemIds {
 				index := getItem(uint(i))
-				item := newItemFromIndex(index)
+				item := createItem(index)
 				ro.Items = append(ro.Items, item)
 			}
 
 			for _, i := range ro.MobIds {
-				mob := getMob(uint(i))
-				if mob == nil {
-				}
+				mob := createMob(getMob(uint(i)))
 				ro.Mobs = append(ro.Mobs, mob)
 			}
 
@@ -194,12 +258,6 @@ func loadRooms() {
 		areaList.PushBack(area)
 	}
 
-	for e := roomList.Front(); e != nil; e = e.Next() {
-		room := e.Value.(*room)
-		for _, mob := range room.Mobs {
-			mob.Room = room
-		}
-	}
 }
 
 func loadSkills() {
@@ -249,14 +307,12 @@ func resetArea(ar *area) {
 		ro.AreaID = int(a.ID)
 		for _, i := range ro.ItemIds {
 			index := getItem(uint(i))
-			item := newItemFromIndex(index)
+			item := createItem(index)
 			ro.Items = append(ro.Items, item)
 		}
 
 		for _, i := range ro.MobIds {
-			mob := getMob(uint(i))
-			if mob == nil {
-			}
+			mob := createMob(getMob(uint(i)))
 			ro.Mobs = append(ro.Mobs, mob)
 		}
 

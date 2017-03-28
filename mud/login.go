@@ -25,11 +25,11 @@ func login(c *connection) *mob {
 
 	file, err := ioutil.ReadFile(fmt.Sprintf("./data/players/%s.json", name))
 
-	var player *mob
+	var player *mobIndex
 	err = json.Unmarshal(file, &player)
 	if err != nil {
 		player.Name = name
-		return register(c, player)
+		return register(c, name)
 	}
 
 	for len(password) == 0 {
@@ -46,13 +46,11 @@ func login(c *connection) *mob {
 		return login(c)
 	}
 
-	player.client = c
-	player.Status = standing
-	player.Job = getJob(uint(player.JobID))
-	player.Race = getRace(uint(player.RaceID))
-	player.Room = getRoom(uint(player.RoomID))
-	player.Room.Mobs = append(player.Room.Mobs, player)
-	player.loadSkills()
-	mobList.PushBack(player)
-	return player
+	p := createMob(player)
+	p.client = c
+	p.Status = standing
+	p.Room.Mobs = append(p.Room.Mobs, p)
+
+	mobList.PushBack(p)
+	return p
 }

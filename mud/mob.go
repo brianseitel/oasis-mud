@@ -21,12 +21,65 @@ type attributeSet struct {
 	Constitution int
 }
 
+type mobIndex struct {
+	ID          uint
+	Name        string
+	Password    string
+	Description string
+	Affects     []*affect
+	AffectedBy  uint
+
+	Skills      []*mobSkill
+	ItemIds     []int `json:"items"`
+	EquippedIds []int `json:"equipped"`
+	RoomID      int   `json:"current_room"`
+	ExitVerb    string
+
+	Hitpoints    int
+	MaxHitpoints int
+	Mana         int
+	MaxMana      int
+	Movement     int
+	MaxMovement  int
+
+	Armor   int
+	Hitroll int
+	Damroll int
+
+	Exp       int
+	Level     int
+	Alignment int
+	Practices uint
+	Gold      uint
+
+	Carrying       uint `json:"carrying"`
+	CarryMax       uint `json:"carry_max"`
+	CarryWeight    uint `json:"carry_weight"`
+	CarryWeightMax uint `json:"carry_weight_max"`
+
+	JobID  int `json:"job"`
+	RaceID int `json:"race"`
+	Gender int
+
+	Attributes         *attributeSet
+	ModifiedAttributes *attributeSet
+
+	Status      status
+	Identifiers string
+
+	Fight *fight
+	wait  uint
+
+	RecallRoomID uint `json:"recall_room_id"`
+
+	Playable bool
+}
+
 type mob struct {
 	ID uint
 
 	//Mob information
 	Name        string `json:"name"`
-	Password    string
 	Description string
 
 	Affects    []*affect /* list of affects, incl durations */
@@ -35,9 +88,7 @@ type mob struct {
 	Skills    []*mobSkill
 	Inventory []*item
 	Equipped  []*item
-	ItemIds   []int `json:"items"`
 	Room      *room
-	RoomID    int `json:"current_room"`
 	ExitVerb  string
 
 	Hitpoints    int `json:"hitpoints"`
@@ -170,9 +221,6 @@ func (m mob) TNL() int {
 func (m *mob) move(e *exit) {
 	if len(m.Room.Mobs) > 0 {
 		for i, rm := range m.Room.Mobs {
-			if rm.Room == nil {
-				rm.Room = getRoom(uint(rm.RoomID))
-			}
 			if rm == m {
 				m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
 			} else {

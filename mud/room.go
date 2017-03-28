@@ -73,9 +73,9 @@ func getItem(id uint) *itemIndex {
 	return nil
 }
 
-func getMob(id uint) *mob {
-	for e := mobList.Front(); e != nil; e = e.Next() {
-		m := e.Value.(*mob)
+func getMob(id uint) *mobIndex {
+	for e := mobIndexList.Front(); e != nil; e = e.Next() {
+		m := e.Value.(*mobIndex)
 		if m.ID == id {
 			return m
 		}

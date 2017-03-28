@@ -7,7 +7,7 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func register(c *connection, m *mob) *mob {
+func register(c *connection, name string) *mob {
 
 	input := askIfNew(c)
 
@@ -19,9 +19,10 @@ func register(c *connection, m *mob) *mob {
 	job := askForJob(c)
 	race := askForRace(c)
 
+	fmt.Println(password)
+	var m *mob
 	newPlayer := &mob{
 		Name:         m.Name,
-		Password:     password,
 		Job:          &job,
 		Race:         &race,
 		Hitpoints:    m.Race.defaultStats("hitpoints"),
@@ -48,11 +49,11 @@ func register(c *connection, m *mob) *mob {
 		},
 		Level:  1,
 		Exp:    0,
-		RoomID: 1,
+		Room:   getRoom(uint(1)),
 		Status: standing,
 	}
 
-	db.Save(&newPlayer)
+	fmt.Println(newPlayer)
 
 	m.client = c
 	return m

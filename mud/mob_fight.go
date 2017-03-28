@@ -181,7 +181,7 @@ func (m *mob) deathCry() {
 	act(msg, m, nil, nil, actToRoom)
 
 	if drop > 0 {
-		item := newItemFromIndex(getItem(uint(drop)))
+		item := createItem(getItem(uint(drop)))
 		itemList.PushBack(item)
 
 		item.Name = strings.Replace(item.Name, "[name]", m.Name, -1)
