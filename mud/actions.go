@@ -858,7 +858,7 @@ func (a *action) give() {
 
 func (a *action) kill() {
 	for _, m := range a.mob.Room.Mobs {
-		if a.matchesSubject(m.Identifiers) {
+		if a.matchesSubject(m.Name) {
 			newFight(a.mob, m)
 			return
 		}

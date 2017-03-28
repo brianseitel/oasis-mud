@@ -258,6 +258,12 @@ func loadRooms() {
 		areaList.PushBack(area)
 	}
 
+	for e := roomList.Front(); e != nil; e = e.Next() {
+		room := e.Value.(*room)
+		for _, mob := range room.Mobs {
+			mob.Room = room
+		}
+	}
 }
 
 func loadSkills() {
