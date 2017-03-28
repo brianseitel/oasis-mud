@@ -73,7 +73,7 @@ func (server *Server) Serve(port int) {
 }
 
 func (server *Server) timing() {
-	pulse := time.NewTicker(time.Second)
+	pulse := time.NewTicker(time.Second / pulsePerSecond)
 	tick := time.NewTicker(time.Second * 5)
 
 	for {

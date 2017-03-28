@@ -49,7 +49,7 @@ func violenceUpdate() {
 						var target *mob
 
 						for _, neighbor := range m.Room.Mobs {
-							if m.canSee(neighbor) /* && m.GroupedWith(neighbor) */ && dice().Intn(number) == 0 {
+							if m.canSee(neighbor) /* && m.GroupedWith(neighbor) */ && dice().Intn(number+1) == 0 {
 								target = neighbor
 								number++
 							}

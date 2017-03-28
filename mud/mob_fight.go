@@ -256,7 +256,7 @@ func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
 		}
 
 		buf1 = fmt.Sprintf("$n's %s %s $N%s", attack, vp, punct)
-		buf2 = fmt.Sprintf("Your %s %s $N%s", attack, vp, punct)
+		buf2 = fmt.Sprintf("Your %s %s $N%s", attack, vs, punct)
 		buf3 = fmt.Sprintf("$n's %s %s you%s", attack, vp, punct)
 	}
 
@@ -424,7 +424,7 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 	}
 
 	diceroll := 99
-	for diceroll >= 20 {
+	for diceroll >= 25 {
 		diceroll = dBits(5)
 	}
 
