@@ -342,6 +342,29 @@ func (m *mob) die() {
 	m.Room = getRoom(0)
 }
 
+func (m *mob) disarm(victim *mob) {
+	victimWield := victim.equippedItem(itemWearWield)
+	if victimWield == nil {
+		return
+	}
+
+	wield := m.equippedItem(itemWearWield)
+	if wield == nil {
+		return
+	}
+
+	act("$n disarms you!", m, nil, victim, actToVict)
+	act("You disarm $N!", m, nil, victim, actToChar)
+	act("$n disarms $N!", m, nil, victim, actToNotVict)
+
+	for j, item := range m.Equipped {
+		if wield == item {
+			m.Equipped, m.Room.Items = transferItem(j, m.Equipped, m.Room.Items)
+			break
+		}
+	}
+}
+
 func (m *mob) dodge(attacker *mob) bool {
 	var chance int
 

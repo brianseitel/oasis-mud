@@ -136,6 +136,18 @@ func newActionWithInput(a *action) error {
 	case cSneak:
 		a.sneak()
 		return nil
+	case cKick:
+		a.kick()
+		return nil
+	case cBackstab:
+		a.backstab()
+		return nil
+	case cDisarm:
+		a.disarm()
+		return nil
+	case cSteal:
+		a.steal()
+		return nil
 	default:
 		a.conn.SendString("Eh?")
 	}
@@ -367,6 +379,72 @@ func (a *action) affect() {
 	}
 }
 
+func (a *action) backstab() {
+	player := a.mob
+
+	backstab := player.skill("backstab")
+	if backstab == nil {
+		player.notify("You don't know how to backstab!")
+		return
+	}
+
+	if len(a.args) < 1 {
+		player.notify("Backstab whom?")
+		return
+	}
+
+	arg1 := a.args[1]
+
+	var victim *mob
+	for _, mob := range player.Room.Mobs {
+		if helpers.MatchesSubject(mob.Name, arg1) {
+			victim = mob
+			break
+		}
+	}
+
+	if victim == nil {
+		player.notify("They aren't here.")
+		return
+	}
+
+	if victim == player {
+		player.notify("How can you sneak up on yourself?")
+		return
+	}
+
+	if victim.isSafe() {
+		return
+	}
+
+	wield := player.equippedItem(itemWearWield)
+
+	if wield == nil /* && item.type == "piercing" */ {
+		player.notify("You need to wield a piercing weapon.")
+		return
+	}
+
+	if victim.Fight != nil {
+		player.notify("You can't backstab a fighting person.")
+		return
+	}
+
+	if victim.Hitpoints < victim.MaxHitpoints {
+		act("$N is hurt and suspicious ... you can't sneak up.", player, nil, victim, actToChar)
+		return
+	}
+
+	wait(player, backstab.Skill.Beats)
+
+	if !victim.isAwake() || player.isNPC() || dice().Intn(100) < int(backstab.Level) {
+		multiHit(player, victim, typeBackstab)
+	} else {
+		player.damage(victim, 0, typeBackstab)
+	}
+
+	return
+}
+
 func (a *action) cast() {
 	var victim *mob
 	var player *mob
@@ -513,6 +591,43 @@ func (a *action) consider() {
 	return
 }
 
+func (a *action) disarm() {
+	player := a.mob
+
+	disarm := player.skill("disarm")
+	if !player.isNPC() && disarm == nil {
+		player.notify("You don't know how to disarm!")
+		return
+	}
+
+	wield := player.equippedItem(itemWearWield)
+	if wield == nil {
+		player.notify("You must wield a weapon to disarm.")
+		return
+	}
+
+	victim := player.Fight
+	if victim == nil {
+		player.notify("You aren't fighting anyone, fool!")
+		return
+	}
+
+	victimWield := victim.equippedItem(itemWearWield)
+	if victimWield == nil {
+		player.notify("Your opponent is not wielding a weapon.")
+		return
+	}
+
+	wait(player, disarm.Skill.Beats)
+	percent := dice().Intn(100) + victim.Level - player.Level
+	if player.isNPC() || percent < int(disarm.Level*2/3) {
+		player.disarm(victim)
+	} else {
+		player.notify("You failed.")
+	}
+	return
+}
+
 func (a *action) drop() {
 	player := a.mob
 	if len(a.args) <= 1 {
@@ -615,21 +730,45 @@ func (a *action) drop() {
 }
 
 func (a *action) flee() {
-	if a.mob.Status != fighting {
-		a.conn.SendString("You can't flee if you're not fighting, fool.")
+	player := a.mob
+
+	victim := player.Fight
+	if victim == nil || player.Status != fighting {
+		player.notify("You aren't fighting anyone, fool.")
 		return
 	}
 
-	roll := dice().Intn(36 - a.mob.Attributes.Dexterity) // higher the dexterity, better the chance of fleeing successfully
-	if roll == 1 {
-		a.mob.Fight.Status = standing
-		a.mob.Status = standing
+	wasIn := player.Room
 
-		a.mob.wander()
-		a.conn.SendString("You flee!")
-	} else {
-		a.conn.SendString("You tried to flee, but failed!")
+	for attempt := 0; attempt < 6; attempt++ {
+		number := dice().Intn(len(player.Room.Exits))
+		exit := player.Room.Exits[number]
+		if exit == nil || (player.isNPC() && helpers.HasBit(exit.Room.RoomFlags, roomNoMob)) {
+			continue
+		}
+
+		player.move(exit)
+		nowIn := player.Room
+		if nowIn == wasIn {
+			continue
+		}
+
+		player.Room = wasIn
+		act("$n has fled!", player, nil, nil, actToRoom)
+		player.Room = nowIn
+
+		if !player.isNPC() {
+			player.notify("You flee from combat! You lose 25 experience points!")
+			player.gainExp(-25)
+		}
+
+		player.stopFighting(true)
+		return
 	}
+
+	player.notify("You failed! You lose 10 experience points.")
+	player.gainExp(-10)
+	return
 }
 
 func (a *action) get() {
@@ -866,6 +1005,30 @@ func (a *action) give() {
 	player.notify("You give %s to %s.", item.Name, victim.Name)
 	victim.notify("%s gives you %s.", player.Name, item.Name)
 	return
+}
+
+func (a *action) kick() {
+	player := a.mob
+	victim := player.Fight
+
+	kick := player.skill("kick")
+	if !player.isNPC() && kick == nil {
+		player.notify("You better leave the martial arts to fighters.")
+		return
+	}
+
+	if victim == nil {
+		player.notify("You aren't fighting anyone, fool.")
+		return
+	}
+
+	wait(player, kick.Skill.Beats)
+
+	if player.isNPC() || dice().Intn(100) < int(kick.Level) {
+		player.damage(victim, dice().Intn(player.Level)+1, typeKick)
+	} else {
+		player.damage(victim, 0, typeKick)
+	}
 }
 
 func (a *action) kill() {
@@ -1112,6 +1275,122 @@ func (a *action) scan() {
 			a.mob.notify("    %s(nothing)%s", helpers.Blue, helpers.Reset)
 		}
 	}
+}
+
+func (a *action) steal() {
+	player := a.mob
+
+	steal := player.skill("steal")
+	if steal == nil {
+		player.notify("You don't know how to steal.")
+		return
+	}
+
+	if len(a.args) <= 2 {
+		player.notify("Steal what from whom?")
+		return
+	}
+
+	arg1, arg2 := a.args[1], a.args[2]
+
+	var victim *mob
+	for _, mob := range player.Room.Mobs {
+		if helpers.MatchesSubject(mob.Name, arg2) {
+			victim = mob
+			break
+		}
+	}
+
+	if victim == nil {
+		player.notify("They aren't here.")
+		return
+	}
+
+	if victim == player {
+		player.notify("That's pointless.")
+		return
+	}
+
+	wait(player, steal.Skill.Beats)
+	percent := dice().Intn(100)
+	if victim.isAwake() {
+		percent += 10
+	} else {
+		percent -= 50
+	}
+
+	if player.Level+5 < victim.Level || victim.Status == fighting || !victim.isNPC() || (!player.isNPC() && percent > int(steal.Level)) {
+		// failed //
+		player.notify("Oops.")
+		act("$n tried to steal from you.", player, nil, victim, actToVict)
+		act("$n tried to steal from $N.", player, nil, victim, actToNotVict)
+
+		// TODO
+		// shout(fmt.Sprintf("%s is a bloody thief!", player.Name))
+
+		if !player.isNPC() {
+			if victim.isNPC() {
+				multiHit(victim, player, typeUndefined)
+			} else {
+				// TODO: set player as thief
+			}
+		}
+
+		return
+	}
+
+	if strings.HasPrefix(arg1, "coin") || strings.HasPrefix(arg1, "gold") {
+		// steal money!
+		amount := int(victim.Gold) * dice().Intn(10) / 100
+		if amount <= 0 {
+			player.notify("You couldn't get any gold.")
+			return
+		}
+
+		player.Gold += uint(amount)
+		victim.Gold -= uint(amount)
+		player.notify("Bingo! You stole %d gold coins!", amount)
+		return
+	}
+
+	var item *item
+	for _, i := range victim.Inventory {
+		if helpers.MatchesSubject(i.Name, arg1) {
+			item = i
+			break
+		}
+	}
+
+	if item == nil {
+		player.notify("You can't find it.")
+		return
+	}
+
+	// TODO
+	// if !item.canDrop() {
+	// 	player.notify("You can't pry it away.")
+	// 	return
+	// }
+
+	if player.Carrying+1 > player.CarryMax {
+		player.notify("You have your hands full.")
+		return
+	}
+
+	if player.CarryWeight+item.Weight > player.CarryWeightMax {
+		player.notify("You can't carry that much weight.")
+		return
+	}
+
+	for j, i := range victim.Inventory {
+		if item == i {
+			victim.Inventory, player.Inventory = transferItem(j, victim.Inventory, player.Inventory)
+			break
+		}
+	}
+
+	player.notify("Ok.")
+	return
 }
 
 func (a *action) train() {
