@@ -149,7 +149,9 @@ func newActionWithInput(a *action) error {
 		a.steal()
 		return nil
 	default:
-		a.conn.SendString("Eh?")
+		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
+			a.conn.SendString("Eh?")
+		}
 	}
 	return nil
 }

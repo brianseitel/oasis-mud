@@ -20,6 +20,7 @@ var (
 	raceList      list.List
 	roomList      list.List
 	skillList     list.List
+	socialList    list.List
 )
 
 func areaUpdate() {
@@ -48,6 +49,7 @@ func areaUpdate() {
 
 func bootDB() {
 	loadSkills()
+	loadSocials()
 	loadJobs()
 	loadRaces()
 	loadItems()
@@ -130,7 +132,7 @@ func createMob(index *mobIndex) *mob {
 	}
 	m.Skills = skills
 
-	if m.isNPC() && m.Room.isDark() {
+	if m.isNPC() && (m.Room != nil && m.Room.isDark()) {
 		helpers.SetBit(m.AffectedBy, affectInfrared)
 	}
 	return m
@@ -290,6 +292,23 @@ func loadSkills() {
 		for _, sk := range list {
 			skillList.PushBack(sk)
 		}
+	}
+}
+
+func loadSocials() {
+	file, err := ioutil.ReadFile("./data/socials/socials.json")
+	if err != nil {
+		panic(err)
+	}
+
+	var list []*social
+	err = json.Unmarshal(file, &list)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, sk := range list {
+		socialList.PushBack(sk)
 	}
 }
 
