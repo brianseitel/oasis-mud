@@ -169,6 +169,18 @@ func newActionWithInput(a *action) error {
 	case cPick:
 		a.pick()
 		return nil
+	case cSit:
+		a.changePosition(sitting)
+		return nil
+	case cStand:
+		a.changePosition(standing)
+		return nil
+	case cSleep:
+		a.changePosition(sleeping)
+		return nil
+	case cRest:
+		a.changePosition(resting)
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
 			a.mob.notify("Eh?")
@@ -699,6 +711,51 @@ func (a *action) cast() {
 	}
 
 	return
+}
+
+func (a *action) changePosition(pos status) {
+	p := a.mob
+
+	switch p.Status {
+	case dead:
+		p.notify("You can't do that because you are DEAD.")
+		return
+	case mortal:
+		p.notify("You are too busy dying to do that.")
+		return
+	case incapacitated:
+		p.notify("You are too busy bleeding out to do that.")
+		return
+	case stunned:
+		p.notify("You are too stunned to do much of anything.")
+		return
+	case fighting:
+		p.notify("You are too busy fighting to do that.")
+		return
+	}
+
+	switch pos {
+	case resting:
+		p.Status = resting
+		p.notify("You rest.")
+		return
+	case sitting:
+		p.Status = sitting
+		p.notify("You sit.")
+		return
+	case sleeping:
+		p.Status = sleeping
+		p.notify("You sleep.")
+		return
+	case standing:
+		p.Status = standing
+		p.notify("You stand up.")
+		return
+	default:
+		p.notify("You can't do that.")
+		return
+	}
+
 }
 
 func (a *action) consider() {
