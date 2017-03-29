@@ -60,13 +60,6 @@ type room struct {
 	SectorType int  `json:"sector_type"`
 }
 
-type exit struct {
-	ID     uint
-	Dir    string `json:"direction"`
-	Room   *room
-	RoomID uint `json:"room_id",gorm:"-"`
-}
-
 func (r *room) decayItems() {
 	for j, item := range r.Items {
 		if item.Timer == -1 {

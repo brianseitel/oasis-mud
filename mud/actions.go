@@ -323,7 +323,50 @@ func (a *action) look() {
 		}
 	}
 
-	// TODO: look directions
+	var door string
+	if strings.HasPrefix(a.args[1], "n") || strings.HasPrefix(a.args[1], "north") {
+		door = "north"
+	} else if strings.HasPrefix(a.args[1], "e") || strings.HasPrefix(a.args[1], "east") {
+		door = "east"
+	} else if strings.HasPrefix(a.args[1], "s") || strings.HasPrefix(a.args[1], "south") {
+		door = "south"
+	} else if strings.HasPrefix(a.args[1], "w") || strings.HasPrefix(a.args[1], "west") {
+		door = "west"
+	} else if strings.HasPrefix(a.args[1], "u") || strings.HasPrefix(a.args[1], "up") {
+		door = "up"
+	} else if strings.HasPrefix(a.args[1], "d") || strings.HasPrefix(a.args[1], "down") {
+		door = "down"
+	} else {
+		player.notify("You do not see that here.")
+		return
+	}
+
+	var exit *exit
+	for _, e := range player.Room.Exits {
+		if e.Dir == door {
+			exit = e
+			break
+		}
+	}
+
+	if exit == nil {
+		player.notify("Nothing special there.")
+		return
+	}
+
+	if len(exit.Description) == 0 {
+		player.notify(exit.Description)
+	} else {
+		player.notify("Nothing special there.")
+	}
+
+	if len(exit.Keyword) == 0 {
+		if exit.isClosed() {
+			act("The $d is closed.", player, nil, exit.Keyword, actToChar)
+		} else if exit.hasDoor() {
+			act("The $d is open.", player, nil, exit.Keyword, actToChar)
+		}
+	}
 	return
 }
 
@@ -846,7 +889,7 @@ func (a *action) flee() {
 	for attempt := 0; attempt < 6; attempt++ {
 		number := dice().Intn(len(player.Room.Exits))
 		exit := player.Room.Exits[number]
-		if exit == nil || (player.isNPC() && helpers.HasBit(exit.Room.RoomFlags, roomNoMob)) {
+		if exit == nil || exit.isClosed() || (player.isNPC() && helpers.HasBit(exit.Room.RoomFlags, roomNoMob)) {
 			continue
 		}
 

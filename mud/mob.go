@@ -307,6 +307,15 @@ func (m *mob) isTrainer() bool {
 	return true
 }
 
+func (m *mob) hasKey(key int) bool {
+	for _, i := range m.Inventory {
+		if i.ID == uint(key) {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *mob) hit() int {
 	return int(m.Attributes.Dexterity / 3)
 }
@@ -316,6 +325,12 @@ func (m mob) TNL() int {
 }
 
 func (m *mob) move(e *exit) {
+
+	if e.isClosed() && !m.isAffected(affectPassDoor) {
+		act("The $d is closed.", m, nil, e.Keyword, actToChar)
+		return
+	}
+
 	if len(m.Room.Mobs) > 0 {
 		for i, rm := range m.Room.Mobs {
 			if rm == m {
