@@ -532,18 +532,35 @@ func getPlayerByName(name string) *mob {
 	return nil
 }
 
+func extractChar(m *mob) {
+	m.stopFighting(true)
+
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		ch := e.Value.(*mob)
+		if ch == m {
+			for j, rm := range m.Room.Mobs {
+				if rm == m {
+					m.Room.Mobs = append(m.Room.Mobs[:j], m.Room.Mobs[j+1:]...)
+					break
+				}
+			}
+			mobList.Remove(e)
+
+			m.client = nil
+			m = nil
+		}
+	}
+}
+
 func showCharactersToPlayer(chars []*mob, player *mob) {
 	for _, char := range chars {
 		if char == player {
 			continue
 		}
 		if player.canSee(char) {
-			fmt.Println("SAW", char.Name)
 			showCharacterToPlayer(char, player)
 		} else if player.Room.isDark() && player.isAffected(affectInfrared) {
 			player.notify("%sYou see glowing red eyes watching YOU!%s", helpers.Red, helpers.Reset)
-		} else {
-			fmt.Println("DID NOT SEE", char.Name)
 		}
 	}
 }

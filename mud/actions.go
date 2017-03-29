@@ -1404,10 +1404,11 @@ func (a *action) put() {
 }
 
 func (a *action) quit() {
+	extractChar(a.mob)
 	if a.mob.Status == fighting {
-		a.conn.SendString("You can't quit now. You're fighting!")
+		a.mob.notify("You can't quit now. You're fighting!")
 	} else {
-		a.conn.SendString("Seeya!")
+		a.mob.notify("Seeya!")
 		a.conn.end()
 	}
 }
