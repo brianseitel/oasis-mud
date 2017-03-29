@@ -154,6 +154,9 @@ func newActionWithInput(a *action) error {
 	case cWho:
 		a.who()
 		return nil
+	case cWhere:
+		a.where()
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
 			a.mob.notify("Eh?")
@@ -1886,6 +1889,40 @@ func (a *action) wear() {
 	}
 
 	a.mob.notify("You can't wear, wield, or hold that.")
+}
+
+func (a *action) where() {
+	args := a.args
+	player := a.mob
+
+	if len(args) == 1 {
+		player.notify("Players near you:")
+		found := false
+		for e := mobList.Front(); e != nil; e = e.Next() {
+			m := e.Value.(*mob)
+			if m.client != nil && !m.isNPC() && m.Room != nil && m.Room.Area.ID == player.Room.Area.ID && player.canSee(m) {
+				found = true
+				player.notify("%-28s %s", m.Name, m.Room.Name)
+			}
+		}
+
+		if !found {
+			player.notify("None")
+		}
+	} else {
+		found := false
+		for e := mobList.Front(); e != nil; e = e.Next() {
+			m := e.Value.(*mob)
+			if m.client != nil && m.Room.Area.ID == player.Room.Area.ID && !helpers.HasBit(m.AffectedBy, affectHide) && !helpers.HasBit(m.AffectedBy, affectSneak) && player.canSee(m) && helpers.MatchesSubject(m.Name, a.args[1]) {
+				found = true
+				player.notify("%-28s %s", pers(m, player), m.Room.Name)
+			}
+		}
+
+		if !found {
+			act("You didn't find any $T.", player, nil, a.args[1], actToChar)
+		}
+	}
 }
 
 func (a *action) who() {
