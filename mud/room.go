@@ -34,10 +34,11 @@ const (
 )
 
 type area struct {
-	ID    uint
-	Name  string  `json:"name"`
-	Rooms []*room `json:"rooms",gorm:"-"`
-	age   int
+	ID         uint
+	Name       string  `json:"name"`
+	Rooms      []*room `json:"rooms",gorm:"-"`
+	age        int
+	numPlayers int
 }
 
 type room struct {
