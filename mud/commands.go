@@ -44,11 +44,13 @@ const (
 	cDisarm       command = "disarm"
 	cBackstab     command = "backstab"
 	cSteal        command = "steal"
+	cPractice     command = "practice"
+	cWho          command = "who"
 	cNoop         command = "noop"
 )
 
 var commands []command
 
 func init() {
-	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cGive, cSneak, cConsider, cPut, cSay, cTell, cReply, cSteal, cChat, cChatAuction, cChatMusic, cChatQuestion, cChatAnswer, cChatImmtalk, cAffect, cCast, cGet, cDrop, cWear, cRemove, cKill, cKick, cBackstab, cDisarm, cFlee, cInventory, cScore, cFlee, cWear, cEquipment, cScan, cRecall, cQuit, cSkill, cTrip, cTrain}
+	commands = []command{cLook, cNorth, cSouth, cEast, cWest, cUp, cDown, cWho, cGive, cPractice, cSneak, cConsider, cPut, cSay, cTell, cReply, cSteal, cChat, cChatAuction, cChatMusic, cChatQuestion, cChatAnswer, cChatImmtalk, cAffect, cCast, cGet, cDrop, cWear, cRemove, cKill, cKick, cBackstab, cDisarm, cFlee, cInventory, cScore, cFlee, cWear, cEquipment, cScan, cRecall, cQuit, cSkill, cTrip, cTrain}
 }

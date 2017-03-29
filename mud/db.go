@@ -77,6 +77,7 @@ func createMob(index *mobIndex) *mob {
 
 	m.index = index
 	m.Name = index.Name
+	m.Title = index.Title
 	m.Description = index.Description
 	m.Affects = index.Affects
 	m.AffectedBy = index.AffectedBy
@@ -158,17 +159,16 @@ func loadItems() {
 }
 
 func loadJobs() {
-	jobs := make(map[string]string)
-	jobs["war"] = "Warrior"
-	jobs["mag"] = "Mage"
-	jobs["cle"] = "Cleric"
-	jobs["thi"] = "Thief"
-	jobs["ran"] = "Ranger"
-	jobs["bar"] = "Bard"
+	var jobs []*job
 
-	for abbr, name := range jobs {
-		j := &job{Name: name, Abbr: abbr}
+	jobs = append(jobs, &job{ID: 1, Name: "Warrior", Abbr: "war"})
+	jobs = append(jobs, &job{ID: 2, Name: "Mage", Abbr: "mag"})
+	jobs = append(jobs, &job{ID: 3, Name: "Cleric", Abbr: "cle"})
+	jobs = append(jobs, &job{ID: 4, Name: "Thief", Abbr: "thi"})
+	jobs = append(jobs, &job{ID: 5, Name: "Ranger", Abbr: "ran"})
+	jobs = append(jobs, &job{ID: 6, Name: "Bard", Abbr: "bar"})
 
+	for _, j := range jobs {
 		jobList.PushBack(j)
 	}
 }
@@ -198,19 +198,12 @@ func loadMobs() {
 }
 
 func loadRaces() {
-	races := make(map[string]string)
-	races["hum"] = "Human"
-	races["elf"] = "Elf"
-	races["dwf"] = "Dwarf"
-	races["drw"] = "Dark Elf"
-	races["gob"] = "Goblin"
-	races["drg"] = "Dragon"
-
-	for abbr, name := range races {
-		r := &race{Name: name, Abbr: abbr}
-
-		raceList.PushBack(r)
-	}
+	raceList.PushBack(&race{ID: 1, Name: "Human", Abbr: "hum"})
+	raceList.PushBack(&race{ID: 2, Name: "Elf", Abbr: "elf"})
+	raceList.PushBack(&race{ID: 3, Name: "Dwarf", Abbr: "dwf"})
+	raceList.PushBack(&race{ID: 4, Name: "Dark Elft", Abbr: "drw"})
+	raceList.PushBack(&race{ID: 5, Name: "Goblin", Abbr: "gob"})
+	raceList.PushBack(&race{ID: 6, Name: "Dragon", Abbr: "drg"})
 }
 
 func loadRooms() {

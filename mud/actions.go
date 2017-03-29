@@ -148,9 +148,15 @@ func newActionWithInput(a *action) error {
 	case cSteal:
 		a.steal()
 		return nil
+	case cPractice:
+		a.practice()
+		return nil
+	case cWho:
+		a.who()
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
-			a.conn.SendString("Eh?")
+			a.mob.notify("Eh?")
 		}
 	}
 	return nil
@@ -1186,6 +1192,96 @@ func (a *action) move(d string) {
 	a.conn.SendString("Alas, you cannot go that way.")
 }
 
+func (a *action) practice() {
+	player := a.mob
+
+	if player.isNPC() {
+		return
+	}
+
+	if player.Level < 3 {
+		player.notify("You must be at least Level 3 before you can practice. Go train instead!")
+		return
+	}
+
+	if len(a.args) < 1 {
+		col := 0
+		for e := skillList.Front(); e != nil; e = e.Next() {
+			skill := e.Value.(*skill)
+			var buf bytes.Buffer
+
+			pSkill := player.skill(skill.Name)
+			buf.Write([]byte(fmt.Sprintf("%18s %3d%%  ", skill.Name, pSkill.Level)))
+			col++
+			if col%3 == 0 {
+				player.notify("%s\r\n", buf.String())
+			}
+		}
+
+		if col%3 != 0 {
+			player.notify(helpers.Newline)
+		}
+
+		player.notify("You have %d practices remaining.", player.Practices)
+	} else {
+		var adept uint
+
+		if !player.isAwake() {
+			player.notify("In your dreams, or what?")
+			return
+		}
+
+		var trainer *mob
+		for _, mob := range player.Room.Mobs {
+			if mob.isNPC() && helpers.HasBit(mob.Act, actPractice) {
+				trainer = mob
+				break
+			}
+		}
+
+		if trainer == nil {
+			player.notify("You can't do that here.")
+			return
+		}
+
+		if player.Practices <= 0 {
+			player.notify("You have no practices remaining.")
+			return
+		}
+
+		skill := getSkillByName(a.args[1])
+		pSkill := player.skill(skill.Name)
+		if skill == nil || (!player.isNPC() && player.Level < int(pSkill.Level)) {
+			player.notify("You can't practice that.")
+			return
+		}
+
+		if player.isNPC() {
+			adept = 100
+		} else {
+			adept = 100 // TODO
+		}
+
+		pSkill = player.skill(a.args[1])
+		if pSkill.Level >= adept {
+			player.notify("You've already mastered %s.", pSkill.Skill.Name)
+			return
+		}
+
+		player.Practices--
+		pSkill.Level++
+		if pSkill.Level < adept {
+			act("You practice $T.", player, nil, pSkill.Skill.Name, actToChar)
+			act("$n practices $T.", player, nil, pSkill.Skill.Name, actToRoom)
+		} else {
+			pSkill.Level = adept
+			act("You have now mastered $T.", player, nil, pSkill.Skill.Name, actToChar)
+			act("$n has now mastered $T.", player, nil, pSkill.Skill.Name, actToRoom)
+		}
+	}
+	return
+}
+
 func (a *action) put() {
 
 	player := a.mob
@@ -1790,6 +1886,115 @@ func (a *action) wear() {
 	}
 
 	a.mob.notify("You can't wear, wield, or hold that.")
+}
+
+func (a *action) who() {
+	var (
+		minLevel        = 0
+		maxLevel        = 99
+		classRestrict   = false
+		classToRestrict *job
+	)
+
+	nNumber := 0
+
+	player := a.mob
+	var arg string
+	args := a.args
+	for len(args) > 0 {
+		arg, args = shift(args)
+
+		num, err := strconv.Atoi(arg)
+		if err != nil {
+			nNumber++
+			switch nNumber {
+			case 1:
+				minLevel = num
+				break
+			case 2:
+				maxLevel = num
+				break
+			default:
+				player.notify("Only two level numbers are allowed.")
+				return
+			}
+		} else {
+			// must be a string
+
+			if len(arg) < 3 {
+				player.notify("Classes must be longer than that.")
+				return
+			}
+
+			classRestrict = true
+			for e := jobList.Front(); e != nil; e = e.Next() {
+				job := e.Value.(*job)
+				if helpers.MatchesSubject(job.Abbr, arg) {
+					classToRestrict = job
+					break
+				}
+			}
+
+			if classToRestrict == nil {
+				player.notify("That is not a class.")
+				return
+			}
+		}
+	}
+
+	nMatch := 0
+
+	var buf bytes.Buffer
+
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		mob := e.Value.(*mob)
+
+		if mob.client == nil || !player.canSee(mob) {
+			continue
+		}
+
+		if mob.Level < minLevel || mob.Level > maxLevel || (classRestrict && mob.Job != classToRestrict) {
+			continue
+		}
+
+		nMatch++
+		job := mob.Job.Name
+		race := mob.Race.Name
+		switch mob.Level {
+		default:
+			break
+		case 99:
+			job = "GOD"
+			break
+		case 98:
+			job = "SUP"
+			break
+		case 97:
+			job = "DEI"
+			break
+		case 96:
+			job = "ANG"
+			break
+		}
+
+		buf.Write([]byte(fmt.Sprintf("[%2d %8s %8s] %s %s%s", mob.Level, race, job, mob.Name, mob.Title, helpers.Newline)))
+	}
+
+	suffix := "s"
+	if nMatch == 1 {
+		suffix = ""
+	}
+	player.notify("%d player%s.", nMatch, suffix)
+	player.notify(buf.String())
+}
+
+func shift(s []string) (string, []string) {
+	for len(s) > 0 {
+		x := s[0] // get the 0 index element from slice
+		s = s[1:] // remove the 0 index element from slice
+		return x, s
+	}
+	return "", s
 }
 
 func (a *action) matchesSubject(s string) bool {

@@ -41,3 +41,14 @@ func getSkill(id uint) *skill {
 
 	return nil
 }
+
+func getSkillByName(name string) *skill {
+	for e := skillList.Front(); e != nil; e = e.Next() {
+		s := e.Value.(*skill)
+		if s.Name == name {
+			return s
+		}
+	}
+
+	return nil
+}

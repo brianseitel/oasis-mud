@@ -137,9 +137,7 @@ type mob struct {
 	CarryWeightMax uint `json:"carry_weight_max"`
 
 	Job    *job  `json:"-"`
-	JobID  int   `json:"job"`
 	Race   *race `json:"-"`
-	RaceID int   `json:"race"`
 	Gender int
 
 	Attributes         *attributeSet
@@ -203,6 +201,14 @@ func (m *mob) canSee(victim *mob) bool {
 }
 
 func (m *mob) canSeeItem(item *item) bool {
+	return true
+}
+
+func (m *mob) checkBlind() bool {
+	if helpers.HasBit(m.AffectedBy, affectBlind) {
+		m.notify("You can't see a thing!")
+		return false
+	}
 	return true
 }
 
