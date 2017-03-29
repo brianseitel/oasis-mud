@@ -1067,11 +1067,10 @@ func (a *action) give() {
 	// 	return
 	// }
 
-	// TODO:
-	// if victim.Room.ID != player.Room.ID {
-	// 	player.notify("They are not here.")
-	// 	return
-	// }
+	if victim.Room.ID != player.Room.ID {
+		player.notify("They are not here.")
+		return
+	}
 
 	// TODO:
 	// if !item.canDrop(player) {
@@ -1090,9 +1089,9 @@ func (a *action) give() {
 	}
 
 	// TODO:
-	// if item.canSee(victim) {
-	// 	player.notify("%s can't see it.", victim.Name)
-	// }
+	if victim.canSeeItem(item) {
+		player.notify("%s can't see it.", victim.Name)
+	}
 
 	for j, it := range player.Inventory {
 		if it == item {
@@ -1104,6 +1103,21 @@ func (a *action) give() {
 
 	player.notify("You give %s to %s.", item.Name, victim.Name)
 	victim.notify("%s gives you %s.", player.Name, item.Name)
+	return
+}
+
+func (a *action) hide() {
+	player := a.mob
+	player.notify("You attempt to hide.")
+
+	if helpers.HasBit(player.AffectedBy, affectHide) {
+		helpers.RemoveBit(player.AffectedBy, affectHide)
+	}
+
+	hide := player.skill("hide")
+	if player.isNPC() || dice().Intn(100) < int(hide.Level) {
+		helpers.SetBit(player.AffectedBy, affectHide)
+	}
 	return
 }
 

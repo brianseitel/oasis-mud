@@ -177,10 +177,6 @@ func (m *mob) canSee(victim *mob) bool {
 		return true
 	}
 
-	if !victim.isNPC() {
-		return false
-	}
-
 	if m.isAffected(affectBlind) {
 		return false
 	}
@@ -541,11 +537,13 @@ func showCharactersToPlayer(chars []*mob, player *mob) {
 		if char == player {
 			continue
 		}
-
 		if player.canSee(char) {
+			fmt.Println("SAW", char.Name)
 			showCharacterToPlayer(char, player)
 		} else if player.Room.isDark() && player.isAffected(affectInfrared) {
 			player.notify("%sYou see glowing red eyes watching YOU!%s", helpers.Red, helpers.Reset)
+		} else {
+			fmt.Println("DID NOT SEE", char.Name)
 		}
 	}
 }
@@ -589,6 +587,7 @@ func showCharacterToPlayer(victim *mob, player *mob) {
 	buf.Write([]byte(victim.Name))
 
 	if !victim.isNPC() {
+		buf.Write([]byte(" "))
 		buf.Write([]byte(victim.Title))
 	}
 

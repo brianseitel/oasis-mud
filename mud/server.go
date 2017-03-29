@@ -90,10 +90,28 @@ func (server *Server) timing() {
 }
 
 func registerConnection(c *connection) error {
-	for _, oc := range gameServer.connections {
-		if c.mob.ID == oc.mob.ID {
+	for j, oc := range gameServer.connections {
+		if c.mob.Name == oc.mob.Name {
+			for e := mobList.Front(); e != nil; e = e.Next() {
+				p := e.Value.(*mob)
+				if p.ID == oc.mob.ID {
+					fmt.Println("REMOVING")
+					mobList.Remove(e)
+
+					for j, m := range p.Room.Mobs {
+						if m == p {
+							p.Room.Mobs = append(p.Room.Mobs[:j], p.Room.Mobs[j+1:]...)
+							break
+						}
+					}
+					break
+				}
+			}
 			c.SendString(fmt.Sprintf("This user is already playing. Bye! %s", helpers.Newline))
 			c.end()
+
+			gameServer.connections = append(gameServer.connections[:j], gameServer.connections[j+1:]...)
+
 			return errors.New("this user is already playing")
 		}
 	}
