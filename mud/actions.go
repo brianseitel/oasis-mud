@@ -157,6 +157,9 @@ func newActionWithInput(a *action) error {
 	case cWhere:
 		a.where()
 		return nil
+	case cFollow:
+		a.follow()
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
 			a.mob.notify("Eh?")
@@ -868,6 +871,49 @@ func (a *action) flee() {
 
 	player.notify("You failed! You lose 10 experience points.")
 	player.gainExp(-10)
+	return
+}
+
+func (a *action) follow() {
+	player := a.mob
+	if len(a.args) < 1 {
+		player.notify("Follow whom?")
+		return
+	}
+
+	var victim *mob
+	for _, m := range player.Room.Mobs {
+		if helpers.MatchesSubject(m.Name, a.args[1]) {
+			victim = m
+			break
+		}
+	}
+
+	if victim == nil {
+		player.notify("They aren't here.")
+		return
+	}
+
+	if victim == player {
+		if player.master == nil {
+			player.notify("You already follow yourself.")
+			return
+		}
+
+		player.stopFollower()
+		return
+	}
+
+	if player.Level-victim.Level < -5 || player.Level-victim.Level > 5 {
+		player.notify("You are not of the right caliber to follow.")
+		return
+	}
+
+	if player.master != nil {
+		player.stopFollower()
+	}
+
+	player.addFollower(victim)
 	return
 }
 

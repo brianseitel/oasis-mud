@@ -148,7 +148,9 @@ type mob struct {
 
 	Fight *mob
 
-	wait uint
+	master *mob
+	leader *mob
+	wait   uint
 
 	Timer     int
 	WasInRoom *room
@@ -162,6 +164,21 @@ type mob struct {
 
 func (m *mob) addAffect(af *affect) {
 	affectModify(m, af, true)
+}
+
+func (m *mob) addFollower(master *mob) {
+	if m.master != nil {
+		return
+	}
+
+	m.master = master
+	m.leader = nil
+
+	if master.canSee(m) {
+		act("$n now follows you.", m, nil, master, actToVict)
+	}
+	act("You now follow $N.", m, nil, master, actToChar)
+	return
 }
 
 func (m *mob) advanceLevel() {
@@ -206,6 +223,26 @@ func (m *mob) checkBlind() bool {
 		return false
 	}
 	return true
+}
+
+func (m *mob) dieFollower() {
+	if m.master != nil {
+		m.stopFollower()
+	}
+
+	m.leader = nil
+
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		ch := e.Value.(*mob)
+		if ch.master == m {
+			ch.stopFollower()
+		}
+		if ch.leader == m {
+			ch.leader = ch
+		}
+	}
+
+	return
 }
 
 func (m *mob) gainExp(gain int) {
@@ -292,8 +329,16 @@ func (m *mob) move(e *exit) {
 	}
 
 	// add mob to new room list
+	oldRoom := m.Room
 	m.Room = e.Room
 	m.Room.Mobs = append(m.Room.Mobs, m)
+
+	for _, rm := range oldRoom.Mobs {
+		if rm.master == m {
+			rm.move(e)
+			newAction(rm, rm.client, "look")
+		}
+	}
 
 	for _, rm := range m.Room.Mobs {
 		if rm != m {
@@ -313,6 +358,26 @@ func (m *mob) statusBar() {
 			helpers.White))
 		m.client.SendBuffer()
 	}
+}
+
+func (m *mob) stopFollower() {
+	if m.master == nil {
+		return
+	}
+
+	if helpers.HasBit(m.AffectedBy, affectCharm) {
+		helpers.RemoveBit(m.AffectedBy, affectCharm)
+		m.stripAffect("charm")
+	}
+
+	if m.master.canSee(m) {
+		act("$n stops following you.", m, nil, m.master, actToVict)
+	}
+	act("You stop following $N.", m, nil, m.master, actToChar)
+
+	m.master = nil
+	m.leader = nil
+	return
 }
 
 func (m *mob) equipped(position uint) string {
