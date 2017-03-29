@@ -160,6 +160,15 @@ func newActionWithInput(a *action) error {
 	case cFollow:
 		a.follow()
 		return nil
+	case cLock:
+		a.lock()
+		return nil
+	case cUnlock:
+		a.unlock()
+		return nil
+	case cPick:
+		a.pick()
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
 			a.mob.notify("Eh?")
@@ -1278,6 +1287,52 @@ func (a *action) kill() {
 	return
 }
 
+func (a *action) lock() {
+	player := a.mob
+	if len(a.args) < 1 {
+		player.notify("Lock what?")
+		return
+	}
+
+	// TODO: check items
+
+	exit := player.Room.findExit(a.args[1])
+	if exit != nil {
+		if !exit.isClosed() {
+			player.notify("It's not closed, dummy.")
+			return
+		}
+
+		if exit.Key < 0 {
+			player.notify("It can't be locked.")
+			return
+		}
+
+		if player.hasKey(exit.Key) {
+			player.notify("You don't have the key.")
+			return
+		}
+
+		if exit.isLocked() {
+			player.notify("It's already locked, dummy.")
+			return
+		}
+
+		helpers.SetBit(exit.Flags, exitLocked)
+		player.notify("*click*")
+		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
+
+		/* lock the other side */
+		if exit.Room != nil {
+			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
+			if reverseExit != nil && reverseExit.Room == player.Room {
+				helpers.SetBit(reverseExit.Flags, exitLocked)
+			}
+		}
+	}
+	return
+}
+
 func (a *action) move(d string) {
 	if a.mob.Status != standing {
 		switch a.mob.Status {
@@ -1296,6 +1351,74 @@ func (a *action) move(d string) {
 		}
 	}
 	a.conn.SendString("Alas, you cannot go that way.")
+}
+
+func (a *action) pick() {
+	player := a.mob
+
+	if len(a.args) < 1 {
+		player.notify("Pick what?")
+		return
+	}
+
+	pick := player.skill("pick")
+	if pick == nil {
+		player.notify("You don't know how to do pick locks.")
+		return
+	}
+
+	wait(player, pick.Skill.Beats)
+
+	/* look for guards */
+	for _, m := range player.Room.Mobs {
+		if m.isNPC() && m.isAwake() && player.Level+5 < m.Level {
+			act("$N is standing too close. It's too risky.", player, nil, m, actToChar)
+			return
+		}
+	}
+
+	if !player.isNPC() && dice().Intn(100) > int(pick.Level) {
+		player.notify("You failed.")
+		return
+	}
+
+	/* check items */
+
+	exit := player.Room.findExit(a.args[1])
+	if exit != nil {
+		if !exit.isClosed() {
+			player.notify("It's not closed, dummy.")
+			return
+		}
+
+		if exit.Key < 0 {
+			player.notify("It can't be unlocked.")
+			return
+		}
+
+		if player.hasKey(exit.Key) {
+			player.notify("You don't have the key.")
+			return
+		}
+
+		if !exit.isLocked() {
+			player.notify("It's already unlocked, dummy.")
+			return
+		}
+
+		helpers.RemoveBit(exit.Flags, exitLocked)
+		player.notify("*click*")
+		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
+
+		/* unlock the other side */
+
+		if exit.Room != nil {
+			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
+			if reverseExit != nil && reverseExit.Room == player.Room {
+				helpers.RemoveBit(reverseExit.Flags, exitLocked)
+			}
+		}
+	}
 }
 
 func (a *action) practice() {
@@ -1828,6 +1951,53 @@ func (a *action) trip() {
 		}
 	}
 	a.mob.trip()
+}
+
+func (a *action) unlock() {
+	player := a.mob
+	if len(a.args) < 1 {
+		player.notify("Unlock what?")
+		return
+	}
+
+	// check items
+
+	exit := player.Room.findExit(a.args[1])
+	if exit != nil {
+		if !exit.isClosed() {
+			player.notify("It's not closed, dummy.")
+			return
+		}
+
+		if exit.Key < 0 {
+			player.notify("It can't be unlocked.")
+			return
+		}
+
+		if player.hasKey(exit.Key) {
+			player.notify("You don't have the key.")
+			return
+		}
+
+		if !exit.isLocked() {
+			player.notify("It's already unlocked, dummy.")
+			return
+		}
+
+		helpers.RemoveBit(exit.Flags, exitLocked)
+		player.notify("*click*")
+		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
+
+		/* unlock the other side */
+
+		if exit.Room != nil {
+			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
+			if reverseExit != nil && reverseExit.Room == player.Room {
+				helpers.RemoveBit(reverseExit.Flags, exitLocked)
+			}
+		}
+	}
+	return
 }
 
 func (a *action) wear() {

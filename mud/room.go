@@ -126,6 +126,20 @@ func (r *room) isDark() bool {
 	return false
 }
 
+func (r *room) isPrivate() bool {
+	count := len(r.Mobs)
+
+	if helpers.HasBit(r.RoomFlags, roomPrivate) && count >= 2 {
+		return true
+	}
+
+	if helpers.HasBit(r.RoomFlags, roomSolitary) && count >= 1 {
+		return true
+	}
+
+	return false
+}
+
 func (r *room) notify(message string, except *mob) {
 	for _, mob := range r.Mobs {
 		if mob != except {
@@ -159,4 +173,31 @@ func (r *room) showExits(player *mob) {
 	}
 
 	player.notify(fmt.Sprintf("%s[%s]%s", helpers.White, strings.Trim(output, " "), helpers.Reset))
+}
+
+func (r *room) findExit(arg string) *exit {
+	var door string
+	if strings.HasPrefix(arg, "n") || strings.HasPrefix(arg, "north") {
+		door = "north"
+	} else if strings.HasPrefix(arg, "e") || strings.HasPrefix(arg, "east") {
+		door = "east"
+	} else if strings.HasPrefix(arg, "s") || strings.HasPrefix(arg, "south") {
+		door = "south"
+	} else if strings.HasPrefix(arg, "w") || strings.HasPrefix(arg, "west") {
+		door = "west"
+	} else if strings.HasPrefix(arg, "u") || strings.HasPrefix(arg, "up") {
+		door = "up"
+	} else if strings.HasPrefix(arg, "d") || strings.HasPrefix(arg, "down") {
+		door = "down"
+	} else {
+		return nil
+	}
+
+	for _, e := range r.Exits {
+		if e.Dir == door {
+			return e
+		}
+	}
+
+	return nil
 }

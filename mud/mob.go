@@ -331,6 +331,11 @@ func (m *mob) move(e *exit) {
 		return
 	}
 
+	if e.Room.isPrivate() {
+		m.notify("That room is private right now.")
+		return
+	}
+
 	if len(m.Room.Mobs) > 0 {
 		for i, rm := range m.Room.Mobs {
 			if rm == m {

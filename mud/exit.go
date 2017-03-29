@@ -18,7 +18,7 @@ type exit struct {
 	Dir         string `json:"direction"`
 	Room        *room
 	RoomID      uint `json:"room_id"`
-	KeyID       int
+	Key         int
 	Flags       uint
 }
 
@@ -48,4 +48,23 @@ func (e *exit) isPickProof() bool {
 
 func (e *exit) isPickable() bool {
 	return !e.isPickProof()
+}
+
+func reverseDirection(dir string) string {
+	switch dir {
+	case "east":
+		return "west"
+	case "west":
+		return "east"
+	case "up":
+		return "down"
+	case "down":
+		return "up"
+	case "north":
+		return "south"
+	case "south":
+		return "north"
+	default:
+		return "oops"
+	}
 }
