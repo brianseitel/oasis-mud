@@ -41,7 +41,7 @@ func areaUpdate() {
 
 		if playerCount == 0 || area.age >= 15 {
 			resetArea(area)
-			area.age = 0
+			area.age = dice().Intn(3)
 		}
 	}
 }
@@ -214,6 +214,12 @@ func loadRaces() {
 func loadRooms() {
 	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
+	voidArea := &area{ID: 0, Name: "Limbo", age: 0, numPlayers: 0}
+	void := &room{ID: 0, Exits: nil, ItemIds: nil, MobIds: nil, Name: "The Void", Description: "A dark, gaping void lies here."}
+
+	voidArea.Rooms = append(voidArea.Rooms, void)
+	areaList.PushBack(voidArea)
+
 	for _, areaFile := range areaFiles {
 		file, err := ioutil.ReadFile(areaFile)
 		if err != nil {
@@ -227,9 +233,6 @@ func loadRooms() {
 		}
 
 		area := &area{ID: a.ID, Name: a.Name, age: 0}
-
-		void := &room{ID: 0, Exits: nil, Items: nil, Mobs: nil, Name: "The Void", Description: "A dark, gaping void lies here."}
-		roomList.PushBack(void)
 
 		for _, ro := range a.Rooms {
 			ro.AreaID = int(a.ID)
