@@ -16,7 +16,7 @@
         "race_id": 1,
         "room_id": 3,
         "gender": null,
-        "status": 7,
+        "status": 8,
         "attributes": {
             "strength": 3,
             "wisdom": 3,
@@ -42,7 +42,7 @@
     {
         "id": 3,
         "name": "An eagle",
-        "description": "With majestic wings, the eagle takes flight.",
+        "description": "With majestic wings, an eagle takes flight.",
         "exit_verb": null,
         "hitpoints": 25,
         "max_hitpoints": 25,
@@ -56,7 +56,7 @@
         "race_id": 1,
         "room_id": 6,
         "gender": null,
-        "status": 7,
+        "status": 8,
         "attributes": {
             "strength": 3,
             "wisdom": 3,
@@ -76,7 +76,7 @@
     {
         "id": 4,
         "name": "A squirrel",
-        "description": "This is a tiny squirrel.",
+        "description": "A tiny squirrel stuffs its face with acorns.",
         "exit_verb": null,
         "hitpoints": 25,
         "max_hitpoints": 25,
@@ -90,7 +90,7 @@
         "race_id": 1,
         "room_id": 8,
         "gender": null,
-        "status": 7,
+        "status": 8,
         "attributes": {
             "strength": 3,
             "wisdom": 3,
@@ -130,7 +130,7 @@
         "race_id": 2,
         "room_id": 13,
         "gender": null,
-        "status": 7,
+        "status": 8,
         "attributes": {
             "strength": 3,
             "wisdom": 3,

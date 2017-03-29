@@ -186,44 +186,133 @@ func (a *action) skills() {
 }
 
 func (a *action) look() {
-	if a.mob == nil {
+	player := a.mob
+
+	if player.client == nil {
 		return
 	}
 
-	description := a.mob.Room.Description
-	if a.mob.Room.isDark() && !a.mob.isAffected(affectInfrared) {
-		description = "It is pitch black...\r\n"
+	if player.Status <= sleeping {
+		player.notify("You can't see anything but stars.")
+		return
 	}
-	if len(a.args) == 1 {
-		a.conn.SendString(
-			fmt.Sprintf(
-				"%s [ID: %d]\n%s\n%s%s%s",
-				a.mob.Room.Name,
-				a.mob.Room.ID,
-				description,
-				exitsString(a.mob.Room.Exits),
-				itemsString(a.mob.Room.Items),
-				mobsString(a.mob.Room.Mobs, a.mob),
-			),
-		)
-	} else {
-		for _, mob := range a.mob.Room.Mobs {
-			if a.matchesSubject(mob.Identifiers) {
-				a.conn.SendString(fmt.Sprintf("You look at %s.", mob.Name))
-				a.conn.SendString(helpers.WordWrap(mob.Description, 50))
-				return
+
+	if player.Status == sleeping {
+		player.notify("You can't see anything; you're sleeping!")
+		return
+	}
+
+	if helpers.HasBit(player.AffectedBy, affectBlind) {
+		return
+	}
+
+	if !player.isNPC() && player.Room.isDark() {
+		player.notify("It is pitch black...")
+		showCharactersToPlayer(player.Room.Mobs, player)
+		return
+	}
+
+	if len(a.args) < 2 {
+		// look
+		player.notify(player.Room.Name)
+		player.Room.showExits(player)
+		player.notify(player.Room.Description)
+
+		showItemsToPlayer(player.Room.Items, player)
+		showCharactersToPlayer(player.Room.Mobs, player)
+		return
+	}
+
+	if strings.HasPrefix(a.args[1], "i") {
+		// look in
+
+		if len(a.args) < 2 {
+			player.notify("Look in what?")
+			return
+		}
+
+		var item *item
+		for _, i := range player.Inventory {
+			if helpers.MatchesSubject(i.Name, a.args[2]) {
+				item = i
+				break
 			}
 		}
 
-		for _, item := range a.mob.Room.Items {
-			if a.matchesSubject(item.Name) {
-				a.conn.SendString(fmt.Sprintf("You look at %s.", item.Name))
-				a.conn.SendString(helpers.WordWrap(item.Description, 50))
+		if item == nil {
+			for _, i := range player.Room.Items {
+				if helpers.MatchesSubject(i.Name, a.args[2]) {
+					item = i
+					break
+				}
+			}
+		}
+
+		if item == nil {
+			player.notify("There is nothing like that here.")
+			return
+		}
+
+		switch item.ItemType {
+		default:
+			player.notify("That is not a container.")
+			break
+		case itemContainer:
+		case itemCorpseNPC:
+		case itemCorpsePC:
+			if item.isClosed() {
+				player.notify("It is closed.")
+				return
+			}
+
+			act("$p contains: ", player, item, nil, actToChar)
+			showItemsToPlayer(player.Room.Items, player)
+			break
+		}
+		return
+	}
+
+	var victim *mob
+	for _, m := range player.Room.Mobs {
+		if helpers.MatchesSubject(m.Name, a.args[1]) {
+			victim = m
+			break
+		}
+	}
+
+	if victim != nil {
+		showCharacterToPlayer(victim, player)
+	}
+
+	for _, i := range player.Inventory {
+		if helpers.MatchesSubject(i.Name, a.args[1]) {
+			if player.canSeeItem(i) {
+				player.notify(i.Description)
 				return
 			}
 		}
-		a.conn.SendString("Look at what?")
 	}
+
+	for _, i := range player.Equipped {
+		if helpers.MatchesSubject(i.Name, a.args[1]) {
+			if player.canSeeItem(i) {
+				player.notify(i.Description)
+				return
+			}
+		}
+	}
+
+	for _, i := range player.Room.Items {
+		if helpers.MatchesSubject(i.Name, a.args[1]) {
+			if player.canSeeItem(i) {
+				player.notify(i.Description)
+				return
+			}
+		}
+	}
+
+	// TODO: look directions
+	return
 }
 
 func (a *action) inventory() {

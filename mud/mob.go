@@ -1,7 +1,11 @@
 package mud
 
 import (
+	"bytes"
 	"fmt"
+	"unicode"
+
+	"strings"
 
 	"github.com/brianseitel/oasis-mud/helpers"
 )
@@ -34,13 +38,16 @@ type attributeSet struct {
 }
 
 type mobIndex struct {
-	ID          uint
-	Name        string
-	Password    string
+	ID       uint
+	Name     string
+	Password string
+
 	Description string
-	Affects     []*affect
-	AffectedBy  uint
-	Act         uint
+	Title       string
+
+	Affects    []*affect
+	AffectedBy uint
+	Act        uint
 
 	Skills      []*mobSkill
 	ItemIds     []int `json:"items"`
@@ -95,6 +102,7 @@ type mob struct {
 	//Mob information
 	Name        string `json:"name"`
 	Description string
+	Title       string
 
 	Affects    []*affect /* list of affects, incl durations */
 	AffectedBy uint      /* bit flag */
@@ -191,6 +199,10 @@ func (m *mob) canSee(victim *mob) bool {
 		return false
 	}
 
+	return true
+}
+
+func (m *mob) canSeeItem(item *item) bool {
 	return true
 }
 
@@ -516,6 +528,183 @@ func getPlayerByName(name string) *mob {
 	}
 
 	return nil
+}
+
+func showCharactersToPlayer(chars []*mob, player *mob) {
+	for _, char := range chars {
+		if char == player {
+			continue
+		}
+
+		if player.canSee(char) {
+			showCharacterToPlayer(char, player)
+		} else if player.Room.isDark() && player.isAffected(affectInfrared) {
+			player.notify("%sYou see glowing red eyes watching YOU!%s", helpers.Red, helpers.Reset)
+		}
+	}
+}
+
+func showCharacterToPlayer(victim *mob, player *mob) {
+	var buf bytes.Buffer
+
+	if victim == player {
+		return
+	}
+
+	if victim.isAffected(affectInvisible) {
+		buf.Write([]byte("(Invis)"))
+	}
+	if victim.isAffected(affectHide) {
+		buf.Write([]byte("(Hide)"))
+	}
+	if victim.isAffected(affectCharm) {
+		buf.Write([]byte("(Charmed)"))
+	}
+	if victim.isAffected(affectPassDoor) {
+		buf.Write([]byte("(Translucent)"))
+	}
+	if victim.isAffected(affectFaerieFire) {
+		buf.Write([]byte("(Pink Aura)"))
+	}
+	if victim.isEvil() && player.isAffected(affectDetectEvil) {
+		buf.Write([]byte("(Red Aura)"))
+	}
+	if victim.isAffected(affectSanctuary) {
+		buf.Write([]byte("(White Aura)"))
+	}
+
+	if victim.Status == standing && len(victim.Description) > 0 {
+		buf.Write([]byte(victim.Description))
+		buf.Write([]byte(helpers.Reset))
+		player.notify("%s%s%s", helpers.Cyan, buf.String(), helpers.Reset)
+		return
+	}
+
+	buf.Write([]byte(victim.Name))
+
+	if !victim.isNPC() {
+		buf.Write([]byte(victim.Title))
+	}
+
+	switch victim.Status {
+	case dead:
+		buf.Write([]byte(" is DEAD!!"))
+		break
+	case mortal:
+		buf.Write([]byte(" is mortally wounded."))
+		break
+	case incapacitated:
+		buf.Write([]byte(" is incapacitated."))
+		break
+	case stunned:
+		buf.Write([]byte(" is lying here stunned."))
+		break
+	case sleeping:
+		buf.Write([]byte(" is sleeping here."))
+		break
+	case resting:
+		buf.Write([]byte(" is resting here."))
+		break
+	case standing:
+		buf.Write([]byte(" is here."))
+		break
+	case fighting:
+		buf.Write([]byte(" is here fighting "))
+		if victim.Fight == nil {
+			buf.Write([]byte(" thin air?"))
+		} else if victim.Fight == player {
+			buf.Write([]byte(" YOU!"))
+		} else if victim.Room == victim.Fight.Room {
+			buf.Write([]byte(pers(victim.Fight, player)))
+			buf.Write([]byte("."))
+		} else {
+			buf.Write([]byte(" someone who left?"))
+		}
+		break
+	}
+
+	output := buf.String()
+	a := []rune(output)
+	a[0] = unicode.ToLower(a[0])
+	output = string(a)
+	player.notify("%s%s%s", helpers.Cyan, output, helpers.Reset)
+	return
+}
+
+func showItemsToPlayer(items []*item, player *mob) {
+	if player.client == nil {
+		return
+	}
+
+	nShow := 0
+
+	var itemList []string
+	var itemCounts []int
+	for _, item := range items {
+		if player.canSeeItem(item) {
+			itemDesc := formatItemToChar(item, player)
+			combine := false
+			for iShow := nShow - 1; iShow >= 0; iShow-- {
+				if strings.HasPrefix(itemList[iShow], itemDesc) {
+					itemCounts[iShow]++
+					combine = true
+					break
+				}
+			}
+
+			if !combine {
+				itemList = append(itemList, itemDesc)
+				itemCounts = append(itemCounts, 1)
+				nShow++
+			}
+		}
+	}
+
+	for iShow := 0; iShow < nShow; iShow++ {
+		var buf bytes.Buffer
+		buf.Write([]byte(helpers.Cyan))
+		if itemCounts[iShow] != 1 {
+			buf.Write([]byte(fmt.Sprintf("(%d) ", itemCounts[iShow])))
+		}
+		buf.Write([]byte(itemList[iShow]))
+		buf.Write([]byte(helpers.Reset))
+		player.notify(buf.String())
+	}
+
+}
+
+func formatItemToChar(item *item, player *mob) string {
+	var buf bytes.Buffer
+
+	if item.hasExtraFlag(itemInvis) {
+		buf.Write([]byte("(Invis)"))
+	}
+	if player.isAffected(affectDetectEvil) && item.hasExtraFlag(itemEvil) {
+		buf.Write([]byte("(Red Aura)"))
+	}
+	if player.isAffected(affectDetectMagic) && item.hasExtraFlag(itemMagic) {
+		buf.Write([]byte("(Magical)"))
+	}
+	if item.hasExtraFlag(itemGlow) {
+		buf.Write([]byte("(Glow)"))
+	}
+	if item.hasExtraFlag(itemHum) {
+		buf.Write([]byte("(Humming)"))
+	}
+
+	buf.Write([]byte(item.Description))
+
+	return buf.String()
+}
+
+func pers(m *mob, looker *mob) string {
+	fmt.Println("shit", m.Name)
+	if looker.canSee(m) {
+		fmt.Println("fuck", m.Name)
+		return m.Name
+	}
+
+	return "someone"
 }
 
 func xpCompute(killer *mob, target *mob) int {

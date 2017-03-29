@@ -239,6 +239,10 @@ func (item *item) hasExtraFlag(flag uint) bool {
 	return helpers.HasBit(item.ExtraFlags, flag)
 }
 
+func (item *item) isClosed() bool {
+	return false
+}
+
 func (item *item) removeObject(target *item) {
 	for j, it := range item.container {
 		if it == target {
@@ -246,10 +250,6 @@ func (item *item) removeObject(target *item) {
 			return
 		}
 	}
-}
-
-func (item *item) extract() {
-
 }
 
 func createMoney(amount uint) *item {

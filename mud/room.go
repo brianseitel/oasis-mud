@@ -2,6 +2,7 @@ package mud
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/brianseitel/oasis-mud/helpers"
 	// "github.com/brianseitel/oasis-mud/helpers"
@@ -156,4 +157,13 @@ func (r *room) removeObject(i *item) {
 			return
 		}
 	}
+}
+
+func (r *room) showExits(player *mob) {
+	var output string
+	for _, e := range r.Exits {
+		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
+	}
+
+	player.notify(fmt.Sprintf("%s[%s]%s", helpers.White, strings.Trim(output, " "), helpers.Reset))
 }

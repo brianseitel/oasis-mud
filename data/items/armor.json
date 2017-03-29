@@ -17,7 +17,7 @@
         {
             "id": 2,
             "name": "flaming ball of fire",
-            "description": "Hobbits don't need doors as much as you need protection.",
+            "description": "A flaming ball of fire hovers woozily in the air.",
             "short_description": "Hobbits don't need doors as much as you need protection.",
             "item_type": 0,
             "extra_flags": 0,
@@ -32,7 +32,7 @@
         {
             "id": 3,
             "name": "basket of deplorables",
-            "description": "",
+            "description": "A basket full of deplorables lay on the ground, whining about bullshit.",
             "short_description": "",
             "item_type": 10,
             "contained_ids": [1,2],

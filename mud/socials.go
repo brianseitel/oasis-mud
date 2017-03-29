@@ -55,12 +55,11 @@ func checkSocial(player *mob, command string, args []string) bool {
 		act(social.OthersNoArg, player, nil, victim, actToRoom)
 		act(social.CharNoArg, player, nil, victim, actToChar)
 		return true
-	} else {
-		for _, m := range player.Room.Mobs {
-			if helpers.MatchesSubject(m.Name, args[0]) {
-				victim = m
-				break
-			}
+	}
+	for _, m := range player.Room.Mobs {
+		if helpers.MatchesSubject(m.Name, args[0]) {
+			victim = m
+			break
 		}
 	}
 
