@@ -19,6 +19,7 @@ var (
 	mobIndexList  list.List
 	raceList      list.List
 	roomList      list.List
+	shopList      list.List
 	skillList     list.List
 	socialList    list.List
 )
@@ -55,6 +56,7 @@ func bootDB() {
 	loadItems()
 	loadMobs()
 	loadRooms()
+	loadShops()
 
 	areaUpdate()
 }
@@ -266,6 +268,25 @@ func loadRooms() {
 		room := e.Value.(*room)
 		for _, mob := range room.Mobs {
 			mob.Room = room
+		}
+	}
+}
+
+func loadShops() {
+	shopFiles, _ := filepath.Glob("./data/shops/*.json")
+
+	for _, shopFile := range shopFiles {
+		file, err := ioutil.ReadFile(shopFile)
+		if err != nil {
+			panic(err)
+		}
+
+		var list []*shop
+		json.Unmarshal(file, &list)
+
+		for _, sh := range list {
+			sh.keeper = getMob(uint(sh.KeeperID))
+			shopList.PushBack(sh)
 		}
 	}
 }

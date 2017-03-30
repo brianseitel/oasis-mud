@@ -86,6 +86,7 @@ type mobIndex struct {
 
 	Status      status
 	Identifiers string
+	Shop        *shop
 
 	wait uint
 
