@@ -157,13 +157,17 @@ func (m *mob) unequipItem(item *item) {
 	return
 }
 
-func (m *mob) wear(wearable *item) {
+func (m *mob) wear(wearable *item, replace bool) {
 	if m.Level < wearable.Level {
 		m.notify("You must be level %d to wear this.", wearable.Level)
 		return
 	}
 
 	if wearable.ItemType == itemLight {
+		removed := m.unwearItem(wearLight, replace)
+		if !removed {
+			return
+		}
 		m.notify("You light up %s and hold it.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s lights up %s and holds it.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearLight)
@@ -171,7 +175,9 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearFinger) {
-		if m.equippedItem(wearFingerLeft) != nil && m.equippedItem(wearFingerRight) != nil {
+		removedLeft := m.unwearItem(wearFingerLeft, replace)
+		removedRight := m.unwearItem(wearFingerRight, replace)
+		if m.equippedItem(wearFingerLeft) != nil && m.equippedItem(wearFingerRight) != nil && !removedLeft && !removedRight {
 			return
 		}
 
@@ -194,7 +200,9 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearNeck) {
-		if m.equippedItem(wearNeck1) != nil && m.equippedItem(wearNeck2) != nil {
+		removedNeck1 := m.unwearItem(wearNeck1, replace)
+		removedNeck2 := m.unwearItem(wearNeck2, replace)
+		if m.equippedItem(wearNeck1) != nil && m.equippedItem(wearNeck2) != nil && !removedNeck1 && !removedNeck2 {
 			return
 		}
 
@@ -216,7 +224,9 @@ func (m *mob) wear(wearable *item) {
 		return
 	}
 	if wearable.canWear(itemWearWrist) {
-		if m.equippedItem(wearWristLeft) != nil && m.equippedItem(wearWristRight) != nil {
+		removedWristLeft := m.unwearItem(wearWristLeft, replace)
+		removedWristRight := m.unwearItem(wearWristRight, replace)
+		if m.equippedItem(wearWristLeft) != nil && m.equippedItem(wearWristRight) != nil && !removedWristLeft && !removedWristRight {
 			return
 		}
 
@@ -239,6 +249,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearBody) {
+		removed := m.unwearItem(wearBody, replace)
+		if !removed {
+			return
+		}
 		m.notify("You wear %s on your body.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s wears %s on their body.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearBody)
@@ -246,6 +260,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearHead) {
+		removed := m.unwearItem(wearHead, replace)
+		if !removed {
+			return
+		}
 		m.notify("You wear %s on your head.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s wears %s on their head.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearHead)
@@ -253,6 +271,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearLegs) {
+		removed := m.unwearItem(wearLegs, replace)
+		if !removed {
+			return
+		}
 		m.notify("You wear %s on your legs.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s wears %s on their legs.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearLegs)
@@ -260,6 +282,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearFeet) {
+		removed := m.unwearItem(wearFeet, replace)
+		if !removed {
+			return
+		}
 		m.notify("You wear %s on your feet.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s wears %s on their feet.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearFeet)
@@ -267,6 +293,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearHands) {
+		removed := m.unwearItem(wearHands, replace)
+		if !removed {
+			return
+		}
 		m.notify("You wear %s on your hands.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s wears %s on their hands.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearHands)
@@ -274,6 +304,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearWaist) {
+		removed := m.unwearItem(wearWaist, replace)
+		if !removed {
+			return
+		}
 		m.notify("You wear %s on your waist.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s wears %s on their waist.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearWaist)
@@ -281,6 +315,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearShield) {
+		removed := m.unwearItem(wearShield, replace)
+		if !removed {
+			return
+		}
 		m.notify("You wear %s as your shield.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s wears %s as their shield.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearShield)
@@ -288,6 +326,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearHold) {
+		removed := m.unwearItem(wearHold, replace)
+		if !removed {
+			return
+		}
 		m.notify("You hold %s.", wearable.Name)
 		m.Room.notify(fmt.Sprintf("%s holds %s.", m.Name, wearable.Name), m)
 		m.equipItem(wearable, wearHold)
@@ -295,6 +337,10 @@ func (m *mob) wear(wearable *item) {
 	}
 
 	if wearable.canWear(itemWearWield) {
+		removed := m.unwearItem(wearWield, replace)
+		if !removed {
+			return
+		}
 		if wearable.Weight > uint(m.ModifiedAttributes.Strength) {
 			m.notify("It is too heavy for you to wield.")
 			return

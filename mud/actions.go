@@ -2084,7 +2084,7 @@ func (a *action) wear() {
 	if a.args[1] == "all" {
 		for _, i := range player.Inventory {
 			if i.WearLocation == wearNone && player.canSeeItem(i) {
-				player.wear(i)
+				player.wear(i, false)
 			}
 		}
 	} else {
@@ -2094,6 +2094,8 @@ func (a *action) wear() {
 			player.notify("You can't find that.")
 			return
 		}
+
+		a.mob.wear(wearable, true)
 	}
 }
 
