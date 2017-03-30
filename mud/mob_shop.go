@@ -21,13 +21,7 @@ func (player *mob) buy(args []string) {
 			return
 		}
 
-		var obj *item
-		for _, i := range keeper.Inventory {
-			if helpers.MatchesSubject(i.Name, args[1]) {
-				obj = i
-				break
-			}
-		}
+		obj := keeper.carrying(args[1])
 
 		if obj == nil {
 			act("$n tells you 'I don't sell that. Try 'list'.'", keeper, nil, player, actToVict)
@@ -72,16 +66,10 @@ func (player *mob) buy(args []string) {
 			item.Level = player.Level
 		} else {
 			item = obj
-			for j, i := range keeper.Inventory {
-				if i == obj {
-					keeper.Inventory = append(keeper.Inventory[:j], keeper.Inventory[j+1:]...)
-					break
-				}
-			}
-
-			player.Inventory = append(player.Inventory, item)
+			keeper.removeItem(obj)
 			return
 		}
+		player.addItem(item)
 	}
 }
 
@@ -93,6 +81,11 @@ func (player *mob) findKeeper() *mob {
 			keeper = m
 			break
 		}
+	}
+
+	if keeper == nil {
+		player.notify("There is no shopkeep here.")
+		return nil
 	}
 
 	store := keeper.index.Shop
@@ -165,13 +158,7 @@ func (player *mob) sell(args []string) {
 		return
 	}
 
-	var obj *item
-	for _, i := range player.Inventory {
-		if helpers.MatchesSubject(i.Name, args[1]) {
-			obj = i
-			break
-		}
-	}
+	obj := player.carrying(args[1])
 
 	if obj == nil {
 		act("$n tells you 'You do not have that item.'", keeper, nil, player, actToVict)
@@ -206,14 +193,11 @@ func (player *mob) sell(args []string) {
 	}
 
 	if obj.ItemType == itemTrash {
-		obj = nil
+		obj = nil // destroy item
 	} else {
-		for j, i := range player.Inventory {
-			if i == obj {
-				player.Inventory = append(player.Inventory[:j], player.Inventory[j+1:]...)
-				keeper.Inventory = append(keeper.Inventory, obj)
-			}
-		}
+		player.removeItem(obj)
+		keeper.addItem(obj)
+		return
 	}
 }
 

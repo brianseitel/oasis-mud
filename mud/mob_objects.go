@@ -6,36 +6,62 @@ import (
 	"github.com/brianseitel/oasis-mud/helpers"
 )
 
-func (player *mob) get(item *item, container *item) {
+func (m *mob) addItem(item *item) {
+	m.Inventory = append(m.Inventory, item)
+}
+
+func (m *mob) canSeeItem(item *item) bool {
+	return true
+}
+
+func (m *mob) carrying(str string) *item {
+	for _, i := range m.Inventory {
+		if helpers.MatchesSubject(i.Name, str) {
+			return i
+		}
+	}
+	return nil
+}
+
+func (m *mob) removeItem(i *item) {
+	for j, it := range m.Inventory {
+		if it == i {
+			m.Inventory = append(m.Inventory[:j], m.Inventory[j+1:]...)
+			return
+		}
+	}
+}
+
+func (m *mob) get(item *item, container *item) {
 	if !item.canWear(itemTake) {
-		player.notify("You can't take that.")
+		m.notify("You can't take that.")
 		return
 	}
 
-	if player.Carrying+1 > player.CarryMax {
-		player.notify("You can't carry that many items.")
+	if m.Carrying+1 > m.CarryMax {
+		m.notify("You can't carry that many items.")
 		return
 	}
 
-	if player.CarryWeight+item.Weight > player.CarryWeightMax {
-		player.notify("You can't carry that much weight.")
+	if m.CarryWeight+item.Weight > m.CarryWeightMax {
+		m.notify("You can't carry that much weight.")
 		return
 	}
 
 	if container != nil {
-		player.notify("You get %s from %s.", item.Name, container.Name)
-		player.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", player.Name, item.Name, container.Name, helpers.Newline), player)
+		m.notify("You get %s from %s.", item.Name, container.Name)
+		m.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", m.Name, item.Name, container.Name, helpers.Newline), m)
 		container.removeObject(item)
 	} else {
-		player.notify("You get %s.", item.Name)
-		player.Room.notify(fmt.Sprintf("%s gets %s.%s", player.Name, item.Name, helpers.Newline), player)
-		player.Room.removeObject(item)
+		m.notify("You get %s.", item.Name)
+		m.Room.notify(fmt.Sprintf("%s gets %s.%s", m.Name, item.Name, helpers.Newline), m)
+		m.Room.removeObject(item)
 	}
 
 	if item.ItemType == itemMoney {
-		player.Gold += uint(item.Value)
+		m.Gold += uint(item.Value)
 	} else {
-		player.Inventory = append(player.Inventory, item)
-		item.carriedBy = player
+		m.Inventory = append(m.Inventory, item)
+		item.carriedBy = m
 	}
 }
