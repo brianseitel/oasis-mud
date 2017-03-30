@@ -181,6 +181,15 @@ func newActionWithInput(a *action) error {
 	case cRest:
 		a.changePosition(resting)
 		return nil
+	case cBuy:
+		a.mob.buy(a.args)
+		return nil
+	case cSell:
+		a.mob.sell(a.args)
+		return nil
+	case cValue:
+		a.mob.value(a.args)
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
 			a.mob.notify("Eh?")
