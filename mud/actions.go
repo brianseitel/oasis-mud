@@ -1725,7 +1725,7 @@ func (a *action) remove() {
 		return
 	}
 
-	player.unwearItem(obj.WearLocation)
+	player.unwearItem(int(obj.WearLocation), false)
 	return
 }
 
