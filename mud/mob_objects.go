@@ -35,6 +35,16 @@ func (m *mob) carrying(str string) *item {
 	return nil
 }
 
+func (m *mob) equippedName(name string) *item {
+	for _, i := range m.Equipped {
+		if helpers.MatchesSubject(i.Name, name) {
+			return i
+		}
+	}
+
+	return nil
+}
+
 func (m *mob) get(item *item, container *item) {
 	if !item.canWear(itemTake) {
 		m.notify("You can't take that.")
@@ -102,4 +112,199 @@ func (m *mob) sacrifice(args []string) {
 	act("$n sacrifices $p to the gods.", m, obj, nil, actToRoom)
 	m.removeItem(obj)
 	return
+}
+
+func (m *mob) unwearItem(location int, replace bool) bool {
+	obj := m.equippedItem(uint(location))
+
+	if obj == nil {
+		return true
+	}
+
+	if !replace {
+		return false
+	}
+
+	if helpers.HasBit(obj.ExtraFlags, itemNoRemove) {
+		act("You can't remove $p.", m, obj, nil, actToChar)
+		return false
+	}
+
+	act("$n stops using $p.", m, obj, nil, actToRoom)
+	act("You stop using $p.", m, obj, nil, actToChar)
+	return true
+}
+
+func (m *mob) unequipItem(item *item) {
+	if item.WearLocation == wearNone {
+		return
+	}
+
+	m.Armor += applyAC(item, int(item.WearLocation))
+	item.WearLocation = wearNone
+
+	for _, af := range item.index.Affected {
+		affectModify(m, af, false)
+	}
+	for _, af := range item.Affected {
+		affectModify(m, af, false)
+	}
+
+	if item.ItemType == itemLight && m.Room != nil && m.Room.Light > 0 {
+		item.Room.Light--
+	}
+
+	return
+}
+
+func (m *mob) wear(wearable *item) {
+	if m.Level < wearable.Level {
+		m.notify("You must be level %d to wear this.", wearable.Level)
+		return
+	}
+
+	if wearable.ItemType == itemLight {
+		m.notify("You light up %s and hold it.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s lights up %s and holds it.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearLight)
+		return
+	}
+
+	if wearable.canWear(itemWearFinger) {
+		if m.equippedItem(wearFingerLeft) != nil && m.equippedItem(wearFingerRight) != nil {
+			return
+		}
+
+		if m.equippedItem(wearFingerLeft) == nil {
+			m.notify("You wear %s on your left finger.", wearable.Name)
+			m.Room.notify(fmt.Sprintf("%s wears %s on their left finger.", m.Name, wearable.Name), m)
+			m.equipItem(wearable, wearFingerLeft)
+			return
+		}
+
+		if m.equippedItem(wearFingerRight) == nil {
+			m.notify("You wear %s on your right finger.", wearable.Name)
+			m.Room.notify(fmt.Sprintf("%s wears %s on their right finger.", m.Name, wearable.Name), m)
+			m.equipItem(wearable, wearFingerRight)
+			return
+		}
+
+		m.notify("You already wear two rings!")
+		return
+	}
+
+	if wearable.canWear(itemWearNeck) {
+		if m.equippedItem(wearNeck1) != nil && m.equippedItem(wearNeck2) != nil {
+			return
+		}
+
+		if m.equippedItem(wearNeck1) == nil {
+			m.notify("You wear %s on your neck.", wearable.Name)
+			m.Room.notify(fmt.Sprintf("%s wears %s on their neck.", m.Name, wearable.Name), m)
+			m.equipItem(wearable, wearNeck1)
+			return
+		}
+
+		if m.equippedItem(wearNeck2) == nil {
+			m.notify("You wear %s on your neck.", wearable.Name)
+			m.Room.notify(fmt.Sprintf("%s wears %s on their neck.", m.Name, wearable.Name), m)
+			m.equipItem(wearable, wearNeck2)
+			return
+		}
+
+		m.notify("You already wear two neck items!")
+		return
+	}
+	if wearable.canWear(itemWearWrist) {
+		if m.equippedItem(wearWristLeft) != nil && m.equippedItem(wearWristRight) != nil {
+			return
+		}
+
+		if m.equippedItem(wearWristLeft) == nil {
+			m.notify("You wear %s on your left wrist.", wearable.Name)
+			m.Room.notify(fmt.Sprintf("%s wears %s on their left wrist.", m.Name, wearable.Name), m)
+			m.equipItem(wearable, wearWristLeft)
+			return
+		}
+
+		if m.equippedItem(wearWristRight) == nil {
+			m.notify("You wear %s on your right wrist.", wearable.Name)
+			m.Room.notify(fmt.Sprintf("%s wears %s on their right wrist.", m.Name, wearable.Name), m)
+			m.equipItem(wearable, wearWristRight)
+			return
+		}
+
+		m.notify("You already wear two wrist items!")
+		return
+	}
+
+	if wearable.canWear(itemWearBody) {
+		m.notify("You wear %s on your body.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wears %s on their body.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearBody)
+		return
+	}
+
+	if wearable.canWear(itemWearHead) {
+		m.notify("You wear %s on your head.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wears %s on their head.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearHead)
+		return
+	}
+
+	if wearable.canWear(itemWearLegs) {
+		m.notify("You wear %s on your legs.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wears %s on their legs.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearLegs)
+		return
+	}
+
+	if wearable.canWear(itemWearFeet) {
+		m.notify("You wear %s on your feet.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wears %s on their feet.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearFeet)
+		return
+	}
+
+	if wearable.canWear(itemWearHands) {
+		m.notify("You wear %s on your hands.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wears %s on their hands.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearHands)
+		return
+	}
+
+	if wearable.canWear(itemWearWaist) {
+		m.notify("You wear %s on your waist.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wears %s on their waist.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearWaist)
+		return
+	}
+
+	if wearable.canWear(itemWearShield) {
+		m.notify("You wear %s as your shield.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wears %s as their shield.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearShield)
+		return
+	}
+
+	if wearable.canWear(itemWearHold) {
+		m.notify("You hold %s.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s holds %s.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearHold)
+		return
+	}
+
+	if wearable.canWear(itemWearWield) {
+		if wearable.Weight > uint(m.ModifiedAttributes.Strength) {
+			m.notify("It is too heavy for you to wield.")
+			return
+		}
+
+		m.notify("You wield %s.", wearable.Name)
+		m.Room.notify(fmt.Sprintf("%s wields %s.", m.Name, wearable.Name), m)
+		m.equipItem(wearable, wearWield)
+		return
+	}
+
+	m.notify("You can't wear, wield, or hold that.")
 }
