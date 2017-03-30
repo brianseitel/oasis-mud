@@ -22,6 +22,29 @@ const (
 	actPractice   = 1024 /* can practice PCs */
 )
 
+const (
+	playerIsNPC         = 1
+	playerBoughtPet     = 2
+	playerAutoExit      = 4
+	playerAutoLook      = 8
+	playerAutoSacrifice = 16
+	playerBlank         = 32
+	playerBrief         = 128
+	playerCombine       = 256
+	playerPrompt        = 512
+	playerTelnetGA      = 1024
+	playerHolysight     = 2048
+	playerWizInvis      = 4096
+	playerSilence       = 8192
+	playerNoEmote       = 32768
+	playerNoTell        = 65536
+	playerLog           = 262144
+	playerDeny          = 524288
+	playerFreeze        = 1048576
+	playerThief         = 2097152
+	playerKiller        = 4194304
+)
+
 type mobSkill struct {
 	Skill   *skill `json:"-"`
 	SkillID uint   `json:"skill_id"`
@@ -53,7 +76,10 @@ type mobIndex struct {
 	ItemIds     []int `json:"items"`
 	EquippedIds []int `json:"equipped"`
 	RoomID      int   `json:"current_room"`
-	ExitVerb    string
+
+	ExitVerb string
+	Bamfin   string
+	Bamfout  string
 
 	Hitpoints    int
 	MaxHitpoints int
@@ -71,6 +97,7 @@ type mobIndex struct {
 	Alignment int
 	Practices uint
 	Gold      uint
+	Trust     int
 
 	Carrying       uint `json:"carrying"`
 	CarryMax       uint `json:"carry_max"`
@@ -113,7 +140,10 @@ type mob struct {
 	Inventory []*item
 	Equipped  []*item
 	Room      *room
-	ExitVerb  string
+
+	ExitVerb string
+	Bamfout  string
+	Bamfin   string
 
 	Hitpoints    int `json:"hitpoints"`
 	MaxHitpoints int `json:"max_hitpoints"`
@@ -131,6 +161,7 @@ type mob struct {
 	Alignment int
 	Practices uint
 	Gold      uint
+	Trust     int
 
 	Carrying       uint `json:"carrying"`
 	CarryMax       uint `json:"carry_max"`
