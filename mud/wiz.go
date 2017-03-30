@@ -14,6 +14,72 @@ func (wiz *mob) help(args []string) {
 	// do help
 }
 
+func (wiz *mob) advance(args []string) {
+	if len(args) < 2 {
+		wiz.notify("Syntax: advance <char> <level>.")
+		return
+	}
+
+	name := args[1]
+	level, err := strconv.Atoi(args[2])
+	if err != nil {
+		wiz.notify("Syntax: advance <char> <level>.")
+		return
+	}
+
+	victim := getPlayerByName(name)
+
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim.isNPC() {
+		wiz.notify("Not on NPCs.")
+		return
+	}
+
+	if level > 99 || level < 0 {
+		wiz.notify("Level must be between 1 and 99.")
+		return
+	}
+
+	if level > wiz.Trust {
+		wiz.notify("Limited to your trust level.")
+		return
+	}
+
+	if level <= victim.Level {
+		wiz.notify("Lowering a player's level!")
+		victim.notify("*** OOOOHHHHHHH NNNNOOOOO ***")
+
+		victim.Level = 1
+		victim.Exp = 1000
+		victim.MaxHitpoints = 10
+		victim.MaxMana = 100
+		victim.MaxMovement = 100
+		victim.Skills = nil
+		victim.Practices = 0
+		victim.Hitpoints = victim.MaxHitpoints
+		victim.Mana = victim.MaxMana
+		victim.Movement = victim.MaxMovement
+		victim.advanceLevel()
+	} else {
+		wiz.notify("Raising a player's level!")
+		victim.notify("*** OOOOHHHHHHH YYYESSSSSS ***")
+	}
+
+	for i := victim.Level; i < level; i++ {
+		victim.notify("You raise a level!")
+		victim.Level++
+		victim.advanceLevel()
+	}
+
+	victim.Exp = 1000 * helpers.Max(1, victim.Level)
+	victim.Trust = 0
+	return
+}
+
 func (wiz *mob) at(args []string) {
 	if len(args) < 2 {
 		wiz.notify("At where what?")
@@ -159,6 +225,43 @@ func (wiz *mob) findLocation(args []string) *room {
 	return nil
 }
 
+func (wiz *mob) freeze(args []string) {
+	if len(args) < 1 {
+		wiz.notify("Freeze whom?")
+		return
+	}
+
+	victim := getPlayerByName(args[1])
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim.isNPC() {
+		wiz.notify("You can't freeze NPCs.")
+		return
+	}
+
+	if victim.getTrust() >= wiz.getTrust() {
+		wiz.notify("You failed.")
+		return
+	}
+
+	if helpers.HasBit(victim.Act, playerFreeze) {
+		helpers.RemoveBit(victim.Act, playerFreeze)
+		victim.notify("You can play again.")
+		wiz.notify("FREEZE removed.")
+	} else {
+		helpers.SetBit(victim.Act, playerFreeze)
+		victim.notify("You can't do ANYthing.")
+		wiz.notify("FREEZE set.")
+	}
+
+	// victim.Save(); TODO
+
+	return
+}
+
 func (wiz *mob) goTo(args []string) {
 	if len(args) < 1 {
 		wiz.notify("Goto where?")
@@ -191,6 +294,23 @@ func (wiz *mob) goTo(args []string) {
 	newAction(wiz, wiz.client, "look")
 }
 
+func (wiz *mob) invis(args []string) {
+	if wiz.isNPC() {
+		return
+	}
+
+	if helpers.HasBit(wiz.Act, playerWizInvis) {
+		helpers.RemoveBit(wiz.Act, playerWizInvis)
+		act("$n slowly fades into existence.", wiz, nil, nil, actToRoom)
+		wiz.notify("You slowly fade back into extistence.")
+	} else {
+		helpers.SetBit(wiz.Act, playerWizInvis)
+		act("$n slowly fades out of sight.", wiz, nil, nil, actToRoom)
+		wiz.notify("You slowly vanish out of sight.")
+	}
+	return
+}
+
 func (wiz *mob) mfind(args []string) {
 	if len(args) < 1 {
 		wiz.notify("Mfind whom?")
@@ -211,6 +331,31 @@ func (wiz *mob) mfind(args []string) {
 	if !found {
 		wiz.notify("Nothing like that exists.")
 	}
+	return
+}
+
+func (wiz *mob) mload(args []string) {
+	if len(args) < 1 {
+		wiz.notify("Syntax: mload <id>.")
+		return
+	}
+
+	id, err := strconv.Atoi(args[1])
+	if err != nil {
+		wiz.notify("Syntax: mload <id>.")
+		return
+	}
+	mob := getMob(uint(id))
+	if mob == nil {
+		wiz.notify("No mob has that ID.")
+		return
+	}
+
+	victim := createMob(mob)
+	victim.Room = wiz.Room
+	victim.Room.Mobs = append(victim.Room.Mobs, victim)
+	act("$n has created $N!", wiz, nil, victim, actToRoom)
+	wiz.notify("Ok.")
 	return
 }
 
@@ -301,6 +446,56 @@ func (wiz *mob) ofind(args []string) {
 	return
 }
 
+func (wiz *mob) oload(args []string) {
+	if len(args) < 2 {
+		wiz.notify("Syntax: oload <id> <level>")
+		return
+	}
+
+	id, err := strconv.Atoi(args[1])
+	if err != nil {
+		wiz.notify("Syntax: oload <id> <level>")
+		return
+	}
+
+	level, err := strconv.Atoi(args[2])
+	if err != nil {
+		wiz.notify("Syntax: oload <id> <level>")
+		return
+	}
+
+	if level < 0 || level > wiz.Trust {
+		wiz.notify("Limited to your trust level.")
+		return
+	}
+
+	var objIndex *itemIndex
+	for e := itemIndexList.Front(); e != nil; e = e.Next() {
+		i := e.Value.(*itemIndex)
+		if i.ID == uint(id) {
+			objIndex = i
+			break
+		}
+	}
+
+	if objIndex == nil {
+		wiz.notify("No object has that ID.")
+		return
+	}
+
+	obj := createItem(objIndex)
+	if obj.canWear(itemTake) {
+		wiz.Inventory = append(wiz.Inventory, obj)
+		obj.carriedBy = wiz
+	} else {
+		obj.Room = wiz.Room
+		obj.Room.Items = append(obj.Room.Items, obj)
+	}
+
+	wiz.notify("Ok.")
+	return
+}
+
 func (wiz *mob) ostat(args []string) {
 	if len(args) < 2 {
 		wiz.notify("Ostat what?")
@@ -382,6 +577,38 @@ func (wiz *mob) pardon(args []string) {
 	return
 }
 
+func (wiz *mob) purge(args []string) {
+	if len(args) < 1 {
+		for _, m := range wiz.Room.Mobs {
+			if m.isNPC() {
+				extractMob(m, true)
+			}
+		}
+
+		for _, i := range wiz.Room.Items {
+			extractObj(i)
+		}
+
+		act("$n purges the room!", wiz, nil, nil, actToRoom)
+		wiz.notify("OK.")
+		return
+	}
+
+	victim := getPlayerByName(args[1])
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if !victim.isNPC() {
+		wiz.notify("Not on PCs.")
+		return
+	}
+
+	act("$n purges $N.", wiz, nil, victim, actToNotVict)
+	extractMob(victim, true)
+}
+
 func (wiz *mob) reboo(args []string) {
 	wiz.notify("If you want to reboot, spell it out.")
 	return
@@ -390,6 +617,45 @@ func (wiz *mob) reboo(args []string) {
 func (wiz *mob) reboot(args []string) {
 	wiz.echo([]string{fmt.Sprintf("Reboot by %s", wiz.Name)})
 	gameServer.Up = false
+	return
+}
+
+func (wiz *mob) restore(args []string) {
+	if len(args) < 1 {
+		wiz.notify("Restore whom?")
+		return
+	}
+
+	victim := getPlayerByName(args[1])
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	victim.Hitpoints = victim.MaxHitpoints
+	victim.Mana = victim.MaxMana
+	victim.Movement = victim.MaxMovement
+	victim.updateStatus()
+	act("$n has restored you.", wiz, nil, victim, actToVict)
+	wiz.notify("OK.")
+	return
+}
+
+func (wiz *mob) returnTo(args []string) {
+	if wiz.client == nil {
+		return
+	}
+
+	if wiz.client.original == nil {
+		wiz.notify("You aren't switched.")
+		return
+	}
+
+	wiz.notify("You return to your original body.")
+	wiz.client.mob = wiz.client.original
+	wiz.client.original = nil
+	wiz.client.mob.client = wiz.client
+	wiz.client = nil
 	return
 }
 
@@ -469,6 +735,96 @@ func (wiz *mob) shutdown(args []string) {
 	gameServer.Up = false
 }
 
+func (wiz *mob) snoop(args []string) {
+	if len(args) < 1 {
+		wiz.notify("Snoop whom?")
+		return
+	}
+
+	victim := getPlayerByName(args[1])
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim.client == nil {
+		wiz.notify("They aren't connected.")
+		return
+	}
+
+	if victim == wiz {
+		wiz.notify("Cancelling all snoops.")
+		for _, c := range gameServer.connections {
+			if c.snoopBy == wiz.client {
+				c.snoopBy = nil
+			}
+		}
+		return
+	}
+
+	if victim.client.snoopBy != nil {
+		wiz.notify("Busy already.")
+		return
+	}
+
+	// TODO
+	// if victim.getTrust() >= wiz.getTrust() {
+	// 	wiz.notify("You failed.")
+	// }
+
+	if wiz.client != nil {
+		for _, c := range gameServer.connections {
+			if c.mob == victim || c.original == victim {
+				wiz.notify("No snoop loops.")
+				return
+			}
+		}
+	}
+
+	victim.client.snoopBy = wiz.client
+	wiz.notify("Ok.")
+	return
+}
+
+func (wiz *mob) switchInto(args []string) {
+	if len(args) < 1 {
+		wiz.notify("Switch into whom?")
+		return
+	}
+
+	victim := getPlayerByName(args[1])
+	if wiz.client == nil {
+		return
+	}
+
+	if wiz.client.original != nil {
+		wiz.notify("You are already switched.")
+		return
+	}
+
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim == wiz {
+		wiz.notify("Ok.")
+		return
+	}
+
+	if victim.client != nil {
+		wiz.notify("Character is in use.")
+		return
+	}
+
+	wiz.client.mob = victim
+	wiz.client.original = wiz
+	victim.client = wiz.client
+	wiz.client = nil
+	victim.notify("Ok.")
+	return
+}
+
 func (wiz *mob) transfer(args []string) {
 	if len(args) < 2 {
 		wiz.notify("Transfer whom?")
@@ -529,4 +885,37 @@ func (wiz *mob) transfer(args []string) {
 
 	newAction(victim, victim.client, "look")
 	wiz.notify("OK.")
+}
+
+func (wiz *mob) trust(args []string) {
+	if len(args) < 2 {
+		wiz.notify("Sytax: trust <char> <level>")
+		return
+	}
+
+	name := args[1]
+	level, err := strconv.Atoi(args[2])
+	if err != nil {
+		wiz.notify("Syntax: trust <char> <level>")
+		return
+	}
+
+	victim := getPlayerByName(name)
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if level < 0 || level > 99 {
+		wiz.notify("Level must be 0 (reset) or 1 to 99.")
+		return
+	}
+
+	if level < wiz.getTrust() {
+		wiz.notify("Limited to your trust level.")
+		return
+	}
+
+	victim.Trust = level
+	return
 }

@@ -93,7 +93,7 @@ func (server *Server) timing() {
 func registerConnection(c *connection) error {
 	for j, oc := range gameServer.connections {
 		if c.mob.Name == oc.mob.Name {
-			extractChar(c.mob)
+			extractMob(c.mob, true)
 			c.SendString(fmt.Sprintf("This user is already playing. Bye! %s", helpers.Newline))
 			c.end()
 

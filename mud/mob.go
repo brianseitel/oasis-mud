@@ -115,7 +115,8 @@ type mobIndex struct {
 	Identifiers string
 	Shop        *shop
 
-	wait uint
+	wait  uint
+	count int
 
 	RecallRoomID uint `json:"recall_room_id"`
 
@@ -574,6 +575,22 @@ func (m *mob) stripAffect(name string) {
 	}
 }
 
+func (m *mob) getTrust() int {
+	if m.client != nil && m.client.original != nil {
+		m = m.client.original
+	}
+
+	if m.Trust != 0 {
+		return m.Trust
+	}
+
+	if m.isNPC() && m.Level >= 90 {
+		return 89
+	}
+
+	return m.Level
+}
+
 func (m *mob) wander() {
 	if m.client != nil {
 		return
@@ -643,26 +660,6 @@ func getPlayerByName(name string) *mob {
 	}
 
 	return nil
-}
-
-func extractChar(m *mob) {
-	m.stopFighting(true)
-
-	for e := mobList.Front(); e != nil; e = e.Next() {
-		ch := e.Value.(*mob)
-		if ch == m {
-			for j, rm := range m.Room.Mobs {
-				if rm == m {
-					m.Room.Mobs = append(m.Room.Mobs[:j], m.Room.Mobs[j+1:]...)
-					break
-				}
-			}
-			mobList.Remove(e)
-
-			m.client = nil
-			m = nil
-		}
-	}
 }
 
 func showCharactersToPlayer(chars []*mob, player *mob) {

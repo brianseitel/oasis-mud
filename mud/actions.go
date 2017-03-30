@@ -1689,7 +1689,7 @@ func (a *action) put() {
 }
 
 func (a *action) quit() {
-	extractChar(a.mob)
+	extractMob(a.mob, true)
 	if a.mob.Status == fighting {
 		a.mob.notify("You can't quit now. You're fighting!")
 	} else {

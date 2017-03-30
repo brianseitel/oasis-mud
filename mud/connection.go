@@ -6,9 +6,11 @@ import (
 )
 
 type connection struct {
-	conn   net.Conn
-	buffer *bufio.ReadWriter
-	mob    *mob
+	conn     net.Conn
+	buffer   *bufio.ReadWriter
+	mob      *mob
+	snoopBy  *connection
+	original *mob
 }
 
 func newConnection(c net.Conn) *connection {

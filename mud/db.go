@@ -377,3 +377,83 @@ func resetArea(ar *area) {
 	masterArea.Rooms = tempRooms
 	return
 }
+
+func extractMob(m *mob, pull bool) {
+	if m.Room == nil {
+		return
+	}
+
+	if pull {
+		// TODO: m.dieFollower()
+	}
+
+	m.stopFighting(true)
+
+	for _, i := range m.Inventory {
+		extractObj(i)
+	}
+
+	m.Room.removeMob(m)
+
+	if !pull {
+		m.Room = getRoom(uint(1))
+		return
+	}
+
+	if m.isNPC() {
+		m.index.count--
+	}
+
+	if m.client != nil && m.client.original != nil {
+		m.returnTo([]string{""})
+	}
+
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		wm := e.Value.(*mob)
+		if wm.replyTarget == m {
+			wm.replyTarget = nil
+		}
+	}
+
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		wm := e.Value.(*mob)
+		if wm == m {
+			mobList.Remove(e)
+		}
+	}
+
+	if m.client != nil {
+		m.client.mob = nil
+	}
+
+	return
+}
+
+func extractObj(obj *item) {
+	if obj.Room != nil {
+		obj.Room.removeObject(obj)
+	}
+	if obj.carriedBy != nil {
+		obj.carriedBy.removeItem(obj)
+	}
+	if obj.inObject != nil {
+		obj.inObject.removeObject(obj)
+	}
+
+	for _, i := range obj.container {
+		extractObj(i)
+	}
+
+	for e := itemList.Front(); e != nil; e = e.Next() {
+		i := e.Value.(*item)
+		if i == obj {
+			itemList.Remove(e)
+			break
+		}
+	}
+
+	obj.Affected = nil
+	obj.index.count--
+
+	return
+}

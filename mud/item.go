@@ -166,12 +166,15 @@ type itemIndex struct {
 	Value            int
 	Min              int
 	Max              int
+
+	count int
 }
 
 type item struct {
 	ID               uint
 	index            itemIndex
 	container        []*item
+	inObject         *item
 	carriedBy        *mob
 	Room             *room
 	Affected         []*affect
