@@ -59,6 +59,7 @@ const (
 	cBuy          command = "buy"
 	cSell         command = "sell"
 	cValue        command = "value"
+	cSacrifice    command = "sacrifice"
 	cNoop         command = "noop"
 )
 

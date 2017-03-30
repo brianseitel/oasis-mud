@@ -190,6 +190,9 @@ func newActionWithInput(a *action) error {
 	case cValue:
 		a.mob.value(a.args)
 		return nil
+	case cSacrifice:
+		a.mob.sacrifice(a.args)
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
 			a.mob.notify("Eh?")
@@ -898,7 +901,10 @@ func (a *action) drop() {
 			return
 		}
 
-		// TODO: canDropObj
+		if !player.canDropItem(item) {
+			player.notify("You can't let go of it.")
+			return
+		}
 
 		for j, i := range player.Inventory {
 			if i == item {
@@ -1236,11 +1242,10 @@ func (a *action) give() {
 		return
 	}
 
-	// TODO:
-	// if !item.canDrop(player) {
-	// 	player.notify("You can't let go of it.")
-	// 	return
-	// }
+	if !player.canDropItem(item) {
+		player.notify("You can't let go of it.")
+		return
+	}
 
 	if victim.Carrying+1 > victim.CarryMax {
 		player.notify("%s has their hands full.", victim.Name)
@@ -1641,11 +1646,10 @@ func (a *action) put() {
 			return
 		}
 
-		// TODO
-		// if !player.canDropObj(item) {
-		// 	player.notify("You can't let go of it.")
-		// 	return
-		// }
+		if !player.canDropItem(item) {
+			player.notify("You can't let go of it.")
+			return
+		}
 
 		if item.Weight+container.Weight > uint(container.Value) {
 			player.notify("It won't fit.")
@@ -1849,11 +1853,10 @@ func (a *action) steal() {
 		return
 	}
 
-	// TODO
-	// if !item.canDrop() {
-	// 	player.notify("You can't pry it away.")
-	// 	return
-	// }
+	if !player.canDropItem(item) {
+		player.notify("You can't pry it away.")
+		return
+	}
 
 	if player.Carrying+1 > player.CarryMax {
 		player.notify("You have your hands full.")

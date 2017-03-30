@@ -166,11 +166,10 @@ func (player *mob) sell(args []string) {
 		return
 	}
 
-	// TODO
-	// if !player.canDrop(obj) {
-	// 	player.notify("You can't let go of it.")
-	// 	return
-	// }
+	if !player.canDropItem(obj) {
+		player.notify("You can't let go of it.")
+		return
+	}
 
 	cost := keeper.getCost(obj, false)
 	if cost <= 0 {
@@ -227,11 +226,10 @@ func (player *mob) value(args []string) {
 		return
 	}
 
-	// TODO
-	// if !player.canDrop(obj) {
-	// 	player.notify("You can't let go of it.")
-	// 	return
-	// }
+	if !player.canDropItem(obj) {
+		player.notify("You can't let go of it.")
+		return
+	}
 
 	cost := keeper.getCost(obj, false)
 	if cost <= 0 {
