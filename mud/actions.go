@@ -193,6 +193,9 @@ func newActionWithInput(a *action) error {
 	case cSacrifice:
 		a.mob.sacrifice(a.args)
 		return nil
+	case cRstat:
+		a.mob.rstat(a.args)
+		return nil
 	default:
 		if !checkSocial(a.mob, a.args[0], a.args[1:]) {
 			a.mob.notify("Eh?")

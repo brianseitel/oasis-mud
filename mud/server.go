@@ -18,6 +18,7 @@ var gameServer Server
 
 type Server struct {
 	connections []connection
+	Up          bool
 }
 
 func (server *Server) handle(c *connection) {
