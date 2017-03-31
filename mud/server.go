@@ -9,14 +9,14 @@ import (
 	"time"
 )
 
-var gameServer server
+var gameServer Server
 
-type server struct {
+type Server struct {
 	connections []connection
 	Up          bool
 }
 
-func (server *server) handle(c *connection) {
+func (server *Server) handle(c *connection) {
 	c.mob = login(c)
 
 	err := registerConnection(c)
@@ -41,7 +41,7 @@ func (server *server) handle(c *connection) {
 	}
 }
 
-func (server *server) Serve(port int) {
+func (server *Server) Serve(port int) {
 	server.init()
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -65,7 +65,7 @@ func (server *server) Serve(port int) {
 	}
 }
 
-func (server *server) timing() {
+func (server *Server) timing() {
 	pulse := time.NewTicker(time.Second / pulsePerSecond)
 	tick := time.NewTicker(time.Second * 5)
 
@@ -99,7 +99,7 @@ func registerConnection(c *connection) error {
 	return nil
 }
 
-func (server *server) init() {
+func (server *Server) init() {
 	bootDB()
 }
 
