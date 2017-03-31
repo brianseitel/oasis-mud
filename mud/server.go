@@ -7,11 +7,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/brianseitel/oasis-mud/helpers"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
 var gameServer Server
@@ -94,7 +89,7 @@ func registerConnection(c *connection) error {
 	for j, oc := range gameServer.connections {
 		if c.mob.Name == oc.mob.Name {
 			extractMob(c.mob, true)
-			c.SendString(fmt.Sprintf("This user is already playing. Bye! %s", helpers.Newline))
+			c.SendString(fmt.Sprintf("This user is already playing. Bye! %s", Newline))
 			c.end()
 
 			gameServer.connections = append(gameServer.connections[:j], gameServer.connections[j+1:]...)
@@ -106,10 +101,6 @@ func registerConnection(c *connection) error {
 	gameServer.connections = append(gameServer.connections, *c)
 	return nil
 }
-
-var (
-	db *gorm.DB
-)
 
 func (server *Server) init() {
 	bootDB()

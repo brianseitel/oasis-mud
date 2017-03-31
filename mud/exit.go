@@ -1,9 +1,5 @@
 package mud
 
-import (
-	"github.com/brianseitel/oasis-mud/helpers"
-)
-
 const (
 	exitDoor = 1 << iota
 	exitClosed
@@ -12,22 +8,22 @@ const (
 )
 
 type exit struct {
-	ID          uint
+	ID          int
 	Keyword     string
 	Description string
 	Dir         string `json:"direction"`
 	Room        *room
-	RoomID      uint `json:"room_id"`
+	RoomID      int `json:"room_id"`
 	Key         int
-	Flags       uint
+	Flags       int
 }
 
 func (e *exit) hasDoor() bool {
-	return helpers.HasBit(e.Flags, exitDoor)
+	return hasBit(e.Flags, exitDoor)
 }
 
 func (e *exit) isClosed() bool {
-	return helpers.HasBit(e.Flags, exitClosed)
+	return hasBit(e.Flags, exitClosed)
 }
 
 func (e *exit) isOpen() bool {
@@ -35,7 +31,7 @@ func (e *exit) isOpen() bool {
 }
 
 func (e *exit) isLocked() bool {
-	return helpers.HasBit(e.Flags, exitLocked)
+	return hasBit(e.Flags, exitLocked)
 }
 
 func (e *exit) isUnlocked() bool {
@@ -43,7 +39,7 @@ func (e *exit) isUnlocked() bool {
 }
 
 func (e *exit) isPickProof() bool {
-	return helpers.HasBit(e.Flags, exitPickProof)
+	return hasBit(e.Flags, exitPickProof)
 }
 
 func (e *exit) isPickable() bool {

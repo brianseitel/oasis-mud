@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 func login(c *connection) *mob {
@@ -15,7 +13,7 @@ func login(c *connection) *mob {
 	var password string
 
 	for len(name) == 0 {
-		c.SendString("Welcome!" + helpers.Newline + "What's your name? ")
+		c.SendString("Welcome!" + Newline + "What's your name? ")
 		input, err := c.buffer.ReadString('\n')
 		if err != nil {
 			panic(err)
@@ -42,7 +40,7 @@ func login(c *connection) *mob {
 	}
 
 	if player.Password != password {
-		c.SendString(helpers.Red + "Incorrect login. Please try again." + helpers.Reset + helpers.Newline)
+		c.SendString(Red + "Incorrect login. Please try again." + Reset + Newline)
 		return login(c)
 	}
 

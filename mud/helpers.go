@@ -1,4 +1,4 @@
-package helpers
+package mud
 
 import (
 	"os"
@@ -8,16 +8,16 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func Dump(i interface{}) {
+func dump(i interface{}) {
 	spew.Dump(i)
 }
 
-func DD(i interface{}) {
+func dd(i interface{}) {
 	spew.Dump(i)
 	os.Exit(1)
 }
 
-func SliceContainsUint(s []uint, e uint) bool {
+func sliceContainsUint(s []uint, e uint) bool {
 	for _, a := range s {
 		if a == e {
 			return true
@@ -26,7 +26,7 @@ func SliceContainsUint(s []uint, e uint) bool {
 	return false
 }
 
-func WordWrap(text string, lineWidth int) string {
+func wordWrap(text string, lineWidth int) string {
 	words := strings.Fields(strings.TrimSpace(text))
 	if len(words) == 0 {
 		return text
@@ -46,7 +46,7 @@ func WordWrap(text string, lineWidth int) string {
 	return wrapped
 }
 
-func MatchesSubject(list string, s string) bool {
+func matchesSubject(list string, s string) bool {
 	for _, v := range strings.Split(strings.ToLower(list), " ") {
 		if strings.HasPrefix(v, s) {
 			return true
@@ -58,7 +58,7 @@ func MatchesSubject(list string, s string) bool {
 
 // ToSnake convert the given string to snake case following the Golang format:
 // acronyms are converted to lower-case and preceded by an underscore.
-func ToSnake(in string) string {
+func toSnake(in string) string {
 	runes := []rune(in)
 	length := len(runes)
 

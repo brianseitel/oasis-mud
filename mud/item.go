@@ -3,8 +3,6 @@ package mud
 import (
 	"fmt"
 
-	"github.com/brianseitel/oasis-mud/helpers"
-	// "github.com/brianseitel/oasis-mud/helpers"
 	"bytes"
 	"strings"
 )
@@ -153,16 +151,16 @@ const (
 type itemAttributeSet struct{}
 
 type itemIndex struct {
-	ID               uint
+	ID               int
 	Name             string
 	Description      string
 	ShortDescription string
-	ItemType         uint   `json:"item_type"`
-	ContainedIDs     []uint `json:"contained_ids"`
+	ItemType         int   `json:"item_type"`
+	ContainedIDs     []int `json:"contained_ids"`
 	Affected         []*affect
-	ExtraFlags       uint `json:"extra_flags"`
-	WearFlags        uint `json:"wear_flags"`
-	Weight           uint
+	ExtraFlags       int `json:"extra_flags"`
+	WearFlags        int `json:"wear_flags"`
+	Weight           int
 	Value            int
 	Min              int
 	Max              int
@@ -171,7 +169,7 @@ type itemIndex struct {
 }
 
 type item struct {
-	ID               uint
+	ID               int
 	index            itemIndex
 	container        []*item
 	inObject         *item
@@ -181,11 +179,11 @@ type item struct {
 	Name             string
 	Description      string
 	ShortDescription string
-	ItemType         uint
-	ExtraFlags       uint
-	WearFlags        uint
-	WearLocation     uint
-	Weight           uint
+	ItemType         int
+	ExtraFlags       int
+	WearFlags        int
+	WearLocation     int
+	Weight           int
 	Cost             int
 	Level            int
 	Timer            int
@@ -194,12 +192,12 @@ type item struct {
 	Max              int
 }
 
-func (item *item) canWear(position uint) bool {
-	return helpers.HasBit(item.WearFlags, position)
+func (item *item) canWear(position int) bool {
+	return hasBit(item.WearFlags, position)
 }
 
-func (item *item) hasExtraFlag(flag uint) bool {
-	return helpers.HasBit(item.ExtraFlags, flag)
+func (item *item) hasExtraFlag(flag int) bool {
+	return hasBit(item.ExtraFlags, flag)
 }
 
 func (item *item) isClosed() bool {
@@ -384,9 +382,9 @@ func applyAC(item *item, wear int) int {
 
 	return 0
 }
-func createMoney(amount uint) *item {
+func createMoney(amount int) *item {
 	if amount <= 0 {
-		fmt.Printf("create_money: zero or negative money %d.%s", amount, helpers.Newline)
+		fmt.Printf("create_money: zero or negative money %d.%s", amount, Newline)
 		amount = 1
 	}
 

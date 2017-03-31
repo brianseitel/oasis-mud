@@ -3,8 +3,6 @@ package mud
 import (
 	"fmt"
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 func (m *mob) attack(target *mob) {
@@ -64,17 +62,17 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 		/*
 		 * If they're invisible, fade them in
 		 */
-		if helpers.HasBit(m.AffectedBy, affectInvisible) {
-			helpers.RemoveBit(m.AffectedBy, affectInvisible)
+		if hasBit(m.AffectedBy, affectInvisible) {
+			removeBit(m.AffectedBy, affectInvisible)
 			m.stripAffect("invis")
 			act("$n fades into existence.", m, nil, nil, actToRoom)
 		}
 
-		if helpers.HasBit(victim.AffectedBy, affectSanctuary) {
+		if hasBit(victim.AffectedBy, affectSanctuary) {
 			dam /= 2
 		}
 
-		if helpers.HasBit(victim.AffectedBy, affectProtect) && m.isEvil() {
+		if hasBit(victim.AffectedBy, affectProtect) && m.isEvil() {
 			dam -= dam / 4
 		}
 
@@ -132,7 +130,7 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 			victim.notify("That really did HURT!")
 		}
 		if victim.Hitpoints < victim.MaxHitpoints/4 {
-			victim.notify("%sYou really are BLEEDING!%s", helpers.Red, helpers.Reset)
+			victim.notify("%sYou really are BLEEDING!%s", Red, Reset)
 		}
 		break
 	}
@@ -307,7 +305,7 @@ func (m *mob) deathCry() {
 	act(msg, m, nil, nil, actToRoom)
 
 	if drop > 0 {
-		item := createItem(getItem(uint(drop)))
+		item := createItem(getItem(drop))
 		itemList.PushBack(item)
 
 		item.Name = strings.Replace(item.Name, "[name]", m.Name, -1)
@@ -373,7 +371,7 @@ func (m *mob) dodge(attacker *mob) bool {
 	}
 
 	if m.isNPC() {
-		chance = helpers.Min(60, 2*m.Level)
+		chance = min(60, 2*m.Level)
 	} else {
 		mobSkill := m.skill("dodge")
 		if mobSkill != nil {
@@ -416,9 +414,9 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 		thac0_32 = 0
 	}
 
-	thac0 := helpers.Interpolate(m.Level, thac0_00, thac0_32) - m.Hitroll
+	thac0 := interpolate(m.Level, thac0_00, thac0_32) - m.Hitroll
 
-	victimAC := helpers.Max(-15, victim.Armor/10)
+	victimAC := max(-15, victim.Armor/10)
 	if !m.canSee(victim) {
 		victim.Armor -= 4
 	}
@@ -473,7 +471,7 @@ func (m *mob) parry(attacker *mob) bool {
 	}
 
 	if m.isNPC() {
-		chance = helpers.Min(60, 2*m.Level)
+		chance = min(60, 2*m.Level)
 	} else {
 		if m.equippedItem(wearWield) == nil {
 			return false
@@ -512,7 +510,7 @@ func (m *mob) takeDamage(damage int) {
 	m.Hitpoints -= damage
 	if m.Hitpoints < 0 {
 		m.Status = dead
-		m.notify(helpers.Red + "You are DEAD!!!" + helpers.Reset)
+		m.notify(Red + "You are DEAD!!!" + Reset)
 	}
 }
 
@@ -530,7 +528,7 @@ func (m *mob) trip() {
 
 		var chance int
 		if m.isNPC() {
-			chance = helpers.Min(60, 2*m.Level)
+			chance = min(60, 2*m.Level)
 		} else {
 			mobSkill := m.skill("trip")
 			if mobSkill != nil {

@@ -3,8 +3,6 @@ package mud
 import (
 	"fmt"
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 func register(c *connection, name string) *mob {
@@ -49,7 +47,7 @@ func register(c *connection, name string) *mob {
 		},
 		Level:  1,
 		Exp:    0,
-		Room:   getRoom(uint(1)),
+		Room:   getRoom(1),
 		Status: standing,
 	}
 
@@ -76,9 +74,9 @@ func askForPassword(c *connection) string {
 
 func askForJob(c *connection) job {
 	var jobs []job
-	db.Find(&jobs)
-	for _, j := range jobs {
-		c.SendString(fmt.Sprintf("[%s] %s%s", j.Abbr, j.Name, helpers.Newline))
+	for e := jobList.Front(); e != nil; e = e.Next() {
+		j := e.Value.(*job)
+		c.SendString(fmt.Sprintf("[%s] %s%s", j.Abbr, j.Name, Newline))
 	}
 	for {
 		c.SendString("Select a class from above: ")
@@ -91,15 +89,16 @@ func askForJob(c *connection) job {
 			}
 		}
 
-		c.SendString("\nInvalid selection. Try again." + helpers.Newline)
+		c.SendString("\nInvalid selection. Try again." + Newline)
 	}
 }
 
 func askForRace(c *connection) race {
 	var races []race
-	db.Find(&races)
-	for _, r := range races {
-		c.SendString(fmt.Sprintf("[%s] %s%s", r.Abbr, r.Name, helpers.Newline))
+
+	for e := raceList.Front(); e != nil; e = e.Next() {
+		r := e.Value.(*race)
+		c.SendString(fmt.Sprintf("[%s] %s%s", r.Abbr, r.Name, Newline))
 	}
 
 	for {
@@ -112,7 +111,7 @@ func askForRace(c *connection) race {
 				return r
 			}
 		}
-		c.SendString("\nInvalid selection. Try again." + helpers.Newline)
+		c.SendString("\nInvalid selection. Try again." + Newline)
 
 	}
 }

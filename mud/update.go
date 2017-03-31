@@ -1,7 +1,5 @@
 package mud
 
-import "github.com/brianseitel/oasis-mud/helpers"
-
 const (
 	pulsePerSecond = 4
 	pulseViolence  = 3 * pulsePerSecond
@@ -28,7 +26,7 @@ func aggroUpdate() {
 		for _, m := range ch.Room.Mobs {
 			var count int
 
-			if !m.isNPC() || !helpers.HasBit(m.Act, actAggressive) || m.Fight != nil || !m.isAwake() || !m.canSee(ch) {
+			if !m.isNPC() || !hasBit(m.Act, actAggressive) || m.Fight != nil || !m.isAwake() || !m.canSee(ch) {
 				continue
 			}
 
@@ -123,7 +121,7 @@ func charUpdate() {
 				player.removeAffect(af)
 			}
 
-			if helpers.HasBit(player.AffectedBy, affectPoison) {
+			if hasBit(player.AffectedBy, affectPoison) {
 				act("$n shivers and suffers.", player, nil, nil, actToRoom)
 				player.notify("You shifer and suffer.")
 				player.damage(player, 2, typePoison)
@@ -152,7 +150,7 @@ func mobUpdate() {
 		}
 
 		/* Scavenge */
-		if helpers.HasBit(ch.Act, actScavenger) && len(ch.Room.Items) > 0 && dBits(2) == 0 {
+		if hasBit(ch.Act, actScavenger) && len(ch.Room.Items) > 0 && dBits(2) == 0 {
 			max := 1
 			var objectBest *item
 			objKey := 0
@@ -171,7 +169,7 @@ func mobUpdate() {
 		}
 
 		/* wander */
-		if !helpers.HasBit(ch.Act, actSentinel) {
+		if !hasBit(ch.Act, actSentinel) {
 			ch.wander()
 		}
 
@@ -182,7 +180,7 @@ func mobUpdate() {
 			exit = ch.Room.Exits[door]
 		}
 
-		if ch.Hitpoints < ch.MaxHitpoints/2 && exit != nil && !helpers.HasBit(exit.Room.RoomFlags, roomNoMob) {
+		if ch.Hitpoints < ch.MaxHitpoints/2 && exit != nil && !hasBit(exit.Room.RoomFlags, roomNoMob) {
 			found := false
 			for _, rch := range exit.Room.Mobs {
 				if !rch.isNPC() {
@@ -274,5 +272,5 @@ func updateHandler() {
 }
 
 func wait(player *mob, npulse int) {
-	player.wait = uint(helpers.Max(int(player.wait), npulse))
+	player.wait = max(player.wait, npulse)
 }

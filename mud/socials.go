@@ -1,7 +1,6 @@
 package mud
 
 import "fmt"
-import "github.com/brianseitel/oasis-mud/helpers"
 
 type social struct {
 	Name        string `json:"name"`
@@ -21,7 +20,7 @@ func checkSocial(player *mob, command string, args []string) bool {
 	var action *social
 	for e := socialList.Front(); e != nil; e = e.Next() {
 		soc := e.Value.(*social)
-		if helpers.MatchesSubject(soc.Name, command) {
+		if matchesSubject(soc.Name, command) {
 			found = true
 			action = soc
 			break
@@ -57,7 +56,7 @@ func checkSocial(player *mob, command string, args []string) bool {
 		return true
 	}
 	for _, m := range player.Room.Mobs {
-		if helpers.MatchesSubject(m.Name, args[0]) {
+		if matchesSubject(m.Name, args[0]) {
 			victim = m
 			break
 		}

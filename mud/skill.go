@@ -11,16 +11,16 @@ const (
 )
 
 type skillLevel struct {
-	ID      uint
+	ID      int
 	Skill   *skill
-	SkillID uint
+	SkillID int
 	Job     *job
-	JobID   uint
-	Level   uint
+	JobID   int
+	Level   int
 }
 
 type skill struct {
-	ID         uint
+	ID         int
 	Name       string        `json:"name"`
 	Levels     []*skillLevel `gorm:"ForeignKey:SkillID"`
 	Callback   string        `json:"callback"`
@@ -31,7 +31,7 @@ type skill struct {
 	MessageOff string        `json:"messageOff"` // when skill/spell wears off
 }
 
-func getSkill(id uint) *skill {
+func getSkill(id int) *skill {
 	for e := skillList.Front(); e != nil; e = e.Next() {
 		s := e.Value.(*skill)
 		if s.ID == id {

@@ -2,8 +2,6 @@ package mud
 
 import (
 	"fmt"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 func (m *mob) addItem(item *item) {
@@ -11,7 +9,7 @@ func (m *mob) addItem(item *item) {
 }
 
 func (m *mob) canDropItem(item *item) bool {
-	if !helpers.HasBit(item.ExtraFlags, itemNoDrop) {
+	if !hasBit(item.ExtraFlags, itemNoDrop) {
 		return true
 	}
 
@@ -28,7 +26,7 @@ func (m *mob) canSeeItem(item *item) bool {
 
 func (m *mob) carrying(str string) *item {
 	for _, i := range m.Inventory {
-		if helpers.MatchesSubject(i.Name, str) {
+		if matchesSubject(i.Name, str) {
 			return i
 		}
 	}
@@ -37,7 +35,7 @@ func (m *mob) carrying(str string) *item {
 
 func (m *mob) equippedName(name string) *item {
 	for _, i := range m.Equipped {
-		if helpers.MatchesSubject(i.Name, name) {
+		if matchesSubject(i.Name, name) {
 			return i
 		}
 	}
@@ -63,16 +61,16 @@ func (m *mob) get(item *item, container *item) {
 
 	if container != nil {
 		m.notify("You get %s from %s.", item.Name, container.Name)
-		m.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", m.Name, item.Name, container.Name, helpers.Newline), m)
+		m.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", m.Name, item.Name, container.Name, Newline), m)
 		container.removeObject(item)
 	} else {
 		m.notify("You get %s.", item.Name)
-		m.Room.notify(fmt.Sprintf("%s gets %s.%s", m.Name, item.Name, helpers.Newline), m)
+		m.Room.notify(fmt.Sprintf("%s gets %s.%s", m.Name, item.Name, Newline), m)
 		m.Room.removeObject(item)
 	}
 
 	if item.ItemType == itemMoney {
-		m.Gold += uint(item.Value)
+		m.Gold += item.Value
 	} else {
 		m.Inventory = append(m.Inventory, item)
 		item.carriedBy = m
@@ -115,7 +113,7 @@ func (m *mob) sacrifice(args []string) {
 }
 
 func (m *mob) unwearItem(location int, replace bool) bool {
-	obj := m.equippedItem(uint(location))
+	obj := m.equippedItem(location)
 
 	if obj == nil {
 		return true
@@ -125,7 +123,7 @@ func (m *mob) unwearItem(location int, replace bool) bool {
 		return false
 	}
 
-	if helpers.HasBit(obj.ExtraFlags, itemNoRemove) {
+	if hasBit(obj.ExtraFlags, itemNoRemove) {
 		act("You can't remove $p.", m, obj, nil, actToChar)
 		return false
 	}
@@ -341,7 +339,7 @@ func (m *mob) wear(wearable *item, replace bool) {
 		if !removed {
 			return
 		}
-		if wearable.Weight > uint(m.ModifiedAttributes.Strength) {
+		if wearable.Weight > m.ModifiedAttributes.Strength {
 			m.notify("It is too heavy for you to wield.")
 			return
 		}

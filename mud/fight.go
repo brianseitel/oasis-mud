@@ -1,7 +1,5 @@
 package mud
 
-import "github.com/brianseitel/oasis-mud/helpers"
-
 const (
 	typeUndefined = -1
 	typeHit       = iota
@@ -144,9 +142,9 @@ func rawKill(victim *mob) {
 	victim.AffectedBy = 0
 	victim.Armor = 100
 	victim.Status = sitting
-	victim.Hitpoints = helpers.Max(1, victim.Hitpoints)
-	victim.Mana = helpers.Max(1, victim.Mana)
-	victim.Movement = helpers.Max(1, victim.Movement)
+	victim.Hitpoints = max(1, victim.Hitpoints)
+	victim.Mana = max(1, victim.Mana)
+	victim.Movement = max(1, victim.Movement)
 
 	// victim.Save() // TODO
 

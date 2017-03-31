@@ -25,7 +25,7 @@ func (keeper *mob) getCost(item *item, buy bool) int {
 		cost = 0
 
 		for i := 0; i < maxTrade; i++ {
-			if item.ItemType == uint(shop.BuyType[i]) {
+			if item.ItemType == shop.BuyType[i] {
 				cost = item.Cost * shop.ProfitSell / 100
 				break
 			}

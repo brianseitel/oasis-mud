@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"bytes"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 type action struct {
@@ -250,7 +248,7 @@ func (a *action) look() {
 		return
 	}
 
-	if helpers.HasBit(player.AffectedBy, affectBlind) {
+	if hasBit(player.AffectedBy, affectBlind) {
 		return
 	}
 
@@ -281,7 +279,7 @@ func (a *action) look() {
 
 		var item *item
 		for _, i := range player.Inventory {
-			if helpers.MatchesSubject(i.Name, a.args[2]) {
+			if matchesSubject(i.Name, a.args[2]) {
 				item = i
 				break
 			}
@@ -289,7 +287,7 @@ func (a *action) look() {
 
 		if item == nil {
 			for _, i := range player.Room.Items {
-				if helpers.MatchesSubject(i.Name, a.args[2]) {
+				if matchesSubject(i.Name, a.args[2]) {
 					item = i
 					break
 				}
@@ -322,7 +320,7 @@ func (a *action) look() {
 
 	var victim *mob
 	for _, m := range player.Room.Mobs {
-		if helpers.MatchesSubject(m.Name, a.args[1]) {
+		if matchesSubject(m.Name, a.args[1]) {
 			victim = m
 			break
 		}
@@ -333,7 +331,7 @@ func (a *action) look() {
 	}
 
 	for _, i := range player.Inventory {
-		if helpers.MatchesSubject(i.Name, a.args[1]) {
+		if matchesSubject(i.Name, a.args[1]) {
 			if player.canSeeItem(i) {
 				player.notify(i.Description)
 				return
@@ -342,7 +340,7 @@ func (a *action) look() {
 	}
 
 	for _, i := range player.Equipped {
-		if helpers.MatchesSubject(i.Name, a.args[1]) {
+		if matchesSubject(i.Name, a.args[1]) {
 			if player.canSeeItem(i) {
 				player.notify(i.Description)
 				return
@@ -351,7 +349,7 @@ func (a *action) look() {
 	}
 
 	for _, i := range player.Room.Items {
-		if helpers.MatchesSubject(i.Name, a.args[1]) {
+		if matchesSubject(i.Name, a.args[1]) {
 			if player.canSeeItem(i) {
 				player.notify(i.Description)
 				return
@@ -410,7 +408,7 @@ func (a *action) inventory() {
 	a.conn.SendString(
 		fmt.Sprintf("Inventory\n%s\n%s\n%s",
 			"-----------------------------------",
-			strings.Join(inventoryString(a.mob), helpers.Newline),
+			strings.Join(inventoryString(a.mob), Newline),
 			"-----------------------------------",
 		),
 	)
@@ -420,7 +418,7 @@ func (a *action) equipment() {
 	a.conn.SendString(
 		fmt.Sprintf("Equipment\n%s\n%s\n%s",
 			"-----------------------------------",
-			strings.Join(equippedString(a.mob), helpers.Newline),
+			strings.Join(equippedString(a.mob), Newline),
 			"-----------------------------------",
 		),
 	)
@@ -465,14 +463,14 @@ func exitsString(exits []*exit) string {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
 	}
 
-	return fmt.Sprintf("[%s]%s", strings.Trim(output, " "), helpers.Newline)
+	return fmt.Sprintf("[%s]%s", strings.Trim(output, " "), Newline)
 }
 
 func itemsString(items []*item) string {
 	var output string
 
 	for _, i := range items {
-		output = fmt.Sprintf("%s is here.%s%s", i.Name, helpers.Newline, output)
+		output = fmt.Sprintf("%s is here.%s%s", i.Name, Newline, output)
 	}
 	return output
 }
@@ -483,9 +481,9 @@ func mobsString(mobs []*mob, player *mob) string {
 	for _, m := range mobs {
 		if m != player {
 			if player.canSee(m) {
-				output = fmt.Sprintf("%s is here.%s%s", m.Name, helpers.Newline, output)
+				output = fmt.Sprintf("%s is here.%s%s", m.Name, Newline, output)
 			} else {
-				output = fmt.Sprintf("You see glowing red eyes watching YOU!%s%s", helpers.Newline, output)
+				output = fmt.Sprintf("You see glowing red eyes watching YOU!%s%s", Newline, output)
 			}
 		}
 	}
@@ -579,7 +577,7 @@ func (a *action) backstab() {
 
 	var victim *mob
 	for _, mob := range player.Room.Mobs {
-		if helpers.MatchesSubject(mob.Name, arg1) {
+		if matchesSubject(mob.Name, arg1) {
 			victim = mob
 			break
 		}
@@ -648,7 +646,7 @@ func (a *action) cast() {
 
 	mana = 0
 	if !player.isNPC() {
-		mana = helpers.Max(spell.Skill.MinMana, 100/(2+player.Level))
+		mana = max(spell.Skill.MinMana, 100/(2+player.Level))
 	}
 
 	// Find targets
@@ -784,7 +782,7 @@ func (a *action) consider() {
 	arg1 := a.args[1]
 	var victim *mob
 	for _, mob := range player.Room.Mobs {
-		if helpers.MatchesSubject(mob.Name, arg1) {
+		if matchesSubject(mob.Name, arg1) {
 			victim = mob
 			break
 		}
@@ -868,13 +866,13 @@ func (a *action) drop() {
 	isNumber := err == nil
 
 	if isNumber {
-		amount := uint(num)
+		amount := num
 		if len(a.args) < 2 || amount <= 0 || !strings.HasPrefix(a.args[2], "gold") {
 			player.notify("Sorry, you can't do that.")
 			return
 		}
 
-		if player.Gold < uint(amount) {
+		if player.Gold < amount {
 			player.notify("You haven't got that many coins.")
 			return
 		}
@@ -893,7 +891,7 @@ func (a *action) drop() {
 		// drop obj
 		var item *item
 		for _, i := range player.Inventory {
-			if helpers.MatchesSubject(i.Name, arg1) {
+			if matchesSubject(i.Name, arg1) {
 				item = i
 				break
 			}
@@ -932,7 +930,7 @@ func (a *action) drop() {
 		fmt.Println(name)
 		for j := 0; j < len(player.Inventory); j++ {
 			item := player.Inventory[j]
-			if arg1 == "all" || helpers.MatchesSubject(item.Name, name) {
+			if arg1 == "all" || matchesSubject(item.Name, name) {
 				found = true
 
 				item.carriedBy = nil
@@ -973,7 +971,7 @@ func (a *action) flee() {
 	for attempt := 0; attempt < 6; attempt++ {
 		number := dice().Intn(len(player.Room.Exits))
 		exit := player.Room.Exits[number]
-		if exit == nil || exit.isClosed() || (player.isNPC() && helpers.HasBit(exit.Room.RoomFlags, roomNoMob)) {
+		if exit == nil || exit.isClosed() || (player.isNPC() && hasBit(exit.Room.RoomFlags, roomNoMob)) {
 			continue
 		}
 
@@ -1010,7 +1008,7 @@ func (a *action) follow() {
 
 	var victim *mob
 	for _, m := range player.Room.Mobs {
-		if helpers.MatchesSubject(m.Name, a.args[1]) {
+		if matchesSubject(m.Name, a.args[1]) {
 			victim = m
 			break
 		}
@@ -1058,7 +1056,7 @@ func (a *action) get() {
 		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
 			// get obj
 			for _, i := range player.Room.Items {
-				if helpers.MatchesSubject(i.Name, arg1) {
+				if matchesSubject(i.Name, arg1) {
 					player.get(i, nil)
 					return
 				}
@@ -1075,7 +1073,7 @@ func (a *action) get() {
 			found := false
 			if len(player.Room.Items) > 0 {
 				for _, i := range player.Room.Items {
-					if helpers.MatchesSubject(i.Name, name) || len(name) == 0 {
+					if matchesSubject(i.Name, name) || len(name) == 0 {
 						player.get(i, nil)
 						found = true
 					}
@@ -1135,7 +1133,7 @@ func (a *action) get() {
 			return
 		}
 
-		if helpers.HasBit(uint(container.Value), containerClosed) {
+		if hasBit(container.Value, containerClosed) {
 			player.notify("The %s is closed.", container.Name)
 			return
 		}
@@ -1143,7 +1141,7 @@ func (a *action) get() {
 		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
 			// get obj container
 			for _, i := range container.container {
-				if helpers.MatchesSubject(i.Name, arg1) {
+				if matchesSubject(i.Name, arg1) {
 					player.get(i, container)
 					return
 				}
@@ -1159,7 +1157,7 @@ func (a *action) get() {
 			}
 			found := false
 			for _, i := range container.container {
-				if helpers.MatchesSubject(i.Name, name) || len(name) == 0 {
+				if matchesSubject(i.Name, name) || len(name) == 0 {
 					player.get(i, container)
 					found = true
 				}
@@ -1187,7 +1185,7 @@ func (a *action) give() {
 
 	var victim *mob
 	for _, mob := range player.Room.Mobs {
-		if helpers.MatchesSubject(mob.Name, arg2) {
+		if matchesSubject(mob.Name, arg2) {
 			victim = mob
 			break
 		}
@@ -1196,13 +1194,13 @@ func (a *action) give() {
 	num, err := strconv.Atoi(arg1)
 	isNumeric := err == nil
 
-	var amount uint
+	var amount int
 	if isNumeric {
 		if num <= 0 || !strings.HasPrefix(arg2, "coin") {
 			player.notify("You can't do that.")
 			return
 		}
-		amount = uint(num)
+		amount = num
 
 		if victim == nil {
 			player.notify("They aren't here.")
@@ -1223,7 +1221,7 @@ func (a *action) give() {
 
 	var item *item
 	for _, i := range player.Inventory {
-		if helpers.MatchesSubject(i.Name, arg1) {
+		if matchesSubject(i.Name, arg1) {
 			item = i
 			break
 		}
@@ -1282,13 +1280,13 @@ func (a *action) hide() {
 	player := a.mob
 	player.notify("You attempt to hide.")
 
-	if helpers.HasBit(player.AffectedBy, affectHide) {
-		helpers.RemoveBit(player.AffectedBy, affectHide)
+	if hasBit(player.AffectedBy, affectHide) {
+		removeBit(player.AffectedBy, affectHide)
 	}
 
 	hide := player.skill("hide")
 	if player.isNPC() || dice().Intn(100) < int(hide.Level) {
-		helpers.SetBit(player.AffectedBy, affectHide)
+		setBit(player.AffectedBy, affectHide)
 	}
 	return
 }
@@ -1392,7 +1390,7 @@ func (a *action) lock() {
 			return
 		}
 
-		helpers.SetBit(exit.Flags, exitLocked)
+		setBit(exit.Flags, exitLocked)
 		player.notify("*click*")
 		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
 
@@ -1400,7 +1398,7 @@ func (a *action) lock() {
 		if exit.Room != nil {
 			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
 			if reverseExit != nil && reverseExit.Room == player.Room {
-				helpers.SetBit(reverseExit.Flags, exitLocked)
+				setBit(reverseExit.Flags, exitLocked)
 			}
 		}
 	}
@@ -1480,7 +1478,7 @@ func (a *action) pick() {
 			return
 		}
 
-		helpers.RemoveBit(exit.Flags, exitLocked)
+		removeBit(exit.Flags, exitLocked)
 		player.notify("*click*")
 		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
 
@@ -1489,7 +1487,7 @@ func (a *action) pick() {
 		if exit.Room != nil {
 			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
 			if reverseExit != nil && reverseExit.Room == player.Room {
-				helpers.RemoveBit(reverseExit.Flags, exitLocked)
+				removeBit(reverseExit.Flags, exitLocked)
 			}
 		}
 	}
@@ -1522,12 +1520,12 @@ func (a *action) practice() {
 		}
 
 		if col%3 != 0 {
-			player.notify(helpers.Newline)
+			player.notify(Newline)
 		}
 
 		player.notify("You have %d practices remaining.", player.Practices)
 	} else {
-		var adept uint
+		var adept int
 
 		if !player.isAwake() {
 			player.notify("In your dreams, or what?")
@@ -1536,7 +1534,7 @@ func (a *action) practice() {
 
 		var trainer *mob
 		for _, mob := range player.Room.Mobs {
-			if mob.isNPC() && helpers.HasBit(mob.Act, actPractice) {
+			if mob.isNPC() && hasBit(mob.Act, actPractice) {
 				trainer = mob
 				break
 			}
@@ -1624,7 +1622,7 @@ func (a *action) put() {
 		return
 	}
 
-	if helpers.HasBit(uint(container.Value), containerClosed) {
+	if hasBit(container.Value, containerClosed) {
 		player.notify("The %s is closed.", container.Name)
 		return
 	}
@@ -1633,7 +1631,7 @@ func (a *action) put() {
 		// put obj container
 		var item *item
 		for _, i := range player.Inventory {
-			if helpers.MatchesSubject(i.Name, arg1) {
+			if matchesSubject(i.Name, arg1) {
 				item = i
 				break
 			}
@@ -1654,7 +1652,7 @@ func (a *action) put() {
 			return
 		}
 
-		if item.Weight+container.Weight > uint(container.Value) {
+		if item.Weight+container.Weight > container.Value {
 			player.notify("It won't fit.")
 			return
 		}
@@ -1678,7 +1676,7 @@ func (a *action) put() {
 			name = words[1]
 		}
 		for j, item := range player.Inventory {
-			if (arg1 == "all" || strings.HasPrefix(item.Name, name)) && item.WearLocation == wearNone && item != container && item.Weight+container.Weight > uint(container.Value) {
+			if (arg1 == "all" || strings.HasPrefix(item.Name, name)) && item.WearLocation == wearNone && item != container && item.Weight+container.Weight > container.Value {
 				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
 				container.container = append(container.container, item)
 				player.notify("You put %s in %s.", item.Name, container.Name)
@@ -1747,7 +1745,7 @@ func (a *action) sneak() {
 
 	var af affect
 	af.affectType = sneak
-	af.duration = uint(helpers.Max(5, a.mob.Level))
+	af.duration = max(5, a.mob.Level)
 	af.modifier = 0
 	af.location = applyNone
 	af.bitVector = affectSneak
@@ -1767,7 +1765,7 @@ func (a *action) scan() {
 				a.mob.notify("    %s", m.Name)
 			}
 		} else {
-			a.mob.notify("    %s(nothing)%s", helpers.Blue, helpers.Reset)
+			a.mob.notify("    %s(nothing)%s", Blue, Reset)
 		}
 	}
 }
@@ -1790,7 +1788,7 @@ func (a *action) steal() {
 
 	var victim *mob
 	for _, mob := range player.Room.Mobs {
-		if helpers.MatchesSubject(mob.Name, arg2) {
+		if matchesSubject(mob.Name, arg2) {
 			victim = mob
 			break
 		}
@@ -1842,15 +1840,15 @@ func (a *action) steal() {
 			return
 		}
 
-		player.Gold += uint(amount)
-		victim.Gold -= uint(amount)
+		player.Gold += amount
+		victim.Gold -= amount
 		player.notify("Bingo! You stole %d gold coins!", amount)
 		return
 	}
 
 	var item *item
 	for _, i := range victim.Inventory {
-		if helpers.MatchesSubject(i.Name, arg1) {
+		if matchesSubject(i.Name, arg1) {
 			item = i
 			break
 		}
@@ -1911,9 +1909,9 @@ func (a *action) train() {
 		return
 	}
 
-	var cost uint
+	var cost int
 
-	costmap := []uint{5, 6, 7, 9, 12, 13, 15}
+	costmap := []int{5, 6, 7, 9, 12, 13, 15}
 
 	var playerAbility int
 	var playerOutput string
@@ -2061,7 +2059,7 @@ func (a *action) unlock() {
 			return
 		}
 
-		helpers.RemoveBit(exit.Flags, exitLocked)
+		removeBit(exit.Flags, exitLocked)
 		player.notify("*click*")
 		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
 
@@ -2070,7 +2068,7 @@ func (a *action) unlock() {
 		if exit.Room != nil {
 			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
 			if reverseExit != nil && reverseExit.Room == player.Room {
-				helpers.RemoveBit(reverseExit.Flags, exitLocked)
+				removeBit(reverseExit.Flags, exitLocked)
 			}
 		}
 	}
@@ -2124,7 +2122,7 @@ func (a *action) where() {
 		found := false
 		for e := mobList.Front(); e != nil; e = e.Next() {
 			m := e.Value.(*mob)
-			if m.client != nil && m.Room.Area.ID == player.Room.Area.ID && !helpers.HasBit(m.AffectedBy, affectHide) && !helpers.HasBit(m.AffectedBy, affectSneak) && player.canSee(m) && helpers.MatchesSubject(m.Name, a.args[1]) {
+			if m.client != nil && m.Room.Area.ID == player.Room.Area.ID && !hasBit(m.AffectedBy, affectHide) && !hasBit(m.AffectedBy, affectSneak) && player.canSee(m) && matchesSubject(m.Name, a.args[1]) {
 				found = true
 				player.notify("%-28s %s", pers(m, player), m.Room.Name)
 			}
@@ -2177,7 +2175,7 @@ func (a *action) who() {
 			classRestrict = true
 			for e := jobList.Front(); e != nil; e = e.Next() {
 				job := e.Value.(*job)
-				if helpers.MatchesSubject(job.Abbr, arg) {
+				if matchesSubject(job.Abbr, arg) {
 					classToRestrict = job
 					break
 				}
@@ -2225,7 +2223,7 @@ func (a *action) who() {
 			break
 		}
 
-		buf.Write([]byte(fmt.Sprintf("[%2d %8s %8s] %s %s%s", mob.Level, race, job, mob.Name, mob.Title, helpers.Newline)))
+		buf.Write([]byte(fmt.Sprintf("[%2d %8s %8s] %s %s%s", mob.Level, race, job, mob.Name, mob.Title, Newline)))
 	}
 
 	suffix := "s"

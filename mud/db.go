@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 var (
@@ -87,14 +85,14 @@ func createMob(index *mobIndex) *mob {
 	m.Skills = index.Skills
 
 	for _, i := range index.ItemIds {
-		m.Inventory = append(m.Inventory, createItem(getItem(uint(i))))
+		m.Inventory = append(m.Inventory, createItem(getItem(i)))
 	}
 	for _, i := range index.EquippedIds {
-		m.Equipped = append(m.Equipped, createItem(getItem(uint(i))))
+		m.Equipped = append(m.Equipped, createItem(getItem(i)))
 	}
 
 	m.ExitVerb = index.ExitVerb
-	m.Room = getRoom(uint(index.RoomID))
+	m.Room = getRoom(index.RoomID)
 
 	m.Hitpoints = index.Hitpoints
 	m.MaxHitpoints = index.MaxHitpoints
@@ -136,7 +134,7 @@ func createMob(index *mobIndex) *mob {
 	m.Skills = skills
 
 	if m.isNPC() && (m.Room != nil && m.Room.isDark()) {
-		helpers.SetBit(m.AffectedBy, affectInfrared)
+		setBit(m.AffectedBy, affectInfrared)
 	}
 	return m
 }
@@ -234,13 +232,13 @@ func loadRooms() {
 		for _, ro := range a.Rooms {
 			ro.AreaID = int(a.ID)
 			for _, i := range ro.ItemIds {
-				index := getItem(uint(i))
+				index := getItem(i)
 				item := createItem(index)
 				ro.Items = append(ro.Items, item)
 			}
 
 			for _, i := range ro.MobIds {
-				mob := createMob(getMob(uint(i)))
+				mob := createMob(getMob(i))
 				ro.Mobs = append(ro.Mobs, mob)
 			}
 
@@ -285,7 +283,7 @@ func loadShops() {
 		json.Unmarshal(file, &list)
 
 		for _, sh := range list {
-			sh.keeper = getMob(uint(sh.KeeperID))
+			sh.keeper = getMob(sh.KeeperID)
 			shopList.PushBack(sh)
 		}
 	}
@@ -327,7 +325,7 @@ func loadSocials() {
 }
 
 func resetArea(ar *area) {
-	filename := helpers.ToSnake(ar.Name)
+	filename := toSnake(ar.Name)
 
 	areaFile := fmt.Sprintf("./data/areas/%s.json", filename)
 	file, err := ioutil.ReadFile(areaFile)
@@ -354,13 +352,13 @@ func resetArea(ar *area) {
 	for _, ro := range a.Rooms {
 		ro.AreaID = int(a.ID)
 		for _, i := range ro.ItemIds {
-			index := getItem(uint(i))
+			index := getItem(i)
 			item := createItem(index)
 			ro.Items = append(ro.Items, item)
 		}
 
 		for _, i := range ro.MobIds {
-			mob := createMob(getMob(uint(i)))
+			mob := createMob(getMob(i))
 			ro.Mobs = append(ro.Mobs, mob)
 		}
 
@@ -396,7 +394,7 @@ func extractMob(m *mob, pull bool) {
 	m.Room.removeMob(m)
 
 	if !pull {
-		m.Room = getRoom(uint(1))
+		m.Room = getRoom(1)
 		return
 	}
 

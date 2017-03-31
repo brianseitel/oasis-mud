@@ -2,8 +2,6 @@ package mud
 
 import (
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 const (
@@ -105,24 +103,24 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 		}
 
 		if strings.Contains(format, "$e") {
-			format = strings.Replace(format, "$e", heShe[helpers.Range(0, player.Gender, 2)], -1)
+			format = strings.Replace(format, "$e", heShe[uRange(0, player.Gender, 2)], -1)
 		}
 		if strings.Contains(format, "$E") {
-			format = strings.Replace(format, "$E", heShe[helpers.Range(0, victim.Gender, 2)], -1)
+			format = strings.Replace(format, "$E", heShe[uRange(0, victim.Gender, 2)], -1)
 		}
 		if strings.Contains(format, "$m") {
-			format = strings.Replace(format, "$m", himHer[helpers.Range(0, player.Gender, 2)], -1)
+			format = strings.Replace(format, "$m", himHer[uRange(0, player.Gender, 2)], -1)
 		}
 		if strings.Contains(format, "$M") {
-			format = strings.Replace(format, "$M", himHer[helpers.Range(0, victim.Gender, 2)], -1)
+			format = strings.Replace(format, "$M", himHer[uRange(0, victim.Gender, 2)], -1)
 		}
 
 		if strings.Contains(format, "$s") {
-			format = strings.Replace(format, "$s", hisHer[helpers.Range(0, player.Gender, 2)], -1)
+			format = strings.Replace(format, "$s", hisHer[uRange(0, player.Gender, 2)], -1)
 		}
 
 		if strings.Contains(format, "$S") {
-			format = strings.Replace(format, "$S", hisHer[helpers.Range(0, victim.Gender, 2)], -1)
+			format = strings.Replace(format, "$S", hisHer[uRange(0, victim.Gender, 2)], -1)
 		}
 
 		if strings.Contains(format, "$p") {

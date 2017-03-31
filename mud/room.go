@@ -3,9 +3,6 @@ package mud
 import (
 	"fmt"
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
-	// "github.com/brianseitel/oasis-mud/helpers"
 )
 
 const (
@@ -35,7 +32,7 @@ const (
 )
 
 type area struct {
-	ID         uint
+	ID         int
 	Name       string  `json:"name"`
 	Rooms      []*room `json:"rooms",gorm:"-"`
 	age        int
@@ -43,7 +40,7 @@ type area struct {
 }
 
 type room struct {
-	ID   uint
+	ID   int
 	Name string
 
 	Area        area
@@ -55,9 +52,9 @@ type room struct {
 	Mobs        []*mob  `gorm:"many2many:room_mobs;"`
 	MobIds      []int   `gorm:"-" json:"mobs"`
 
-	Light      int  `json:"light"`
-	RoomFlags  uint `json:"room_flags"`
-	SectorType int  `json:"sector_type"`
+	Light      int `json:"light"`
+	RoomFlags  int `json:"room_flags"`
+	SectorType int `json:"sector_type"`
 }
 
 func (r *room) decayItems() {
@@ -80,7 +77,7 @@ func (r *room) decayItems() {
 	}
 }
 
-func getRoom(id uint) *room {
+func getRoom(id int) *room {
 	for e := roomList.Front(); e != nil; e = e.Next() {
 		r := e.Value.(*room)
 		if r.ID == id {
@@ -90,7 +87,7 @@ func getRoom(id uint) *room {
 	return nil
 }
 
-func getItem(id uint) *itemIndex {
+func getItem(id int) *itemIndex {
 	for e := itemIndexList.Front(); e != nil; e = e.Next() {
 		i := e.Value.(itemIndex)
 		if i.ID == id {
@@ -100,7 +97,7 @@ func getItem(id uint) *itemIndex {
 	return nil
 }
 
-func getMob(id uint) *mobIndex {
+func getMob(id int) *mobIndex {
 	for e := mobIndexList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mobIndex)
 		if m.ID == id {
@@ -115,7 +112,7 @@ func (r *room) isDark() bool {
 		return false
 	}
 
-	if helpers.HasBit(r.RoomFlags, uint(roomDark)) {
+	if hasBit(r.RoomFlags, roomDark) {
 		return true
 	}
 
@@ -129,11 +126,11 @@ func (r *room) isDark() bool {
 func (r *room) isPrivate() bool {
 	count := len(r.Mobs)
 
-	if helpers.HasBit(r.RoomFlags, roomPrivate) && count >= 2 {
+	if hasBit(r.RoomFlags, roomPrivate) && count >= 2 {
 		return true
 	}
 
-	if helpers.HasBit(r.RoomFlags, roomSolitary) && count >= 1 {
+	if hasBit(r.RoomFlags, roomSolitary) && count >= 1 {
 		return true
 	}
 
@@ -172,7 +169,7 @@ func (r *room) showExits(player *mob) {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
 	}
 
-	player.notify(fmt.Sprintf("%s[%s]%s", helpers.White, strings.Trim(output, " "), helpers.Reset))
+	player.notify(fmt.Sprintf("%s[%s]%s", White, strings.Trim(output, " "), Reset))
 }
 
 func (r *room) findExit(arg string) *exit {

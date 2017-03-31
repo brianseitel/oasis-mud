@@ -6,8 +6,6 @@ import (
 	"unicode"
 
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 const (
@@ -47,8 +45,8 @@ const (
 
 type mobSkill struct {
 	Skill   *skill `json:"-"`
-	SkillID uint   `json:"skill_id"`
-	Level   uint   `json:"level"`
+	SkillID int    `json:"skill_id"`
+	Level   int    `json:"level"`
 }
 
 type attributeSet struct {
@@ -61,7 +59,7 @@ type attributeSet struct {
 }
 
 type mobIndex struct {
-	ID       uint
+	ID       int
 	Name     string
 	Password string
 
@@ -69,8 +67,8 @@ type mobIndex struct {
 	Title       string
 
 	Affects    []*affect
-	AffectedBy uint
-	Act        uint
+	AffectedBy int
+	Act        int
 
 	Skills      []*mobSkill
 	ItemIds     []int `json:"items"`
@@ -95,14 +93,14 @@ type mobIndex struct {
 	Exp       int
 	Level     int
 	Alignment int
-	Practices uint
-	Gold      uint
+	Practices int
+	Gold      int
 	Trust     int
 
-	Carrying       uint `json:"carrying"`
-	CarryMax       uint `json:"carry_max"`
-	CarryWeight    uint `json:"carry_weight"`
-	CarryWeightMax uint `json:"carry_weight_max"`
+	Carrying       int `json:"carrying"`
+	CarryMax       int `json:"carry_max"`
+	CarryWeight    int `json:"carry_weight"`
+	CarryWeightMax int `json:"carry_weight_max"`
 
 	JobID  int `json:"job"`
 	RaceID int `json:"race"`
@@ -115,16 +113,16 @@ type mobIndex struct {
 	Identifiers string
 	Shop        *shop
 
-	wait  uint
+	wait  int
 	count int
 
-	RecallRoomID uint `json:"recall_room_id"`
+	RecallRoomID int `json:"recall_room_id"`
 
 	Playable bool
 }
 
 type mob struct {
-	ID uint
+	ID int
 
 	index *mobIndex
 
@@ -134,8 +132,8 @@ type mob struct {
 	Title       string
 
 	Affects    []*affect /* list of affects, incl durations */
-	AffectedBy uint      /* bit flag */
-	Act        uint
+	AffectedBy int       /* bit flag */
+	Act        int
 
 	Skills    []*mobSkill
 	Inventory []*item
@@ -160,14 +158,14 @@ type mob struct {
 	Exp       int
 	Level     int
 	Alignment int
-	Practices uint
-	Gold      uint
+	Practices int
+	Gold      int
 	Trust     int
 
-	Carrying       uint `json:"carrying"`
-	CarryMax       uint `json:"carry_max"`
-	CarryWeight    uint `json:"carry_weight"`
-	CarryWeightMax uint `json:"carry_weight_max"`
+	Carrying       int `json:"carrying"`
+	CarryMax       int `json:"carry_max"`
+	CarryWeight    int `json:"carry_weight"`
+	CarryWeightMax int `json:"carry_weight_max"`
 
 	Job    *job  `json:"-"`
 	Race   *race `json:"-"`
@@ -183,12 +181,12 @@ type mob struct {
 
 	master *mob
 	leader *mob
-	wait   uint
+	wait   int
 
 	Timer     int
 	WasInRoom *room
 
-	RecallRoomID uint `json:"recall_room_id"`
+	RecallRoomID int `json:"recall_room_id"`
 	replyTarget  *mob
 
 	Playable bool
@@ -247,7 +245,7 @@ func (m *mob) canSee(victim *mob) bool {
 }
 
 func (m *mob) checkBlind() bool {
-	if helpers.HasBit(m.AffectedBy, affectBlind) {
+	if hasBit(m.AffectedBy, affectBlind) {
 		m.notify("You can't see a thing!")
 		return false
 	}
@@ -279,7 +277,7 @@ func (m *mob) gainExp(gain int) {
 		return
 	}
 
-	m.Exp += helpers.Max(1000, m.Exp+gain)
+	m.Exp += max(1000, m.Exp+gain)
 	for m.Level < 99 && m.Exp >= 1000*(m.Level+1) {
 		m.notify("You raise a level!")
 		m.Level++
@@ -287,8 +285,8 @@ func (m *mob) gainExp(gain int) {
 	}
 }
 
-func (m *mob) isAffected(flag uint) bool {
-	return helpers.HasBit(m.AffectedBy, flag)
+func (m *mob) isAffected(flag int) bool {
+	return hasBit(m.AffectedBy, flag)
 }
 
 func (m *mob) hasAffect(ms *mobSkill) bool {
@@ -338,7 +336,7 @@ func (m *mob) isTrainer() bool {
 
 func (m *mob) hasKey(key int) bool {
 	for _, i := range m.Inventory {
-		if i.ID == uint(key) {
+		if i.ID == int(key) {
 			return true
 		}
 	}
@@ -401,10 +399,10 @@ func (m *mob) move(e *exit) {
 func (m *mob) statusBar() {
 	if m.client != nil {
 		m.client.BufferData(fmt.Sprintf("%s[%d%s%shp %s%d%s%smana %s%d%s%smv%s] >>",
-			helpers.White, m.Hitpoints, helpers.Reset, helpers.Cyan,
-			helpers.White, m.Mana, helpers.Reset, helpers.Cyan,
-			helpers.White, m.Movement, helpers.Reset, helpers.Cyan,
-			helpers.White))
+			White, m.Hitpoints, Reset, Cyan,
+			White, m.Mana, Reset, Cyan,
+			White, m.Movement, Reset, Cyan,
+			White))
 		m.client.SendBuffer()
 	}
 }
@@ -414,8 +412,8 @@ func (m *mob) stopFollower() {
 		return
 	}
 
-	if helpers.HasBit(m.AffectedBy, affectCharm) {
-		helpers.RemoveBit(m.AffectedBy, affectCharm)
+	if hasBit(m.AffectedBy, affectCharm) {
+		removeBit(m.AffectedBy, affectCharm)
 		m.stripAffect("charm")
 	}
 
@@ -429,7 +427,7 @@ func (m *mob) stopFollower() {
 	return
 }
 
-func (m *mob) equipped(position uint) string {
+func (m *mob) equipped(position int) string {
 	equipped := m.equippedItem(position)
 
 	if equipped == nil {
@@ -439,14 +437,14 @@ func (m *mob) equipped(position uint) string {
 	return equipped.Name
 }
 
-func (m *mob) equipItem(item *item, position uint) {
+func (m *mob) equipItem(item *item, position int) {
 	if m.equippedItem(position) == item {
 		return
 	}
 
 	if (item.hasExtraFlag(itemAntiEvil) && m.isEvil()) || (item.hasExtraFlag(itemAntiGood) && m.isGood()) || (item.hasExtraFlag(itemAntiNeutral) && m.isNeutral()) {
-		m.notify("You are zapped by %s and drop it!%s", item.Name, helpers.Newline)
-		m.Room.notify(fmt.Sprintf("%s is zapped by %s and drops it!%s", m.Name, item.Name, helpers.Newline), m)
+		m.notify("You are zapped by %s and drop it!%s", item.Name, Newline)
+		m.Room.notify(fmt.Sprintf("%s is zapped by %s and drops it!%s", m.Name, item.Name, Newline), m)
 		// TODO: dropItem()
 		return
 	}
@@ -469,7 +467,7 @@ func (m *mob) equipItem(item *item, position uint) {
 	return
 }
 
-func (m *mob) equippedItem(position uint) *item {
+func (m *mob) equippedItem(position int) *item {
 	for _, i := range m.Equipped {
 		if i.WearLocation == position {
 			return i
@@ -480,7 +478,7 @@ func (m *mob) equippedItem(position uint) *item {
 
 func (m *mob) notify(message string, a ...interface{}) {
 	if m.client != nil {
-		message = fmt.Sprintf("%s%s", message, helpers.Newline)
+		message = fmt.Sprintf("%s%s", message, Newline)
 		m.client.SendString(fmt.Sprintf(message, a...))
 	}
 }
@@ -500,7 +498,7 @@ func (m *mob) regenHitpoints() int {
 	if m.isNPC() {
 		gain = m.Level * 3 / 2
 	} else {
-		gain = helpers.Min(5, m.Level)
+		gain = min(5, m.Level)
 
 		switch m.Status {
 		case sleeping:
@@ -512,11 +510,11 @@ func (m *mob) regenHitpoints() int {
 		}
 	}
 
-	if helpers.HasBit(m.AffectedBy, affectPoison) {
+	if hasBit(m.AffectedBy, affectPoison) {
 		gain /= 4
 	}
 
-	return helpers.Min(gain, m.MaxHitpoints-m.Hitpoints)
+	return min(gain, m.MaxHitpoints-m.Hitpoints)
 }
 
 func (m *mob) regenMana() int {
@@ -524,7 +522,7 @@ func (m *mob) regenMana() int {
 	if m.isNPC() {
 		gain = m.Level * 3 / 2
 	} else {
-		gain = helpers.Min(5, m.Level)
+		gain = min(5, m.Level)
 
 		switch m.Status {
 		case sleeping:
@@ -536,11 +534,11 @@ func (m *mob) regenMana() int {
 		}
 	}
 
-	if helpers.HasBit(m.AffectedBy, affectPoison) {
+	if hasBit(m.AffectedBy, affectPoison) {
 		gain /= 4
 	}
 
-	return helpers.Min(gain, m.MaxMana-m.Mana)
+	return min(gain, m.MaxMana-m.Mana)
 }
 
 func (m *mob) regenMovement() int {
@@ -548,7 +546,7 @@ func (m *mob) regenMovement() int {
 	if m.isNPC() {
 		gain = m.Level * 3 / 2
 	} else {
-		gain = helpers.Min(5, m.Level)
+		gain = min(5, m.Level)
 
 		switch m.Status {
 		case sleeping:
@@ -560,11 +558,11 @@ func (m *mob) regenMovement() int {
 		}
 
 	}
-	if helpers.HasBit(m.AffectedBy, affectPoison) {
+	if hasBit(m.AffectedBy, affectPoison) {
 		gain /= 4
 	}
 
-	return helpers.Min(gain, m.MaxMovement-m.Movement)
+	return min(gain, m.MaxMovement-m.Movement)
 }
 
 func (m *mob) stripAffect(name string) {
@@ -670,7 +668,7 @@ func showCharactersToPlayer(chars []*mob, player *mob) {
 		if player.canSee(char) {
 			showCharacterToPlayer(char, player)
 		} else if player.Room.isDark() && player.isAffected(affectInfrared) {
-			player.notify("%sYou see glowing red eyes watching YOU!%s", helpers.Red, helpers.Reset)
+			player.notify("%sYou see glowing red eyes watching YOU!%s", Red, Reset)
 		}
 	}
 }
@@ -706,8 +704,8 @@ func showCharacterToPlayer(victim *mob, player *mob) {
 
 	if victim.Status == standing && len(victim.Description) > 0 {
 		buf.Write([]byte(victim.Description))
-		buf.Write([]byte(helpers.Reset))
-		player.notify("%s%s%s", helpers.Cyan, buf.String(), helpers.Reset)
+		buf.Write([]byte(Reset))
+		player.notify("%s%s%s", Cyan, buf.String(), Reset)
 		return
 	}
 
@@ -759,7 +757,7 @@ func showCharacterToPlayer(victim *mob, player *mob) {
 	a := []rune(output)
 	a[0] = unicode.ToLower(a[0])
 	output = string(a)
-	player.notify("%s%s%s", helpers.Cyan, output, helpers.Reset)
+	player.notify("%s%s%s", Cyan, output, Reset)
 	return
 }
 
@@ -794,12 +792,12 @@ func showItemsToPlayer(items []*item, player *mob) {
 
 	for iShow := 0; iShow < nShow; iShow++ {
 		var buf bytes.Buffer
-		buf.Write([]byte(helpers.Cyan))
+		buf.Write([]byte(Cyan))
 		if itemCounts[iShow] != 1 {
 			buf.Write([]byte(fmt.Sprintf("(%d) ", itemCounts[iShow])))
 		}
 		buf.Write([]byte(itemList[iShow]))
-		buf.Write([]byte(helpers.Reset))
+		buf.Write([]byte(Reset))
 		player.notify(buf.String())
 	}
 
@@ -842,25 +840,25 @@ func pers(m *mob, looker *mob) string {
 func xpCompute(killer *mob, target *mob) int {
 	var xp int
 
-	xp = 300 - helpers.Range(-3, killer.Level-target.Level, 6)*50
+	xp = 300 - uRange(-3, killer.Level-target.Level, 6)*50
 
 	// do align check
 	align := killer.Alignment - target.Alignment
 
 	if align > 500 {
-		killer.Alignment = helpers.Min(killer.Alignment+(align-500)/4, 1000)
+		killer.Alignment = min(killer.Alignment+(align-500)/4, 1000)
 		xp = 5 * xp / 4
 	} else if align < -500 {
-		killer.Alignment = helpers.Max(killer.Alignment+(align+500)/4, -1000)
+		killer.Alignment = max(killer.Alignment+(align+500)/4, -1000)
 	} else {
 		killer.Alignment -= killer.Alignment / 4
 		xp = 3 * xp / 4
 	}
 
-	xp = helpers.Max(5, int(xp*5/4))
+	xp = max(5, int(xp*5/4))
 	mod := int(xp * 3 / 4)
 	xp = dice().Intn(xp) + mod
-	xp = helpers.Max(0, xp)
+	xp = max(0, xp)
 
 	return xp
 }

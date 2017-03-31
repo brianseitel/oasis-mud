@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"bytes"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 func (wiz *mob) help(args []string) {
@@ -75,7 +73,7 @@ func (wiz *mob) advance(args []string) {
 		victim.advanceLevel()
 	}
 
-	victim.Exp = 1000 * helpers.Max(1, victim.Level)
+	victim.Exp = 1000 * max(1, victim.Level)
 	victim.Trust = 0
 	return
 }
@@ -154,7 +152,7 @@ func (wiz *mob) deny(args []string) {
 		return
 	}
 
-	helpers.SetBit(victim.Act, playerDeny)
+	setBit(victim.Act, playerDeny)
 	victim.notify("You are denied access!")
 	wiz.notify("OK.")
 	newAction(victim, victim.client, "quit")
@@ -212,7 +210,7 @@ func (wiz *mob) findLocation(args []string) *room {
 	isNumber := err == nil
 
 	if isNumber {
-		return getRoom(uint(num))
+		return getRoom(num)
 	}
 
 	victim := getPlayerByName(args[1])
@@ -290,12 +288,12 @@ func (wiz *mob) freeze(args []string) {
 		return
 	}
 
-	if helpers.HasBit(victim.Act, playerFreeze) {
-		helpers.RemoveBit(victim.Act, playerFreeze)
+	if hasBit(victim.Act, playerFreeze) {
+		removeBit(victim.Act, playerFreeze)
 		victim.notify("You can play again.")
 		wiz.notify("FREEZE removed.")
 	} else {
-		helpers.SetBit(victim.Act, playerFreeze)
+		setBit(victim.Act, playerFreeze)
 		victim.notify("You can't do ANYthing.")
 		wiz.notify("FREEZE set.")
 	}
@@ -326,7 +324,7 @@ func (wiz *mob) goTo(args []string) {
 		wiz.stopFighting(true)
 	}
 
-	if !helpers.HasBit(wiz.Act, playerWizInvis) {
+	if !hasBit(wiz.Act, playerWizInvis) {
 		act("$n $T.", wiz, nil, wiz.Bamfout, actToRoom)
 	}
 
@@ -342,11 +340,11 @@ func (wiz *mob) holylight(args []string) {
 		return
 	}
 
-	if helpers.HasBit(wiz.Act, playerHolylight) {
-		helpers.RemoveBit(wiz.Act, playerHolylight)
+	if hasBit(wiz.Act, playerHolylight) {
+		removeBit(wiz.Act, playerHolylight)
 		wiz.notify("Holy light mode off.")
 	} else {
-		helpers.SetBit(wiz.Act, playerHolylight)
+		setBit(wiz.Act, playerHolylight)
 		wiz.notify("Holy light mode on.")
 	}
 }
@@ -356,12 +354,12 @@ func (wiz *mob) invis(args []string) {
 		return
 	}
 
-	if helpers.HasBit(wiz.Act, playerWizInvis) {
-		helpers.RemoveBit(wiz.Act, playerWizInvis)
+	if hasBit(wiz.Act, playerWizInvis) {
+		removeBit(wiz.Act, playerWizInvis)
 		act("$n slowly fades into existence.", wiz, nil, nil, actToRoom)
 		wiz.notify("You slowly fade back into extistence.")
 	} else {
-		helpers.SetBit(wiz.Act, playerWizInvis)
+		setBit(wiz.Act, playerWizInvis)
 		act("$n slowly fades out of sight.", wiz, nil, nil, actToRoom)
 		wiz.notify("You slowly vanish out of sight.")
 	}
@@ -379,7 +377,7 @@ func (wiz *mob) mfind(args []string) {
 
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		if all || helpers.MatchesSubject(m.Name, args[1]) {
+		if all || matchesSubject(m.Name, args[1]) {
 			wiz.notify("[%5d] %s", m.ID, strings.Title(m.Description))
 			found = true
 		}
@@ -402,7 +400,7 @@ func (wiz *mob) mload(args []string) {
 		wiz.notify("Syntax: mload <id>.")
 		return
 	}
-	mob := getMob(uint(id))
+	mob := getMob(id)
 	if mob == nil {
 		wiz.notify("No mob has that ID.")
 		return
@@ -425,7 +423,7 @@ func (wiz *mob) mstat(args []string) {
 	var victim *mob
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		if helpers.MatchesSubject(m.Name, args[1]) {
+		if matchesSubject(m.Name, args[1]) {
 			victim = m
 			break
 		}
@@ -468,7 +466,7 @@ func (wiz *mob) mwhere(args []string) {
 	found := false
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		if m.isNPC() && m.Room != nil && helpers.MatchesSubject(m.Name, args[1]) {
+		if m.isNPC() && m.Room != nil && matchesSubject(m.Name, args[1]) {
 			found = true
 			wiz.notify("[%5d] %-28s [%5d] %s", m.index.ID, m.Description, m.Room.ID, m.Room.Name)
 		}
@@ -491,7 +489,7 @@ func (wiz *mob) ofind(args []string) {
 
 	for e := itemList.Front(); e != nil; e = e.Next() {
 		i := e.Value.(*item)
-		if all || helpers.MatchesSubject(i.Name, args[1]) {
+		if all || matchesSubject(i.Name, args[1]) {
 			wiz.notify("[%5d] %s", i.ID, strings.Title(i.ShortDescription))
 			found = true
 		}
@@ -529,7 +527,7 @@ func (wiz *mob) oload(args []string) {
 	var objIndex *itemIndex
 	for e := itemIndexList.Front(); e != nil; e = e.Next() {
 		i := e.Value.(*itemIndex)
-		if i.ID == uint(id) {
+		if i.ID == id {
 			objIndex = i
 			break
 		}
@@ -562,7 +560,7 @@ func (wiz *mob) ostat(args []string) {
 	var obj *item
 	for e := itemList.Front(); e != nil; e = e.Next() {
 		i := e.Value.(*item)
-		if helpers.MatchesSubject(i.Name, args[1]) {
+		if matchesSubject(i.Name, args[1]) {
 			obj = i
 			break
 		}
@@ -613,8 +611,8 @@ func (wiz *mob) pardon(args []string) {
 	}
 
 	if arg2 == "killer" {
-		if helpers.HasBit(victim.Act, playerKiller) {
-			helpers.RemoveBit(victim.Act, playerKiller)
+		if hasBit(victim.Act, playerKiller) {
+			removeBit(victim.Act, playerKiller)
 			wiz.notify("Killer flag removed.")
 			victim.notify("You are no longer a KILLER.")
 		}
@@ -622,8 +620,8 @@ func (wiz *mob) pardon(args []string) {
 	}
 
 	if arg2 == "thief" {
-		if helpers.HasBit(victim.Act, playerThief) {
-			helpers.RemoveBit(victim.Act, playerThief)
+		if hasBit(victim.Act, playerThief) {
+			removeBit(victim.Act, playerThief)
 			wiz.notify("Thief flag removed.")
 			victim.notify("You are no longer a THIEF.")
 		}

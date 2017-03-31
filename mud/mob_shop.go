@@ -3,8 +3,6 @@ package mud
 import (
 	"fmt"
 	"strings"
-
-	"github.com/brianseitel/oasis-mud/helpers"
 )
 
 func (player *mob) buy(args []string) {
@@ -13,7 +11,7 @@ func (player *mob) buy(args []string) {
 		return
 	}
 
-	if helpers.HasBit(player.Room.RoomFlags, roomPetShop) {
+	if hasBit(player.Room.RoomFlags, roomPetShop) {
 		// TODO
 	} else {
 		keeper := player.findKeeper()
@@ -34,7 +32,7 @@ func (player *mob) buy(args []string) {
 			return
 		}
 
-		if player.Gold < uint(cost) {
+		if player.Gold < cost {
 			act("$n tells you 'You cannot afford to buy $p.'", keeper, obj, player, actToVict)
 			player.replyTarget = keeper
 			return
@@ -57,11 +55,11 @@ func (player *mob) buy(args []string) {
 
 		act("$n buys $p.", player, obj, nil, actToRoom)
 		act("You buy $p.", player, obj, nil, actToChar)
-		player.Gold -= uint(cost)
-		keeper.Gold += uint(cost)
+		player.Gold -= cost
+		keeper.Gold += cost
 
 		var item *item
-		if helpers.HasBit(obj.ExtraFlags, itemInventory) {
+		if hasBit(obj.ExtraFlags, itemInventory) {
 			item = createItem(&obj.index)
 			item.Level = player.Level
 		} else {
@@ -115,7 +113,7 @@ func (player *mob) findKeeper() *mob {
 
 func (player *mob) list(args []string) {
 
-	if helpers.HasBit(player.Room.RoomFlags, roomPetShop) {
+	if hasBit(player.Room.RoomFlags, roomPetShop) {
 		// TODO
 	} else {
 		keeper := player.findKeeper()
@@ -126,7 +124,7 @@ func (player *mob) list(args []string) {
 		found := false
 		for _, i := range keeper.Inventory {
 			cost := keeper.getCost(i, true)
-			if i.WearLocation == wearNone && player.canSeeItem(i) && cost > 0 && len(args) == 0 && helpers.MatchesSubject(i.Name, args[1]) {
+			if i.WearLocation == wearNone && player.canSeeItem(i) && cost > 0 && len(args) == 0 && matchesSubject(i.Name, args[1]) {
 				if !found {
 					found = true
 					player.notify("[Lv Price] Item")
@@ -184,8 +182,8 @@ func (player *mob) sell(args []string) {
 	}
 	act(fmt.Sprintf("You sell $p for %d gold piece%s.", cost, suffix), player, obj, nil, actToChar)
 
-	player.Gold += uint(cost)
-	keeper.Gold -= uint(cost)
+	player.Gold += cost
+	keeper.Gold -= cost
 
 	if keeper.Gold <= 0 {
 		keeper.Gold = 0
@@ -214,7 +212,7 @@ func (player *mob) value(args []string) {
 
 	var obj *item
 	for _, i := range player.Inventory {
-		if helpers.MatchesSubject(i.Name, args[1]) {
+		if matchesSubject(i.Name, args[1]) {
 			obj = i
 			break
 		}
