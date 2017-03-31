@@ -33,7 +33,7 @@ const (
 	playerCombine       = 256
 	playerPrompt        = 512
 	playerTelnetGA      = 1024
-	playerHolysight     = 2048
+	playerHolylight     = 2048
 	playerWizInvis      = 4096
 	playerSilence       = 8192
 	playerNoEmote       = 32768

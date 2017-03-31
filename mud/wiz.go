@@ -220,9 +220,52 @@ func (wiz *mob) findLocation(args []string) *room {
 		return victim.Room
 	}
 
-	// get object room
+	// TODO: get object room
 
 	return nil
+}
+
+func (wiz *mob) force(args []string) {
+	if len(args) < 2 {
+		wiz.notify("Syntax: force <char> <action>")
+		return
+	}
+
+	name, action := args[1], strings.Join(args[2:], " ")
+
+	if name == "all" {
+		for e := mobList.Front(); e != nil; e = e.Next() {
+			m := e.Value.(*mob)
+			if m.client != nil && !m.isNPC() && m.getTrust() < wiz.getTrust() {
+				act("$n forces you to '$t'.", wiz, action, m, actToVict)
+				newAction(m, m.client, action)
+			}
+		}
+	} else {
+		victim := getPlayerByName(name)
+
+		if victim == nil {
+			wiz.notify("They aren't here.")
+			return
+		}
+
+		if victim == wiz {
+			wiz.notify("You're an idiot.")
+			return
+		}
+
+		if victim.getTrust() >= wiz.getTrust() {
+			wiz.notify("You can't make them do anything.")
+			return
+		}
+
+		act("$n forces you to '$t'.", wiz, action, victim, actToVict)
+		newAction(victim, victim.client, action)
+	}
+
+	wiz.notify("Ok")
+	return
+
 }
 
 func (wiz *mob) freeze(args []string) {
@@ -292,6 +335,20 @@ func (wiz *mob) goTo(args []string) {
 	wiz.Room.Mobs = append(wiz.Room.Mobs, wiz)
 
 	newAction(wiz, wiz.client, "look")
+}
+
+func (wiz *mob) holylight(args []string) {
+	if wiz.isNPC() {
+		return
+	}
+
+	if helpers.HasBit(wiz.Act, playerHolylight) {
+		helpers.RemoveBit(wiz.Act, playerHolylight)
+		wiz.notify("Holy light mode off.")
+	} else {
+		helpers.SetBit(wiz.Act, playerHolylight)
+		wiz.notify("Holy light mode on.")
+	}
 }
 
 func (wiz *mob) invis(args []string) {
