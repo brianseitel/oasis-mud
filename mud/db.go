@@ -288,7 +288,7 @@ func loadCommands() {
 	// commandList.PushBack(&cmd{Name: "mstat", Trust: 0, Position: standing, Callback: doMStat})
 	commandList.PushBack(&cmd{Name: "mwhere", Trust: 0, Position: standing, Callback: doMwhere})
 	commandList.PushBack(&cmd{Name: "ofind", Trust: 0, Position: standing, Callback: doOfind})
-	// commandList.PushBack(&cmd{Name: "ostat", Trust: 0, Position: standing, Callback: doOsat})
+	commandList.PushBack(&cmd{Name: "ostat", Trust: 0, Position: standing, Callback: doOstat})
 	// commandList.PushBack(&cmd{Name: "owhere", Trust: 0, Position: standing, Callback: doOwhere})
 	// commandList.PushBack(&cmd{Name: "peace", Trust: 0, Position: standing, Callback: doPeace})
 	commandList.PushBack(&cmd{Name: "recho", Trust: 0, Position: standing, Callback: doRecho})

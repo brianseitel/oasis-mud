@@ -385,7 +385,7 @@ func doMfind(wiz *mob, argument string) {
 
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		if all || matchesSubject(m.Name, arg1) {
+		if all || matchesSubject(m.Name, argument) {
 			wiz.notify("[%5d] %s", m.ID, strings.Title(m.Description))
 			found = true
 		}
@@ -596,7 +596,15 @@ func doOstat(wiz *mob, argument string) {
 	wiz.notify("Weight: %d.", obj.Weight)
 	wiz.notify("Cost: %d. Timer: %d. Level: %d.", obj.Cost, obj.Timer, obj.Level)
 
-	wiz.notify("In room: %d. Carried by: %s. Wear Location: %d", obj.Room.ID, obj.carriedBy.Name, obj.WearLocation)
+	carriedBy := "(none)"
+	if obj.carriedBy != nil {
+		carriedBy = obj.carriedBy.Name
+	}
+	room := "(none)"
+	if obj.Room != nil {
+		room = strconv.Itoa(obj.Room.ID)
+	}
+	wiz.notify("In room: %s. Carried by: %s. Wear Location: %d", room, carriedBy, obj.WearLocation)
 
 	for _, af := range obj.Affected {
 		wiz.notify("Affects %s by %d", af.location, af.modifier)

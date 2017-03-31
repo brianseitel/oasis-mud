@@ -1,5 +1,9 @@
 package mud
 
+import (
+	"strings"
+)
+
 const (
 	typeUndefined = -1
 	typeHit       = iota
@@ -62,6 +66,39 @@ func violenceUpdate() {
 			}
 		}
 	}
+}
+
+func makeCorpse(victim *mob) {
+	var name string
+	var corpse *item
+	if victim.isNPC() {
+		name = victim.Name
+		corpse = createItem(getItem(vnumCorpseNPC))
+		corpse.Timer = dice().Intn(4)
+
+		if victim.Gold >= 0 {
+			corpse.container = append(corpse.container, createMoney(victim.Gold))
+			victim.Gold = 0
+		}
+	} else {
+		name = victim.Name
+		corpse = createItem(getItem(vnumCorpsePC))
+		corpse.Timer = dice().Intn(4)
+
+		if victim.Gold >= 0 {
+			corpse.container = append(corpse.container, createMoney(victim.Gold))
+			victim.Gold = 0
+		}
+	}
+
+	corpse.Name = strings.Replace(corpse.ShortDescription, "[name]", name, 1)
+	corpse.Description = strings.Replace(corpse.Description, "[name]", name, 1)
+
+	for j, _ := range victim.Inventory {
+		victim.Inventory, corpse.container = transferItem(j, victim.Inventory, corpse.container)
+	}
+
+	victim.Room.Items = append(victim.Room.Items, corpse)
 }
 
 func multiHit(attacker *mob, victim *mob, damageType int) {
@@ -127,14 +164,14 @@ func multiHit(attacker *mob, victim *mob, damageType int) {
 func rawKill(victim *mob) {
 	victim.stopFighting(false)
 	victim.deathCry()
-	// victim.makeCorpse() TODO
+	makeCorpse(victim)
 
 	if victim.isNPC() {
-		// victim.extract(true) TODO
+		extractMob(victim, true)
 		return
 	}
 
-	// victim.extract(false) // TODO
+	extractMob(victim, false)
 	for _, af := range victim.Affects {
 		victim.removeAffect(af)
 	}

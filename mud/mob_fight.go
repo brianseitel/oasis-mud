@@ -258,11 +258,10 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 		}
 
 		if damageType >= typeHit {
-			// TODO:
-			// if m.isNPC() && dice().Intn(100) < m.Level / 2 {
-			// 	m.disarm(victim)
-			// }
-			// if m.isNPC() && dice().Intn(100) < m.Level / 2 {
+			if m.isNPC() && dice().Intn(100) < m.Level/2 {
+				m.disarm(victim)
+			}
+			// if m.isNPC() && dice().Intn(100) < m.Level/2 {
 			// 	m.trip(victim)
 			// }
 			if m.parry(victim) {
@@ -502,18 +501,6 @@ func (m *mob) deathCry() {
 		act(msg, m, nil, nil, actToRoom)
 	}
 	m.Room = oldRoom
-}
-
-func (m *mob) die() {
-	m.deathCry()
-	// drop corpse in room
-	corpse := &item{ItemType: 0, Name: "A corpse of " + m.Name, Timer: 1}
-	m.Room.Items = append(m.Room.Items, corpse)
-
-	m.Fight = nil
-	m.Status = sitting
-	// whisk them away to Nowhere
-	m.Room = getRoom(0)
 }
 
 func (m *mob) disarm(victim *mob) {

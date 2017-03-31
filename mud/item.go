@@ -25,6 +25,9 @@ const (
 	vnumTornHeart   = 100005
 	vnumSlicedArm   = 100006
 	vnumSlicedLeg   = 100007
+
+	vnumCorpseNPC = 100014
+	vnumCorpsePC  = 100013
 )
 
 const (

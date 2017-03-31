@@ -1,7 +1,6 @@
 package mud
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -16,7 +15,6 @@ func interpret(player *mob, argument string) {
 	argument = strings.Trim(argument, " ")
 
 	if len(argument) <= 0 {
-		fmt.Println("shit")
 		return
 	}
 
