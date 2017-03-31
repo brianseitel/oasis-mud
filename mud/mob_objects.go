@@ -529,7 +529,7 @@ func doEquipment(player *mob, argument string) {
 	player.notify(
 		fmt.Sprintf("Equipment\n%s\n%s\n%s",
 			"-----------------------------------",
-			strings.Join(equippedString(player), Newline),
+			strings.Join(equippedString(player), newline),
 			"-----------------------------------",
 		),
 	)
@@ -553,11 +553,11 @@ func (m *mob) get(item *item, container *item) {
 
 	if container != nil {
 		m.notify("You get %s from %s.", item.Name, container.Name)
-		m.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", m.Name, item.Name, container.Name, Newline), m)
+		m.Room.notify(fmt.Sprintf("%s gets %s from %s.%s", m.Name, item.Name, container.Name, newline), m)
 		container.removeObject(item)
 	} else {
 		m.notify("You get %s.", item.Name)
-		m.Room.notify(fmt.Sprintf("%s gets %s.%s", m.Name, item.Name, Newline), m)
+		m.Room.notify(fmt.Sprintf("%s gets %s.%s", m.Name, item.Name, newline), m)
 		m.Room.removeObject(item)
 	}
 

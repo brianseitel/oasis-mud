@@ -75,7 +75,7 @@ func doConsider(player *mob, argument string) {
 func doInventory(player *mob, argument string) {
 	player.notify("Inventory\n%s\n%s\n%s",
 		"-----------------------------------",
-		strings.Join(inventoryString(player), Newline),
+		strings.Join(inventoryString(player), newline),
 		"-----------------------------------",
 	)
 }
@@ -263,7 +263,7 @@ func doScan(player *mob, argument string) {
 				player.notify("    %s", m.Name)
 			}
 		} else {
-			player.notify("    %s(nothing)%s", Blue, Reset)
+			player.notify("    %s(nothing)%s", blue, reset)
 		}
 	}
 }
@@ -426,7 +426,7 @@ func doWho(player *mob, argument string) {
 			break
 		}
 
-		buf.Write([]byte(fmt.Sprintf("[%2d %8s %8s] %s %s%s", mob.Level, race, job, mob.Name, mob.Title, Newline)))
+		buf.Write([]byte(fmt.Sprintf("[%2d %8s %8s] %s %s%s", mob.Level, race, job, mob.Name, mob.Title, newline)))
 	}
 
 	suffix := "s"
@@ -445,14 +445,14 @@ func exitsString(exits []*exit) string {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
 	}
 
-	return fmt.Sprintf("[%s]%s", strings.Trim(output, " "), Newline)
+	return fmt.Sprintf("[%s]%s", strings.Trim(output, " "), newline)
 }
 
 func itemsString(items []*item) string {
 	var output string
 
 	for _, i := range items {
-		output = fmt.Sprintf("%s is here.%s%s", i.Name, Newline, output)
+		output = fmt.Sprintf("%s is here.%s%s", i.Name, newline, output)
 	}
 	return output
 }
@@ -463,9 +463,9 @@ func mobsString(mobs []*mob, player *mob) string {
 	for _, m := range mobs {
 		if m != player {
 			if player.canSee(m) {
-				output = fmt.Sprintf("%s is here.%s%s", m.Name, Newline, output)
+				output = fmt.Sprintf("%s is here.%s%s", m.Name, newline, output)
 			} else {
-				output = fmt.Sprintf("You see glowing red eyes watching YOU!%s%s", Newline, output)
+				output = fmt.Sprintf("You see glowing red eyes watching YOU!%s%s", newline, output)
 			}
 		}
 	}

@@ -9,14 +9,14 @@ import (
 	"time"
 )
 
-var gameServer Server
+var gameServer server
 
-type Server struct {
+type server struct {
 	connections []connection
 	Up          bool
 }
 
-func (server *Server) handle(c *connection) {
+func (server *server) handle(c *connection) {
 	c.mob = login(c)
 
 	err := registerConnection(c)
@@ -41,7 +41,7 @@ func (server *Server) handle(c *connection) {
 	}
 }
 
-func (server *Server) Serve(port int) {
+func (server *server) Serve(port int) {
 	server.init()
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -65,7 +65,7 @@ func (server *Server) Serve(port int) {
 	}
 }
 
-func (server *Server) timing() {
+func (server *server) timing() {
 	pulse := time.NewTicker(time.Second / pulsePerSecond)
 	tick := time.NewTicker(time.Second * 5)
 
@@ -86,7 +86,7 @@ func registerConnection(c *connection) error {
 	for j, oc := range gameServer.connections {
 		if c.mob.Name == oc.mob.Name {
 			extractMob(c.mob, true)
-			c.SendString(fmt.Sprintf("This user is already playing. Bye! %s", Newline))
+			c.SendString(fmt.Sprintf("This user is already playing. Bye! %s", newline))
 			c.end()
 
 			gameServer.connections = append(gameServer.connections[:j], gameServer.connections[j+1:]...)
@@ -99,7 +99,7 @@ func registerConnection(c *connection) error {
 	return nil
 }
 
-func (server *Server) init() {
+func (server *server) init() {
 	bootDB()
 }
 

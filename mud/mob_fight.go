@@ -307,7 +307,7 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 			victim.notify("That really did HURT!")
 		}
 		if victim.Hitpoints < victim.MaxHitpoints/4 {
-			victim.notify("%sYou really are BLEEDING!%s", Red, Reset)
+			victim.notify("%sYou really are BLEEDING!%s", red, reset)
 		}
 		break
 	}
@@ -687,7 +687,7 @@ func (m *mob) takeDamage(damage int) {
 	m.Hitpoints -= damage
 	if m.Hitpoints < 0 {
 		m.Status = dead
-		m.notify(Red + "You are DEAD!!!" + Reset)
+		m.notify(red + "You are DEAD!!!" + reset)
 	}
 }
 

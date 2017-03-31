@@ -399,10 +399,10 @@ func (m *mob) move(e *exit) {
 func (m *mob) statusBar() {
 	if m.client != nil {
 		m.client.BufferData(fmt.Sprintf("%s[%d%s%shp %s%d%s%smana %s%d%s%smv%s] >>",
-			White, m.Hitpoints, Reset, Cyan,
-			White, m.Mana, Reset, Cyan,
-			White, m.Movement, Reset, Cyan,
-			White))
+			white, m.Hitpoints, reset, cyan,
+			white, m.Mana, reset, cyan,
+			white, m.Movement, reset, cyan,
+			white))
 		m.client.SendBuffer()
 	}
 }
@@ -443,8 +443,8 @@ func (m *mob) equipItem(item *item, position int) {
 	}
 
 	if (item.hasExtraFlag(itemAntiEvil) && m.isEvil()) || (item.hasExtraFlag(itemAntiGood) && m.isGood()) || (item.hasExtraFlag(itemAntiNeutral) && m.isNeutral()) {
-		m.notify("You are zapped by %s and drop it!%s", item.Name, Newline)
-		m.Room.notify(fmt.Sprintf("%s is zapped by %s and drops it!%s", m.Name, item.Name, Newline), m)
+		m.notify("You are zapped by %s and drop it!%s", item.Name, newline)
+		m.Room.notify(fmt.Sprintf("%s is zapped by %s and drops it!%s", m.Name, item.Name, newline), m)
 		// TODO: dropItem()
 		return
 	}
@@ -478,7 +478,7 @@ func (m *mob) equippedItem(position int) *item {
 
 func (m *mob) notify(message string, a ...interface{}) {
 	if m.client != nil {
-		message = fmt.Sprintf("%s%s", message, Newline)
+		message = fmt.Sprintf("%s%s", message, newline)
 		m.client.SendString(fmt.Sprintf(message, a...))
 	}
 }
@@ -668,7 +668,7 @@ func showCharactersToPlayer(chars []*mob, player *mob) {
 		if player.canSee(char) {
 			showCharacterToPlayer(char, player)
 		} else if player.Room.isDark() && player.isAffected(affectInfrared) {
-			player.notify("%sYou see glowing red eyes watching YOU!%s", Red, Reset)
+			player.notify("%sYou see glowing red eyes watching YOU!%s", red, reset)
 		}
 	}
 }
@@ -699,13 +699,13 @@ func showCharacterToPlayer(victim *mob, player *mob) {
 		buf.Write([]byte("(Red Aura)"))
 	}
 	if victim.isAffected(affectSanctuary) {
-		buf.Write([]byte("(White Aura)"))
+		buf.Write([]byte("(white Aura)"))
 	}
 
 	if victim.Status == standing && len(victim.Description) > 0 {
 		buf.Write([]byte(victim.Description))
-		buf.Write([]byte(Reset))
-		player.notify("%s%s%s", Cyan, buf.String(), Reset)
+		buf.Write([]byte(reset))
+		player.notify("%s%s%s", cyan, buf.String(), reset)
 		return
 	}
 
@@ -757,7 +757,7 @@ func showCharacterToPlayer(victim *mob, player *mob) {
 	a := []rune(output)
 	a[0] = unicode.ToLower(a[0])
 	output = string(a)
-	player.notify("%s%s%s", Cyan, output, Reset)
+	player.notify("%s%s%s", cyan, output, reset)
 	return
 }
 
@@ -792,12 +792,12 @@ func showItemsToPlayer(items []*item, player *mob) {
 
 	for iShow := 0; iShow < nShow; iShow++ {
 		var buf bytes.Buffer
-		buf.Write([]byte(Cyan))
+		buf.Write([]byte(cyan))
 		if itemCounts[iShow] != 1 {
 			buf.Write([]byte(fmt.Sprintf("(%d) ", itemCounts[iShow])))
 		}
 		buf.Write([]byte(itemList[iShow]))
-		buf.Write([]byte(Reset))
+		buf.Write([]byte(reset))
 		player.notify(buf.String())
 	}
 

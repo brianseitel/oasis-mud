@@ -263,7 +263,7 @@ func doPractice(player *mob, argument string) {
 		}
 
 		if col%3 != 0 {
-			player.notify(Newline)
+			player.notify(newline)
 		}
 
 		player.notify("You have %d practices remaining.", player.Practices)

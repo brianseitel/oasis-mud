@@ -76,7 +76,7 @@ func askForJob(c *connection) job {
 	var jobs []job
 	for e := jobList.Front(); e != nil; e = e.Next() {
 		j := e.Value.(*job)
-		c.SendString(fmt.Sprintf("[%s] %s%s", j.Abbr, j.Name, Newline))
+		c.SendString(fmt.Sprintf("[%s] %s%s", j.Abbr, j.Name, newline))
 	}
 	for {
 		c.SendString("Select a class from above: ")
@@ -89,7 +89,7 @@ func askForJob(c *connection) job {
 			}
 		}
 
-		c.SendString("\nInvalid selection. Try again." + Newline)
+		c.SendString("\nInvalid selection. Try again." + newline)
 	}
 }
 
@@ -98,7 +98,7 @@ func askForRace(c *connection) race {
 
 	for e := raceList.Front(); e != nil; e = e.Next() {
 		r := e.Value.(*race)
-		c.SendString(fmt.Sprintf("[%s] %s%s", r.Abbr, r.Name, Newline))
+		c.SendString(fmt.Sprintf("[%s] %s%s", r.Abbr, r.Name, newline))
 	}
 
 	for {
@@ -111,7 +111,7 @@ func askForRace(c *connection) race {
 				return r
 			}
 		}
-		c.SendString("\nInvalid selection. Try again." + Newline)
+		c.SendString("\nInvalid selection. Try again." + newline)
 
 	}
 }

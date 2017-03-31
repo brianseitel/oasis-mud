@@ -169,7 +169,7 @@ func (r *room) showExits(player *mob) {
 		output = fmt.Sprintf("%s%s ", output, string(e.Dir))
 	}
 
-	player.notify(fmt.Sprintf("%s[%s]%s", White, strings.Trim(output, " "), Reset))
+	player.notify(fmt.Sprintf("%s[%s]%s", white, strings.Trim(output, " "), reset))
 }
 
 func (r *room) findExit(arg string) *exit {
