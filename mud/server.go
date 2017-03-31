@@ -36,10 +36,6 @@ func (server *Server) handle(c *connection) {
 
 		if len(input) > 0 {
 			interpret(c.mob, input)
-			// err := newActionWithInput(&action{mob: c.mob, conn: c, args: strings.Split(input, " ")})
-			// if err != nil {
-			// 	return // we're quitting
-			// }
 		}
 
 	}
