@@ -24,7 +24,7 @@ func (server *Server) handle(c *connection) {
 		return
 	}
 
-	newAction(c.mob, c, "look")
+	interpret(c.mob, "look")
 	for {
 		c.mob.statusBar()
 		input, err := c.buffer.ReadString('\n')
@@ -35,10 +35,11 @@ func (server *Server) handle(c *connection) {
 		input = strings.Trim(input, "\r\n")
 
 		if len(input) > 0 {
-			err := newActionWithInput(&action{mob: c.mob, conn: c, args: strings.Split(input, " ")})
-			if err != nil {
-				return // we're quitting
-			}
+			interpret(c.mob, input)
+			// err := newActionWithInput(&action{mob: c.mob, conn: c, args: strings.Split(input, " ")})
+			// if err != nil {
+			// 	return // we're quitting
+			// }
 		}
 
 	}

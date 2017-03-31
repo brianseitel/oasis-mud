@@ -1,7 +1,7 @@
 package mud
 
-func interpolate(level int, value_00 int, value_32 int) int {
-	return value_00 + level*(value_32-value_00)/32
+func interpolate(level int, value00 int, value32 int) int {
+	return value00 + level*(value32-value00)/32
 }
 
 func uRange(a int, b int, c int) int {

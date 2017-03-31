@@ -383,7 +383,7 @@ func (m *mob) move(e *exit) {
 	for _, rm := range oldRoom.Mobs {
 		if rm.master == m {
 			rm.move(e)
-			newAction(rm, rm.client, "look")
+			interpret(rm, "look")
 		}
 	}
 

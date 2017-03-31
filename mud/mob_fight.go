@@ -5,6 +5,212 @@ import (
 	"strings"
 )
 
+func doBackstab(player *mob, argument string) {
+	backstab := player.skill("backstab")
+	if backstab == nil {
+		player.notify("You don't know how to backstab!")
+		return
+	}
+
+	if len(argument) < 1 {
+		player.notify("Backstab whom?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+
+	var victim *mob
+	for _, mob := range player.Room.Mobs {
+		if matchesSubject(mob.Name, arg1) {
+			victim = mob
+			break
+		}
+	}
+
+	if victim == nil {
+		player.notify("They aren't here.")
+		return
+	}
+
+	if victim == player {
+		player.notify("How can you sneak up on yourself?")
+		return
+	}
+
+	if victim.isSafe() {
+		return
+	}
+
+	wield := player.equippedItem(itemWearWield)
+
+	if wield == nil /* && item.type == "piercing" */ {
+		player.notify("You need to wield a piercing weapon.")
+		return
+	}
+
+	if victim.Fight != nil {
+		player.notify("You can't backstab a fighting person.")
+		return
+	}
+
+	if victim.Hitpoints < victim.MaxHitpoints {
+		act("$N is hurt and suspicious ... you can't sneak up.", player, nil, victim, actToChar)
+		return
+	}
+
+	wait(player, backstab.Skill.Beats)
+
+	if !victim.isAwake() || player.isNPC() || dice().Intn(100) < int(backstab.Level) {
+		multiHit(player, victim, typeBackstab)
+	} else {
+		player.damage(victim, 0, typeBackstab)
+	}
+
+	return
+}
+
+func doDisarm(player *mob, argument string) {
+	disarm := player.skill("disarm")
+	if !player.isNPC() && disarm == nil {
+		player.notify("You don't know how to disarm!")
+		return
+	}
+
+	wield := player.equippedItem(itemWearWield)
+	if wield == nil {
+		player.notify("You must wield a weapon to disarm.")
+		return
+	}
+
+	victim := player.Fight
+	if victim == nil {
+		player.notify("You aren't fighting anyone, fool!")
+		return
+	}
+
+	victimWield := victim.equippedItem(itemWearWield)
+	if victimWield == nil {
+		player.notify("Your opponent is not wielding a weapon.")
+		return
+	}
+
+	wait(player, disarm.Skill.Beats)
+	percent := dice().Intn(100) + victim.Level - player.Level
+	if player.isNPC() || percent < int(disarm.Level*2/3) {
+		player.disarm(victim)
+	} else {
+		player.notify("You failed.")
+	}
+	return
+}
+func doFlee(player *mob, argument string) {
+	victim := player.Fight
+	if victim == nil || player.Status != fighting {
+		player.notify("You aren't fighting anyone, fool.")
+		return
+	}
+
+	wasIn := player.Room
+
+	for attempt := 0; attempt < 6; attempt++ {
+		number := dice().Intn(len(player.Room.Exits))
+		exit := player.Room.Exits[number]
+		if exit == nil || exit.isClosed() || (player.isNPC() && hasBit(exit.Room.RoomFlags, roomNoMob)) {
+			continue
+		}
+
+		player.move(exit)
+		nowIn := player.Room
+		if nowIn == wasIn {
+			continue
+		}
+
+		player.Room = wasIn
+		act("$n has fled!", player, nil, nil, actToRoom)
+		player.Room = nowIn
+
+		if !player.isNPC() {
+			player.notify("You flee from combat! You lose 25 experience points!")
+			player.gainExp(-25)
+		}
+
+		player.stopFighting(true)
+		return
+	}
+
+	player.notify("You failed! You lose 10 experience points.")
+	player.gainExp(-10)
+	return
+}
+
+func doKick(player *mob, argument string) {
+	victim := player.Fight
+
+	kick := player.skill("kick")
+	if !player.isNPC() && kick == nil {
+		player.notify("You better leave the martial arts to fighters.")
+		return
+	}
+
+	if victim == nil {
+		player.notify("You aren't fighting anyone, fool.")
+		return
+	}
+
+	wait(player, kick.Skill.Beats)
+
+	if player.isNPC() || dice().Intn(100) < int(kick.Level) {
+		player.damage(victim, dice().Intn(player.Level)+1, typeKick)
+	} else {
+		player.damage(victim, 0, typeKick)
+	}
+}
+
+func doKill(attacker *mob, argument string) {
+	var victim *mob
+	for _, m := range attacker.Room.Mobs {
+		if matchesSubject(m.Name, argument) {
+			victim = m
+		}
+	}
+
+	args := strings.Split(argument, " ")
+
+	if len(args) < 1 {
+		attacker.notify("Kill whom?")
+		return
+	}
+
+	if victim == nil {
+		attacker.notify("They aren't here.")
+		return
+	}
+
+	if !victim.isNPC() {
+		attacker.notify("You cannot attack other attackers.")
+		return
+	}
+
+	if victim == attacker {
+		attacker.notify("You hit yourself. Ouch!")
+		multiHit(attacker, attacker, typeUndefined)
+		return
+	}
+
+	if victim.isSafe() {
+		return
+	}
+
+	if attacker.Status == fighting {
+		attacker.notify("You do the best you can!")
+	}
+
+	wait(attacker, 1*pulseViolence)
+	multiHit(attacker, victim, typeHit)
+
+	return
+}
+
 func (m *mob) damage(victim *mob, dam int, damageType int) {
 	if victim.Status == dead {
 		return
@@ -132,7 +338,7 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 
 	if !victim.isNPC() && victim.client == nil {
 		if dice().Intn(int(victim.wait)) == 0 {
-			newAction(victim, victim.client, "recall")
+			interpret(victim, "recall")
 			return
 		}
 	}

@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func (player *mob) buy(args []string) {
-	if len(args) < 1 {
+func doBuy(player *mob, argument string) {
+	if len(argument) == 0 {
 		player.notify("Buy what?")
 		return
 	}
@@ -19,7 +19,7 @@ func (player *mob) buy(args []string) {
 			return
 		}
 
-		obj := keeper.carrying(args[1])
+		obj := keeper.carrying(argument)
 
 		if obj == nil {
 			act("$n tells you 'I don't sell that. Try 'list'.'", keeper, nil, player, actToVict)
@@ -94,24 +94,24 @@ func (player *mob) findKeeper() *mob {
 	}
 
 	if store.isBeforeOpen() {
-		keeper.say([]string{"Sorry, come back later."})
+		doSay(keeper, "Sorry, come back later.")
 		return nil
 	}
 
 	if store.isAfterClose() {
-		keeper.say([]string{"Sorry, come back tomorrow."})
+		doSay(keeper, "Sorry, come back tomorrow.")
 		return nil
 	}
 
 	if !keeper.canSee(player) {
-		keeper.say([]string{"I don't trade with folks I can't see."})
+		doSay(keeper, "I don't trade with folks I can't see.")
 		return nil
 	}
 
 	return keeper
 }
 
-func (player *mob) list(args []string) {
+func doList(player *mob, argument string) {
 
 	if hasBit(player.Room.RoomFlags, roomPetShop) {
 		// TODO
@@ -121,10 +121,11 @@ func (player *mob) list(args []string) {
 			return
 		}
 
+		argument, arg1 := oneArgument(argument)
 		found := false
 		for _, i := range keeper.Inventory {
 			cost := keeper.getCost(i, true)
-			if i.WearLocation == wearNone && player.canSeeItem(i) && cost > 0 && len(args) == 0 && matchesSubject(i.Name, args[1]) {
+			if i.WearLocation == wearNone && player.canSeeItem(i) && cost > 0 && len(argument) == 0 && matchesSubject(i.Name, arg1) {
 				if !found {
 					found = true
 					player.notify("[Lv Price] Item")
@@ -135,7 +136,7 @@ func (player *mob) list(args []string) {
 		}
 
 		if !found {
-			if len(args) == 0 {
+			if len(argument) == 0 {
 				player.notify("You can't buy anything here.")
 			} else {
 				player.notify("You can't buy that here.")
@@ -145,8 +146,8 @@ func (player *mob) list(args []string) {
 	}
 }
 
-func (player *mob) sell(args []string) {
-	if len(args) < 1 {
+func doSell(player *mob, argument string) {
+	if len(argument) < 1 {
 		player.notify("Sell what?")
 		return
 	}
@@ -156,7 +157,8 @@ func (player *mob) sell(args []string) {
 		return
 	}
 
-	obj := player.carrying(args[1])
+	argument, arg1 := oneArgument(argument)
+	obj := player.carrying(arg1)
 
 	if obj == nil {
 		act("$n tells you 'You do not have that item.'", keeper, nil, player, actToVict)
@@ -198,8 +200,8 @@ func (player *mob) sell(args []string) {
 	}
 }
 
-func (player *mob) value(args []string) {
-	if len(args) < 1 {
+func doValue(player *mob, argument string) {
+	if len(argument) < 1 {
 		player.notify("Value what?")
 		return
 	}
@@ -210,9 +212,10 @@ func (player *mob) value(args []string) {
 		return
 	}
 
+	argument, arg1 := oneArgument(argument)
 	var obj *item
 	for _, i := range player.Inventory {
-		if matchesSubject(i.Name, args[1]) {
+		if matchesSubject(i.Name, arg1) {
 			obj = i
 			break
 		}

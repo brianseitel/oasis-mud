@@ -2,6 +2,8 @@ package mud
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 func (m *mob) addItem(item *item) {
@@ -33,6 +35,486 @@ func (m *mob) carrying(str string) *item {
 	return nil
 }
 
+func doDrop(player *mob, argument string) {
+	if len(argument) <= 1 {
+		player.notify("Drop what?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+
+	num, err := strconv.Atoi(arg1)
+	isNumber := err == nil
+
+	if isNumber {
+		amount := num
+		if arg2 != "" || amount <= 0 || !strings.HasPrefix(arg2, "gold") {
+			player.notify("Sorry, you can't do that.")
+			return
+		}
+
+		if player.Gold < amount {
+			player.notify("You haven't got that many coins.")
+			return
+		}
+
+		player.Gold -= amount
+
+		// TODO: see if we already have gold in the room
+
+		player.Room.Items = append(player.Room.Items, createMoney(amount))
+		player.notify("OK.")
+		player.Room.notify(fmt.Sprintf("%s drops some gold.", player.Name), player)
+		return
+	}
+
+	if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+		// drop obj
+		var item *item
+		for _, i := range player.Inventory {
+			if matchesSubject(i.Name, arg1) {
+				item = i
+				break
+			}
+		}
+
+		if item == nil {
+			player.notify("You don't have that item.")
+			return
+		}
+
+		if !player.canDropItem(item) {
+			player.notify("You can't let go of it.")
+			return
+		}
+
+		for j, i := range player.Inventory {
+			if i == item {
+				item.carriedBy = nil
+				item.Room = player.Room
+				player.Inventory, player.Room.Items = transferItem(j, player.Inventory, player.Room.Items)
+				player.notify("You drop %s.", i.Name)
+				player.Room.notify(fmt.Sprintf("%s drops %s.", player.Name, i.Name), player)
+				break
+			}
+		}
+	} else {
+		// drop all
+		found := false
+
+		words := strings.SplitN(arg1, ".", 2)
+		var name string
+		if len(words) > 1 {
+			name = words[1]
+		}
+
+		fmt.Println(name)
+		for j := 0; j < len(player.Inventory); j++ {
+			item := player.Inventory[j]
+			if arg1 == "all" || matchesSubject(item.Name, name) {
+				found = true
+
+				item.carriedBy = nil
+				item.Room = player.Room
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				j--
+				player.Room.Items = append(player.Room.Items, item)
+				act("$n drops $p.", player, item, nil, actToRoom)
+				act("You drop $p.", player, item, nil, actToChar)
+				// player.notify("You drop %s.", item.Name)
+				// player.Room.notify(fmt.Sprintf("%s drops %s.", player.Name, item.Name), player)
+			}
+		}
+
+		if !found {
+			if len(name) == 0 {
+				player.notify("You are not carrying anything.")
+			} else {
+				player.notify("You are not carrying any %s.", arg1)
+			}
+		}
+	}
+
+	return
+}
+
+func doGet(player *mob, argument string) {
+	if len(argument) == 0 {
+		player.notify("Get what?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+
+	if arg2 != "" {
+		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+			// get obj
+			for _, i := range player.Room.Items {
+				if matchesSubject(i.Name, arg1) {
+					player.get(i, nil)
+					return
+				}
+			}
+
+			player.notify("I see no %s here.", arg1)
+		} else {
+			// get all or get all.container
+			words := strings.SplitN(arg1, ".", 2)
+			var name string
+			if len(words) > 1 {
+				name = words[1]
+			}
+			found := false
+			if len(player.Room.Items) > 0 {
+				for _, i := range player.Room.Items {
+					if matchesSubject(i.Name, name) || len(name) == 0 {
+						player.get(i, nil)
+						found = true
+					}
+				}
+			}
+
+			if !found {
+				if len(name) == 0 {
+					player.notify("I see nothing here.")
+				} else {
+					player.notify("I see no %s here.", name)
+				}
+			}
+		}
+	} else {
+		// get ... container
+		if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
+			player.notify("You can't do that.")
+			return
+		}
+
+		var container *item
+		for _, i := range player.Room.Items {
+			if strings.HasPrefix(i.Name, arg2) {
+				container = i
+				break
+			}
+		}
+
+		if container == nil {
+			// try from inventory
+			for _, i := range player.Inventory {
+				if strings.HasPrefix(i.Name, arg1) {
+					container = i
+					break
+				}
+			}
+		}
+
+		if container == nil {
+			player.notify("I see no %s here.", arg2)
+			return
+		}
+
+		switch container.ItemType {
+		case itemContainer:
+		case itemCorpseNPC:
+			break
+
+		case itemCorpsePC:
+			player.notify("You can't do that.%s.")
+			return
+		default:
+			player.notify("That's not a container.")
+			return
+		}
+
+		if hasBit(container.Value, containerClosed) {
+			player.notify("The %s is closed.", container.Name)
+			return
+		}
+
+		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+			// get obj container
+			for _, i := range container.container {
+				if matchesSubject(i.Name, arg1) {
+					player.get(i, container)
+					return
+				}
+			}
+
+			player.notify("I see nothing like that in %s.", container.Name)
+		} else {
+			// get all container or get all.obj container
+			words := strings.SplitN(arg2, ".", 2)
+			var name string
+			if len(words) > 1 {
+				name = words[1]
+			}
+			found := false
+			for _, i := range container.container {
+				if matchesSubject(i.Name, name) || len(name) == 0 {
+					player.get(i, container)
+					found = true
+				}
+			}
+
+			if !found {
+				if len(name) == 0 {
+					player.notify("I see nothing in the %s.", container.Name)
+				} else {
+					player.notify("I see nothing like that in %s.", container.Name)
+				}
+			}
+		}
+	}
+}
+
+func doGive(player *mob, argument string) {
+	if len(argument) <= 1 {
+		player.notify("Give what to whom?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+
+	var victim *mob
+	for _, mob := range player.Room.Mobs {
+		if matchesSubject(mob.Name, arg2) {
+			victim = mob
+			break
+		}
+	}
+
+	num, err := strconv.Atoi(arg1)
+	isNumeric := err == nil
+
+	var amount int
+	if isNumeric {
+		if num <= 0 || !strings.HasPrefix(arg2, "coin") {
+			player.notify("You can't do that.")
+			return
+		}
+		amount = num
+
+		if victim == nil {
+			player.notify("They aren't here.")
+			return
+		}
+
+		if player.Gold < amount {
+			player.notify("You don't have that much gold.")
+			return
+		}
+
+		player.Gold -= amount
+		victim.Gold += amount
+		player.notify("You give %s some gold.", victim.Name)
+		victim.notify("%s gives you some gold.", player.Name)
+		return
+	}
+
+	var item *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			item = i
+			break
+		}
+	}
+
+	if item == nil {
+		player.notify("You do not have that item.")
+		return
+	}
+
+	if item.WearLocation != wearNone {
+		player.notify("You must remove it first.")
+		return
+	}
+
+	if victim.Room.ID != player.Room.ID {
+		player.notify("They are not here.")
+		return
+	}
+
+	if !player.canDropItem(item) {
+		player.notify("You can't let go of it.")
+		return
+	}
+
+	if victim.Carrying+1 > victim.CarryMax {
+		player.notify("%s has their hands full.", victim.Name)
+		return
+	}
+
+	if victim.CarryWeight+item.Weight > victim.CarryWeightMax {
+		player.notify("%s can't carry that much weight.", victim.Name)
+		return
+	}
+
+	if victim.canSeeItem(item) {
+		player.notify("%s can't see it.", victim.Name)
+	}
+
+	for j, it := range player.Inventory {
+		if it == item {
+			player.Inventory = append(player.Inventory[:j], player.Inventory[j+1:]...)
+			break
+		}
+	}
+	victim.Inventory = append(victim.Inventory, item)
+
+	player.notify("You give %s to %s.", item.Name, victim.Name)
+	victim.notify("%s gives you %s.", player.Name, item.Name)
+	return
+}
+
+func doPut(player *mob, argument string) {
+
+	if len(argument) <= 1 {
+		player.notify("Put what in what?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+
+	if arg2 == "all" || strings.HasPrefix(arg2, "all.") {
+		player.notify("You can't do that.")
+		return
+	}
+
+	var container *item
+	for _, i := range player.Inventory {
+		if strings.HasPrefix(i.Name, arg2) {
+			container = i
+			break
+		}
+	}
+
+	if container == nil {
+		// try from room
+		for _, i := range player.Room.Items {
+			if strings.HasPrefix(i.Name, arg2) {
+				container = i
+				break
+			}
+		}
+
+	}
+
+	if container == nil {
+		player.notify("I see no %s here.", arg2)
+		return
+	}
+
+	if hasBit(container.Value, containerClosed) {
+		player.notify("The %s is closed.", container.Name)
+		return
+	}
+
+	if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
+		// put obj container
+		var item *item
+		for _, i := range player.Inventory {
+			if matchesSubject(i.Name, arg1) {
+				item = i
+				break
+			}
+		}
+
+		if item == nil {
+			player.notify("You do not have that item.")
+			return
+		}
+
+		if item == container {
+			player.notify("You can't fold it into itself!")
+			return
+		}
+
+		if !player.canDropItem(item) {
+			player.notify("You can't let go of it.")
+			return
+		}
+
+		if item.Weight+container.Weight > container.Value {
+			player.notify("It won't fit.")
+			return
+		}
+
+		for j, it := range player.Inventory {
+			if it == item {
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				break
+			}
+		}
+
+		container.container = append(container.container, item)
+
+		player.notify("You put %s in %s.", item.Name, container.Name)
+		player.Room.notify(fmt.Sprintf("%s puts %s in %s.", player.Name, item.Name, container.Name), player)
+	} else {
+		// put all container or put all.object container
+		words := strings.SplitN(arg1, ".", 2)
+		var name string
+		if len(words) > 1 {
+			name = words[1]
+		}
+		for j, item := range player.Inventory {
+			if (arg1 == "all" || strings.HasPrefix(item.Name, name)) && item.WearLocation == wearNone && item != container && item.Weight+container.Weight > container.Value {
+				player.Inventory = append(player.Inventory[0:j], player.Inventory[j+1:]...)
+				container.container = append(container.container, item)
+				player.notify("You put %s in %s.", item.Name, container.Name)
+				player.Room.notify(fmt.Sprintf("%s puts %s in %s.", player.Name, item.Name, container.Name), player)
+			}
+		}
+	}
+}
+
+func doWear(player *mob, argument string) {
+	if len(argument) < 1 {
+		player.notify("Wear, wield, or hold what?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "all" {
+		for _, i := range player.Inventory {
+			if i.WearLocation == wearNone && player.canSeeItem(i) {
+				player.wear(i, false)
+			}
+		}
+	} else {
+		wearable := player.carrying(arg1)
+
+		if wearable == nil {
+			player.notify("You can't find that.")
+			return
+		}
+
+		player.wear(wearable, true)
+	}
+}
+
+func doRemove(player *mob, argument string) {
+
+	if len(argument) < 1 {
+		player.notify("Remove what?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+	obj := player.equippedName(arg1)
+	if obj == nil {
+		player.notify("You aren't wearing that item.")
+		return
+	}
+
+	player.unwearItem(obj.WearLocation, false)
+	return
+}
+
 func (m *mob) equippedName(name string) *item {
 	for _, i := range m.Equipped {
 		if matchesSubject(i.Name, name) {
@@ -41,6 +523,16 @@ func (m *mob) equippedName(name string) *item {
 	}
 
 	return nil
+}
+
+func doEquipment(player *mob, argument string) {
+	player.notify(
+		fmt.Sprintf("Equipment\n%s\n%s\n%s",
+			"-----------------------------------",
+			strings.Join(equippedString(player), Newline),
+			"-----------------------------------",
+		),
+	)
 }
 
 func (m *mob) get(item *item, container *item) {
@@ -86,29 +578,30 @@ func (m *mob) removeItem(i *item) {
 	}
 }
 
-func (m *mob) sacrifice(args []string) {
-	if len(args) < 1 {
-		act("$n offers $mself to the gods, who don't bother to answer.", m, nil, nil, actToRoom)
-		m.notify("The gods aren't listening.")
+func doSacrifice(player *mob, argument string) {
+	if len(argument) < 1 {
+		act("$n offers $mself to the gods, who don't bother to answer.", player, nil, nil, actToRoom)
+		player.notify("The gods aren't listening.")
 		return
 	}
 
-	obj := m.carrying(args[1])
+	argument, arg1 := oneArgument(argument)
+	obj := player.carrying(arg1)
 	if obj == nil {
-		m.notify("You can't find it.")
+		player.notify("You can't find it.")
 		return
 	}
 
 	if !obj.canWear(itemTake) {
-		act("$p is not an acceptable sacrifice.", m, obj, nil, actToChar)
+		act("$p is not an acceptable sacrifice.", player, obj, nil, actToChar)
 		return
 	}
 
-	m.notify("The gods grant you a single gold coin for your sacrifice.")
-	m.Gold++
+	player.notify("The gods grant you a single gold coin for your sacrifice.")
+	player.Gold++
 
-	act("$n sacrifices $p to the gods.", m, obj, nil, actToRoom)
-	m.removeItem(obj)
+	act("$n sacrifices $p to the gods.", player, obj, nil, actToRoom)
+	player.removeItem(obj)
 	return
 }
 

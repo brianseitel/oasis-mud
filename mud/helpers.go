@@ -73,6 +73,14 @@ func toSnake(in string) string {
 	return string(out)
 }
 
+func transferItem(i int, from []*item, to []*item) ([]*item, []*item) {
+	item := from[i]
+	from = append(from[0:i], from[i+1:]...)
+	to = append(to, item)
+
+	return from, to
+}
+
 const (
 	Reset       = "\x1B[0m"
 	Bold        = "\x1B[1m"

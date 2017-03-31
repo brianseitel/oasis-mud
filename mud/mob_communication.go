@@ -17,8 +17,8 @@ const (
 	channelYell
 )
 
-func (player *mob) talkChannel(args []string, channel int, verb string) {
-	if len(args) <= 1 {
+func (player *mob) talkChannel(message string, channel int, verb string) {
+	if len(message) <= 1 {
 		player.notify("%s what?", strings.Title(verb))
 		return
 	}
@@ -28,7 +28,6 @@ func (player *mob) talkChannel(args []string, channel int, verb string) {
 		return
 	}
 
-	message := strings.Join(args[1:], " ")
 	switch channel {
 	case channelImmtalk:
 		player.notify("You: %s", message)
@@ -51,55 +50,52 @@ func (player *mob) talkChannel(args []string, channel int, verb string) {
 	}
 }
 
-func (player *mob) chatAuction(args []string) {
-	player.talkChannel(args, channelAuction, "auction")
+func doAuction(player *mob, argument string) {
+	player.talkChannel(argument, channelAuction, "auction")
 }
 
-func (player *mob) chatDefault(args []string) {
-	player.talkChannel(args, channelChat, "chat")
+func doChat(player *mob, argument string) {
+	player.talkChannel(argument, channelChat, "chat")
 }
 
-func (player *mob) chatMusic(args []string) {
-	player.talkChannel(args, channelMusic, "music")
+func doMusic(player *mob, argument string) {
+	player.talkChannel(argument, channelMusic, "music")
 }
 
-func (player *mob) chatQuestion(args []string) {
-	player.talkChannel(args, channelQuestion, "question")
+func doQuestion(player *mob, argument string) {
+	player.talkChannel(argument, channelQuestion, "question")
 }
 
-func (player *mob) chatAnswer(args []string) {
-	player.talkChannel(args, channelQuestion, "answer")
+func doAnswer(player *mob, argument string) {
+	player.talkChannel(argument, channelQuestion, "answer")
 }
 
-func (player *mob) chatImmtalk(args []string) {
-	player.talkChannel(args, channelImmtalk, "immtalk")
+func doImmtalk(player *mob, argument string) {
+	player.talkChannel(argument, channelImmtalk, "immtalk")
 }
 
-func (player *mob) say(args []string) {
-	if len(args) <= 1 {
+func doSay(player *mob, argument string) {
+	if len(argument) <= 1 {
 		player.notify("Say what?")
 		return
 	}
 
-	message := strings.Join(args[1:], " ")
-	act("You say '$T'.", player, nil, message, actToChar)
-	act("$n says '$T'.", player, nil, message, actToRoom)
+	act("You say '$T'.", player, nil, argument, actToChar)
+	act("$n says '$T'.", player, nil, argument, actToRoom)
 }
 
-func (player *mob) tell(args []string) {
+func doTell(player *mob, argument string) {
 	if player.isNPC() || player.isSilenced() {
 		player.notify("Your message didn't get through.")
 		return
 	}
 
-	if len(args) <= 1 {
+	if len(argument) <= 1 {
 		player.notify("Tell whom what?")
 		return
 	}
 
-	name := args[1]
-	message := strings.Join(args[1:], " ")
-
+	argument, name := oneArgument(argument)
 	victim := getPlayerByName(name)
 
 	if victim == nil {
@@ -112,20 +108,18 @@ func (player *mob) tell(args []string) {
 		return
 	}
 
-	player.notify("You tell %s '%s'", strings.Title(name), message)
-	victim.notify("%s tells you '%s'", strings.Title(player.Name), message)
+	player.notify("You tell %s '%s'", strings.Title(name), argument)
+	victim.notify("%s tells you '%s'", strings.Title(player.Name), argument)
 
 	victim.replyTarget = player
 
 }
 
-func (player *mob) reply(args []string) {
+func doReply(player *mob, argument string) {
 	if player.isNPC() || player.isSilenced() {
 		player.notify("Your message didn't get through.")
 		return
 	}
-
-	message := strings.Join(args[1:], " ")
 
 	victim := player.replyTarget
 	if victim == nil {
@@ -138,29 +132,27 @@ func (player *mob) reply(args []string) {
 		return
 	}
 
-	player.notify("You tell %s '%s'", strings.Title(victim.Name), message)
-	victim.notify("%s tells you '%s'", strings.Title(player.Name), message)
+	player.notify("You tell %s '%s'", strings.Title(victim.Name), argument)
+	victim.notify("%s tells you '%s'", strings.Title(player.Name), argument)
 
 	victim.replyTarget = player
 }
 
-func (player *mob) emote(args []string) {
+func doEmote(player *mob, argument string) {
 	if player.isNPC() || player.isSilenced() {
 		player.notify("You can't show your emotions.")
 		return
 	}
 
-	if len(args) <= 1 {
+	if len(argument) <= 1 {
 		player.notify("Emote what?")
 		return
 	}
 
-	message := strings.Join(args[1:], " ")
-
-	if !strings.HasSuffix(message, ".") {
-		message += "."
+	if !strings.HasSuffix(argument, ".") {
+		argument += "."
 	}
 
-	player.notify("You %s", message)
-	player.Room.notify(fmt.Sprintf("%s %s", strings.Title(player.Name), message), player)
+	player.notify("You %s", argument)
+	player.Room.notify(fmt.Sprintf("%s %s", strings.Title(player.Name), argument), player)
 }

@@ -13,9 +13,8 @@ type social struct {
 	OthersAuto  string `json:"others_auto"`
 }
 
-func checkSocial(player *mob, command string, args []string) bool {
+func checkSocial(player *mob, command string, args string) bool {
 
-	fmt.Println(command, args)
 	found := false
 	var action *social
 	for e := socialList.Front(); e != nil; e = e.Next() {
@@ -56,7 +55,7 @@ func checkSocial(player *mob, command string, args []string) bool {
 		return true
 	}
 	for _, m := range player.Room.Mobs {
-		if matchesSubject(m.Name, args[0]) {
+		if matchesSubject(m.Name, args) {
 			victim = m
 			break
 		}
@@ -104,7 +103,7 @@ func checkSocial(player *mob, command string, args []string) bool {
 	return true
 }
 
-func doSocial(player *mob, args string) {
+func doSocials(player *mob, args string) {
 	col := 0
 	var buf string
 	for e := socialList.Front(); e != nil; e = e.Next() {

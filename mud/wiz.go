@@ -8,18 +8,19 @@ import (
 	"bytes"
 )
 
-func (wiz *mob) help(args []string) {
+func doHelp(wiz *mob, argument string) {
 	// do help
 }
 
-func (wiz *mob) advance(args []string) {
-	if len(args) < 2 {
+func doAdvance(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Syntax: advance <char> <level>.")
 		return
 	}
 
-	name := args[1]
-	level, err := strconv.Atoi(args[2])
+	argument, name := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+	level, err := strconv.Atoi(arg2)
 	if err != nil {
 		wiz.notify("Syntax: advance <char> <level>.")
 		return
@@ -78,15 +79,15 @@ func (wiz *mob) advance(args []string) {
 	return
 }
 
-func (wiz *mob) at(args []string) {
-	if len(args) < 2 {
+func doAt(wiz *mob, argument string) {
+	if len(argument) < 2 {
 		wiz.notify("At where what?")
 		return
 	}
 
-	where, what := args[1], strings.Join(args[2:], " ")
+	what, where := oneArgument(argument)
 
-	location := wiz.findLocation([]string{where})
+	location := wiz.findLocation(where)
 	if location == nil {
 		wiz.notify("No such location.")
 		return
@@ -100,43 +101,44 @@ func (wiz *mob) at(args []string) {
 	original := wiz.Room
 	wiz.Room = location
 
-	newAction(wiz, wiz.client, what)
+	interpret(wiz, what)
 
 	wiz.Room = original
 	return
 }
 
-func (wiz *mob) bamfin(args []string) {
+func doBamfin(wiz *mob, argument string) {
 
-	if len(args) < 1 {
+	if len(argument) < 1 {
 		wiz.notify("Set bamfin to where?")
 		return
 	}
 
 	if !wiz.isNPC() {
-		wiz.Bamfin = args[1]
+		wiz.Bamfin = argument
 	}
 }
 
-func (wiz *mob) bamfout(args []string) {
+func doBamfout(wiz *mob, argument string) {
 
-	if len(args) < 1 {
-		wiz.notify("Set bamfin to where?")
+	if len(argument) < 1 {
+		wiz.notify("Set bamfin to what?")
 		return
 	}
 
 	if !wiz.isNPC() {
-		wiz.Bamfout = args[1]
+		wiz.Bamfout = argument
 	}
 }
 
-func (wiz *mob) deny(args []string) {
-	if len(args) < 1 {
+func doDeny(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Deny whom?")
 		return
 	}
 
-	victim := getPlayerByName(args[1])
+	argument, arg1 := oneArgument(argument)
+	victim := getPlayerByName(arg1)
 	if victim == nil {
 		wiz.notify("They aren't here.")
 		return
@@ -155,16 +157,17 @@ func (wiz *mob) deny(args []string) {
 	setBit(victim.Act, playerDeny)
 	victim.notify("You are denied access!")
 	wiz.notify("OK.")
-	newAction(victim, victim.client, "quit")
+	interpret(wiz, "quit")
 }
 
-func (wiz *mob) disconnect(args []string) {
-	if len(args) < 1 {
+func doDisconnect(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Disconnect whom?")
 		return
 	}
 
-	victim := getPlayerByName(args[1])
+	argument, arg1 := oneArgument(argument)
+	victim := getPlayerByName(arg1)
 	if victim == nil {
 		wiz.notify("They aren't here.")
 		return
@@ -187,33 +190,35 @@ func (wiz *mob) disconnect(args []string) {
 	return
 }
 
-func (wiz *mob) echo(args []string) {
-	if len(args) < 1 {
+func doEcho(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Echo what?")
 		return
 	}
 
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		m.notify(strings.Join(args, " "))
+		m.notify(argument)
 	}
 	return
 }
 
-func (wiz *mob) findLocation(args []string) *room {
-	if len(args) < 1 {
+func (wiz *mob) findLocation(argument string) *room {
+	if len(argument) < 1 {
 		wiz.notify("Find what location?")
 		return nil
 	}
 
-	num, err := strconv.Atoi(args[1])
+	argument, arg1 := oneArgument(argument)
+
+	num, err := strconv.Atoi(arg1)
 	isNumber := err == nil
 
 	if isNumber {
 		return getRoom(num)
 	}
 
-	victim := getPlayerByName(args[1])
+	victim := getPlayerByName(arg1)
 	if victim != nil {
 		return victim.Room
 	}
@@ -223,20 +228,20 @@ func (wiz *mob) findLocation(args []string) *room {
 	return nil
 }
 
-func (wiz *mob) force(args []string) {
-	if len(args) < 2 {
+func doForce(wiz *mob, argument string) {
+	if len(argument) < 2 {
 		wiz.notify("Syntax: force <char> <action>")
 		return
 	}
 
-	name, action := args[1], strings.Join(args[2:], " ")
+	action, name := oneArgument(argument)
 
 	if name == "all" {
 		for e := mobList.Front(); e != nil; e = e.Next() {
 			m := e.Value.(*mob)
 			if m.client != nil && !m.isNPC() && m.getTrust() < wiz.getTrust() {
 				act("$n forces you to '$t'.", wiz, action, m, actToVict)
-				newAction(m, m.client, action)
+				interpret(m, action)
 			}
 		}
 	} else {
@@ -258,7 +263,7 @@ func (wiz *mob) force(args []string) {
 		}
 
 		act("$n forces you to '$t'.", wiz, action, victim, actToVict)
-		newAction(victim, victim.client, action)
+		interpret(victim, action)
 	}
 
 	wiz.notify("Ok")
@@ -266,13 +271,15 @@ func (wiz *mob) force(args []string) {
 
 }
 
-func (wiz *mob) freeze(args []string) {
-	if len(args) < 1 {
+func doFreeze(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Freeze whom?")
 		return
 	}
 
-	victim := getPlayerByName(args[1])
+	argument, arg1 := oneArgument(argument)
+
+	victim := getPlayerByName(arg1)
 	if victim == nil {
 		wiz.notify("They aren't here.")
 		return
@@ -303,13 +310,13 @@ func (wiz *mob) freeze(args []string) {
 	return
 }
 
-func (wiz *mob) goTo(args []string) {
-	if len(args) < 1 {
+func doGoto(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Goto where?")
 		return
 	}
 
-	location := wiz.findLocation(args[1:1])
+	location := wiz.findLocation(argument)
 	if location == nil {
 		wiz.notify("No such location.")
 		return
@@ -332,10 +339,10 @@ func (wiz *mob) goTo(args []string) {
 	wiz.Room = location
 	wiz.Room.Mobs = append(wiz.Room.Mobs, wiz)
 
-	newAction(wiz, wiz.client, "look")
+	interpret(wiz, "look")
 }
 
-func (wiz *mob) holylight(args []string) {
+func doHolylight(wiz *mob, argument string) {
 	if wiz.isNPC() {
 		return
 	}
@@ -349,7 +356,7 @@ func (wiz *mob) holylight(args []string) {
 	}
 }
 
-func (wiz *mob) invis(args []string) {
+func doInvis(wiz *mob, argument string) {
 	if wiz.isNPC() {
 		return
 	}
@@ -366,18 +373,19 @@ func (wiz *mob) invis(args []string) {
 	return
 }
 
-func (wiz *mob) mfind(args []string) {
-	if len(args) < 1 {
+func doMfind(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Mfind whom?")
 		return
 	}
 
-	all := args[1] == "all"
+	argument, arg1 := oneArgument(argument)
+	all := arg1 == "all"
 	found := false
 
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		if all || matchesSubject(m.Name, args[1]) {
+		if all || matchesSubject(m.Name, arg1) {
 			wiz.notify("[%5d] %s", m.ID, strings.Title(m.Description))
 			found = true
 		}
@@ -389,13 +397,14 @@ func (wiz *mob) mfind(args []string) {
 	return
 }
 
-func (wiz *mob) mload(args []string) {
-	if len(args) < 1 {
+func doMload(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Syntax: mload <id>.")
 		return
 	}
 
-	id, err := strconv.Atoi(args[1])
+	argument, arg1 := oneArgument(argument)
+	id, err := strconv.Atoi(arg1)
 	if err != nil {
 		wiz.notify("Syntax: mload <id>.")
 		return
@@ -414,16 +423,18 @@ func (wiz *mob) mload(args []string) {
 	return
 }
 
-func (wiz *mob) mstat(args []string) {
-	if len(args) < 2 {
+func doMstat(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Mstat whom?")
 		return
 	}
 
+	argument, arg1 := oneArgument(argument)
+
 	var victim *mob
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		if matchesSubject(m.Name, args[1]) {
+		if matchesSubject(m.Name, arg1) {
 			victim = m
 			break
 		}
@@ -457,39 +468,41 @@ func (wiz *mob) mstat(args []string) {
 	return
 }
 
-func (wiz *mob) mwhere(args []string) {
-	if len(args) < 1 {
+func doMwhere(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Mwhere whom?")
 		return
 	}
 
+	argument, arg1 := oneArgument(argument)
 	found := false
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
-		if m.isNPC() && m.Room != nil && matchesSubject(m.Name, args[1]) {
+		if m.isNPC() && m.Room != nil && matchesSubject(m.Name, arg1) {
 			found = true
 			wiz.notify("[%5d] %-28s [%5d] %s", m.index.ID, m.Description, m.Room.ID, m.Room.Name)
 		}
 	}
 
 	if !found {
-		act("You didn't find any $T.", wiz, nil, args[1], actToChar)
+		act("You didn't find any $T.", wiz, nil, arg1, actToChar)
 	}
 
 }
 
-func (wiz *mob) ofind(args []string) {
-	if len(args) < 1 {
+func doOfind(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Ofind whom?")
 		return
 	}
 
-	all := args[1] == "all"
+	argument, arg1 := oneArgument(argument)
+	all := arg1 == "all"
 	found := false
 
 	for e := itemList.Front(); e != nil; e = e.Next() {
 		i := e.Value.(*item)
-		if all || matchesSubject(i.Name, args[1]) {
+		if all || matchesSubject(i.Name, arg1) {
 			wiz.notify("[%5d] %s", i.ID, strings.Title(i.ShortDescription))
 			found = true
 		}
@@ -501,19 +514,21 @@ func (wiz *mob) ofind(args []string) {
 	return
 }
 
-func (wiz *mob) oload(args []string) {
-	if len(args) < 2 {
+func doOload(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Syntax: oload <id> <level>")
 		return
 	}
 
-	id, err := strconv.Atoi(args[1])
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+	id, err := strconv.Atoi(arg1)
 	if err != nil {
 		wiz.notify("Syntax: oload <id> <level>")
 		return
 	}
 
-	level, err := strconv.Atoi(args[2])
+	level, err := strconv.Atoi(arg2)
 	if err != nil {
 		wiz.notify("Syntax: oload <id> <level>")
 		return
@@ -551,16 +566,18 @@ func (wiz *mob) oload(args []string) {
 	return
 }
 
-func (wiz *mob) ostat(args []string) {
-	if len(args) < 2 {
+func doOstat(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Ostat what?")
 		return
 	}
 
+	argument, arg1 := oneArgument(argument)
+
 	var obj *item
 	for e := itemList.Front(); e != nil; e = e.Next() {
 		i := e.Value.(*item)
-		if matchesSubject(i.Name, args[1]) {
+		if matchesSubject(i.Name, arg1) {
 			obj = i
 			break
 		}
@@ -591,13 +608,14 @@ func (wiz *mob) ostat(args []string) {
 	return
 }
 
-func (wiz *mob) pardon(args []string) {
-	if len(args) < 2 {
+func doPardon(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Syntax: pardon <character> <killer|thief>")
 		return
 	}
 
-	arg1, arg2 := args[1], args[2]
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
 
 	victim := getPlayerByName(arg1)
 	if victim == nil {
@@ -632,8 +650,8 @@ func (wiz *mob) pardon(args []string) {
 	return
 }
 
-func (wiz *mob) purge(args []string) {
-	if len(args) < 1 {
+func doPurge(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		for _, m := range wiz.Room.Mobs {
 			if m.isNPC() {
 				extractMob(m, true)
@@ -649,7 +667,8 @@ func (wiz *mob) purge(args []string) {
 		return
 	}
 
-	victim := getPlayerByName(args[1])
+	argument, arg1 := oneArgument(argument)
+	victim := getPlayerByName(arg1)
 	if victim == nil {
 		wiz.notify("They aren't here.")
 		return
@@ -664,24 +683,24 @@ func (wiz *mob) purge(args []string) {
 	extractMob(victim, true)
 }
 
-func (wiz *mob) reboo(args []string) {
+func doReboo(wiz *mob, argument string) {
 	wiz.notify("If you want to reboot, spell it out.")
 	return
 }
 
-func (wiz *mob) reboot(args []string) {
-	wiz.echo([]string{fmt.Sprintf("Reboot by %s", wiz.Name)})
+func doReboot(wiz *mob, argument string) {
+	doEcho(wiz, fmt.Sprintf("Reboot by %s", wiz.Name))
 	gameServer.Up = false
 	return
 }
 
-func (wiz *mob) restore(args []string) {
-	if len(args) < 1 {
+func doRestore(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Restore whom?")
 		return
 	}
-
-	victim := getPlayerByName(args[1])
+	argument, arg1 := oneArgument(argument)
+	victim := getPlayerByName(arg1)
 	if victim == nil {
 		wiz.notify("They aren't here.")
 		return
@@ -696,7 +715,7 @@ func (wiz *mob) restore(args []string) {
 	return
 }
 
-func (wiz *mob) returnTo(args []string) {
+func doReturn(wiz *mob, argument string) {
 	if wiz.client == nil {
 		return
 	}
@@ -714,8 +733,8 @@ func (wiz *mob) returnTo(args []string) {
 	return
 }
 
-func (wiz *mob) recho(args []string) {
-	if len(args) < 1 {
+func doRecho(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Recho what?")
 		return
 	}
@@ -723,18 +742,18 @@ func (wiz *mob) recho(args []string) {
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		m := e.Value.(*mob)
 		if m.Room == wiz.Room {
-			m.notify(strings.Join(args, " "))
+			m.notify(argument)
 		}
 	}
 	return
 }
 
-func (wiz *mob) rstat(args []string) {
+func doRstat(wiz *mob, argument string) {
 	var location *room
-	if len(args) < 2 {
+	if len(argument) < 1 {
 		location = wiz.Room
 	} else {
-		location = wiz.findLocation(args[1:1])
+		location = wiz.findLocation(argument)
 	}
 
 	if location == nil {
@@ -780,23 +799,24 @@ func (wiz *mob) rstat(args []string) {
 	return
 }
 
-func (wiz *mob) shutdow(args []string) {
+func doShutdow(wiz *mob, argument string) {
 	wiz.notify("If you want to SHUTDOWN, spell it out.")
 	return
 }
 
-func (wiz *mob) shutdown(args []string) {
-	wiz.echo([]string{fmt.Sprintf("Shutdown by %s", wiz.Name)})
+func doShutdown(wiz *mob, argument string) {
+	doEcho(wiz, fmt.Sprintf("Shutdown by %s", wiz.Name))
 	gameServer.Up = false
 }
 
-func (wiz *mob) snoop(args []string) {
-	if len(args) < 1 {
+func doSnoop(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Snoop whom?")
 		return
 	}
 
-	victim := getPlayerByName(args[1])
+	argument, arg1 := oneArgument(argument)
+	victim := getPlayerByName(arg1)
 	if victim == nil {
 		wiz.notify("They aren't here.")
 		return
@@ -822,10 +842,9 @@ func (wiz *mob) snoop(args []string) {
 		return
 	}
 
-	// TODO
-	// if victim.getTrust() >= wiz.getTrust() {
-	// 	wiz.notify("You failed.")
-	// }
+	if victim.getTrust() >= wiz.getTrust() {
+		wiz.notify("You failed.")
+	}
 
 	if wiz.client != nil {
 		for _, c := range gameServer.connections {
@@ -841,13 +860,14 @@ func (wiz *mob) snoop(args []string) {
 	return
 }
 
-func (wiz *mob) switchInto(args []string) {
-	if len(args) < 1 {
+func doSwitch(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Switch into whom?")
 		return
 	}
 
-	victim := getPlayerByName(args[1])
+	argument, arg1 := oneArgument(argument)
+	victim := getPlayerByName(arg1)
 	if wiz.client == nil {
 		return
 	}
@@ -880,19 +900,18 @@ func (wiz *mob) switchInto(args []string) {
 	return
 }
 
-func (wiz *mob) transfer(args []string) {
-	if len(args) < 2 {
+func doTransfer(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Transfer whom?")
 	}
 
-	whom, where := args[1], args[2]
+	where, whom := oneArgument(argument)
 
 	if whom == "all" {
 		for e := mobList.Front(); e != nil; e = e.Next() {
 			m := e.Value.(*mob)
 			if m.client != nil && m != wiz && m.Room != nil && wiz.canSee(m) {
-				newArgs := []string{m.Name, where}
-				m.transfer(newArgs)
+				doTransfer(m, where)
 			}
 		}
 		return
@@ -902,7 +921,7 @@ func (wiz *mob) transfer(args []string) {
 	if where == "here" {
 		location = wiz.Room
 	} else {
-		location := wiz.findLocation([]string{where})
+		location := wiz.findLocation(where)
 		if location == nil {
 			wiz.notify("No such location.")
 			return
@@ -938,18 +957,21 @@ func (wiz *mob) transfer(args []string) {
 		act("$n has transferred you.", wiz, nil, victim, actToVict)
 	}
 
-	newAction(victim, victim.client, "look")
+	interpret(victim, "look")
 	wiz.notify("OK.")
 }
 
-func (wiz *mob) trust(args []string) {
-	if len(args) < 2 {
+func doTrust(wiz *mob, argument string) {
+	if len(argument) < 1 {
 		wiz.notify("Sytax: trust <char> <level>")
 		return
 	}
 
-	name := args[1]
-	level, err := strconv.Atoi(args[2])
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+
+	name := arg1
+	level, err := strconv.Atoi(arg2)
 	if err != nil {
 		wiz.notify("Syntax: trust <char> <level>")
 		return
