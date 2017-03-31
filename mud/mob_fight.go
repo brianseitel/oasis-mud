@@ -5,35 +5,6 @@ import (
 	"strings"
 )
 
-func (m *mob) attack(target *mob) {
-	// if target.Status != dead {
-	// 	damage := m.damage(target)
-	// 	target.takeDamage(damage)
-
-	// 	if target.Status == dead {
-	// 		m.notify("You have KILLED %s to death!!", target.Name)
-	// 		m.Status = standing
-
-	// 		exp := xpCompute(m, target)
-	// 		m.notify("You gain %d experience points!", exp)
-	// 		m.gainExp(exp)
-
-	// 		// Cancel fight
-	// 		m.Fight = nil
-	// 		target.Fight = nil
-
-	// 		// whisk it away
-	// 		target.die()
-	// 		m.Room.removeMob(target)
-	// 		target.Room.removeMob(target)
-	// 		m.statusBar()
-	// 		return
-	// 	}
-	// 	m.Status = fighting
-	// 	target.Status = fighting
-	// }
-}
-
 func (m *mob) damage(victim *mob, dam int, damageType int) {
 	if victim.Status == dead {
 		return
