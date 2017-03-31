@@ -68,6 +68,8 @@ func createItem(index *itemIndex) *item {
 		i := getItem(id)
 		contained = append(contained, createItem(i))
 	}
+
+	item.index = *index
 	item.container = contained
 	itemList.PushBack(item)
 	return item
@@ -134,6 +136,10 @@ func createMob(index *mobIndex) *mob {
 		skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
 	}
 	m.Skills = skills
+
+	for _, i := range m.Equipped {
+		m.wear(i, false)
+	}
 
 	if m.isNPC() && (m.Room != nil && m.Room.isDark()) {
 		setBit(m.AffectedBy, affectInfrared)
@@ -317,12 +323,12 @@ func loadItems() {
 func loadJobs() {
 	var jobs []*job
 
-	jobs = append(jobs, &job{ID: 1, Name: "Warrior", Abbr: "war"})
-	jobs = append(jobs, &job{ID: 2, Name: "Mage", Abbr: "mag"})
-	jobs = append(jobs, &job{ID: 3, Name: "Cleric", Abbr: "cle"})
-	jobs = append(jobs, &job{ID: 4, Name: "Thief", Abbr: "thi"})
-	jobs = append(jobs, &job{ID: 5, Name: "Ranger", Abbr: "ran"})
-	jobs = append(jobs, &job{ID: 6, Name: "Bard", Abbr: "bar"})
+	jobs = append(jobs, &job{ID: 1, Name: "Warrior", Abbr: "war", StartingWeapon: startingSword, PrimeAttribute: applyStrength, SkillAdept: 85, Thac0_00: 18, Thac0_32: 6, MinHitpoints: 11, MaxHitpoints: 15, GainsMana: false})
+	jobs = append(jobs, &job{ID: 2, Name: "Mage", Abbr: "mag", StartingWeapon: startingStaff, PrimeAttribute: applyIntelligence, SkillAdept: 95, Thac0_00: 18, Thac0_32: 10, MinHitpoints: 6, MaxHitpoints: 8, GainsMana: true})
+	jobs = append(jobs, &job{ID: 3, Name: "Cleric", Abbr: "cle", StartingWeapon: startingMace, PrimeAttribute: applyWisdom, SkillAdept: 95, Thac0_00: 18, Thac0_32: 12, MinHitpoints: 7, MaxHitpoints: 10, GainsMana: true})
+	jobs = append(jobs, &job{ID: 4, Name: "Thief", Abbr: "thi", StartingWeapon: startingDagger, PrimeAttribute: applyDexterity, SkillAdept: 85, Thac0_00: 18, Thac0_32: 8, MinHitpoints: 8, MaxHitpoints: 8, GainsMana: false})
+	jobs = append(jobs, &job{ID: 5, Name: "Ranger", Abbr: "ran", StartingWeapon: startingWhip, PrimeAttribute: applyConstitution, SkillAdept: 85, Thac0_00: 18, Thac0_32: 8, MinHitpoints: 10, MaxHitpoints: 14, GainsMana: false})
+	jobs = append(jobs, &job{ID: 6, Name: "Bard", Abbr: "bar", StartingWeapon: startingDagger, PrimeAttribute: applyCharisma, SkillAdept: 85, Thac0_00: 18, Thac0_32: 11, MinHitpoints: 7, MaxHitpoints: 9, GainsMana: true})
 
 	for _, j := range jobs {
 		jobList.PushBack(j)

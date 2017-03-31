@@ -832,6 +832,7 @@ func (m *mob) wear(wearable *item, replace bool) {
 		if !removed {
 			return
 		}
+
 		if wearable.Weight > m.ModifiedAttributes.Strength {
 			m.notify("It is too heavy for you to wield.")
 			return
@@ -844,4 +845,5 @@ func (m *mob) wear(wearable *item, replace bool) {
 	}
 
 	m.notify("You can't wear, wield, or hold that.")
+	fmt.Println("You can't wear, wield, or hold that.")
 }

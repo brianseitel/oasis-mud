@@ -25,6 +25,7 @@ func login(c *connection) *mob {
 
 	var player *mobIndex
 	err = json.Unmarshal(file, &player)
+
 	if err != nil {
 		player.Name = name
 		return register(c, name)
@@ -48,7 +49,6 @@ func login(c *connection) *mob {
 	p.client = c
 	p.Status = standing
 	p.Room.Mobs = append(p.Room.Mobs, p)
-
 	mobList.PushBack(p)
 	return p
 }

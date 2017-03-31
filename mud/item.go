@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+/* common items */
+const (
+	startingDagger = 100008
+	startingSword  = 100009
+	startingMace   = 100010
+	startingStaff  = 100011
+	startingWhip   = 100012
+)
+
 const (
 	goldSingle = 100001
 	goldMulti  = 100002
@@ -63,27 +72,27 @@ const (
 
 /* wear locations */
 const (
-	wearNone  = 99999
-	wearLight = iota
-	wearArmor
-	wearFingerLeft
-	wearFingerRight
-	wearNeck1
-	wearNeck2
-	wearBody
-	wearHead
-	wearLegs
-	wearFeet
-	wearHands
-	wearArms
-	wearShield
-	wearAbout
-	wearWaist
-	wearWristLeft
-	wearWristRight
-	wearWield
-	wearHold
-	maxWear
+	wearNone        = 99999
+	wearLight       = 1
+	wearArmor       = 2
+	wearFingerLeft  = 3
+	wearFingerRight = 4
+	wearNeck1       = 5
+	wearNeck2       = 6
+	wearBody        = 7
+	wearHead        = 8
+	wearLegs        = 9
+	wearFeet        = 10
+	wearHands       = 11
+	wearArms        = 12
+	wearShield      = 13
+	wearAbout       = 14
+	wearWaist       = 15
+	wearWristLeft   = 16
+	wearWristRight  = 17
+	wearWield       = 18
+	wearHold        = 19
+	maxWear         = 20
 )
 
 /* Item flags */
@@ -106,46 +115,46 @@ const (
 
 /* Item types */
 const (
-	itemLight = iota
-	itemScroll
-	itemWand
-	itemStaff
-	itemWeapon
-	itemTreasure
-	itemArmor
-	itemPotion
-	itemFurniture
-	itemTrash
-	itemContainer
-	itemDrinkContainer
-	itemKey
-	itemFood
-	itemMoney
-	itemBoat
-	itemCorpseNPC
-	itemCorpsePC
-	itemFountain
-	itemPill
+	itemLight          = 1
+	itemScroll         = 2
+	itemWand           = 3
+	itemStaff          = 4
+	itemWeapon         = 5
+	itemTreasure       = 6
+	itemArmor          = 7
+	itemPotion         = 8
+	itemFurniture      = 9
+	itemTrash          = 10
+	itemContainer      = 11
+	itemDrinkContainer = 12
+	itemKey            = 13
+	itemFood           = 14
+	itemMoney          = 15
+	itemBoat           = 16
+	itemCorpseNPC      = 17
+	itemCorpsePC       = 18
+	itemFountain       = 19
+	itemPill           = 20
 )
 
 /* wear flags for items */
 const (
-	itemTake = 1 << iota
-	itemWearNeck
-	itemWearBody
-	itemWearHead
-	itemWearLegs
-	itemWearFinger
-	itemWearFeet
-	itemWearHands
-	itemWearArms
-	itemWearShield
-	itemWearAbout
-	itemWearWaist
-	itemWearWrist
-	itemWearWield
-	itemWearHold
-	itemWearLight
+	itemTake       = 1
+	itemWearNeck   = 2
+	itemWearBody   = 4
+	itemWearHead   = 8
+	itemWearLegs   = 16
+	itemWearFinger = 32
+	itemWearFeet   = 64
+	itemWearHands  = 128
+	itemWearArms   = 256
+	itemWearShield = 512
+	itemWearAbout  = 1024
+	itemWearWaist  = 2048
+	itemWearWrist  = 4096
+	itemWearWield  = 8192
+	itemWearHold   = 16384
+	itemWearLight  = 32768
 )
 
 type itemAttributeSet struct{}

@@ -107,7 +107,7 @@ type mobIndex struct {
 	Gender int
 
 	Attributes         *attributeSet
-	ModifiedAttributes *attributeSet
+	ModifiedAttributes *attributeSet `json:"modified_attributes"`
 
 	Status      status
 	Identifiers string
@@ -474,6 +474,10 @@ func (m *mob) equippedItem(position int) *item {
 		}
 	}
 	return nil
+}
+
+func (m *mob) hitroll() int {
+	return m.Hitroll + m.ModifiedAttributes.Strength
 }
 
 func (m *mob) notify(message string, a ...interface{}) {

@@ -364,8 +364,8 @@ func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
 		vs = "miss"
 		vp = "misses"
 	} else if dam <= 4 {
-		vp = "scratch"
-		vs = "scratches"
+		vs = "scratch"
+		vp = "scratches"
 	} else if dam <= 8 {
 		vs = "graze"
 		vp = "grazes"
@@ -441,8 +441,7 @@ func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
 }
 
 func (m *mob) damroll() int {
-	return 1000
-	// return m.Attributes.Strength
+	return m.Damroll + m.ModifiedAttributes.Strength
 }
 
 func (m *mob) deathCry() {
@@ -587,22 +586,22 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 		thac0_00 = 20
 		thac0_32 = 0
 	} else {
-		thac0_00 = 32
-		thac0_32 = 0
+		thac0_00 = m.Job.Thac0_00
+		thac0_32 = m.Job.Thac0_32
 	}
 
-	thac0 := interpolate(m.Level, thac0_00, thac0_32) - m.Hitroll
-
+	thac0 := interpolate(m.Level, thac0_00, thac0_32) - m.hitroll()
 	victimAC := max(-15, victim.Armor/10)
 	if !m.canSee(victim) {
-		victim.Armor -= 4
+		victimAC -= 4
 	}
 
-	diceroll := 99
-	for diceroll >= 25 {
+	diceroll := 9999
+	for diceroll >= 20 {
 		diceroll = dBits(5)
 	}
 
+	fmt.Println(m.Name, thac0, "-", victim.Name, victimAC, "diceroll", diceroll)
 	if diceroll == 0 || (diceroll != 19 && diceroll < thac0-victimAC) {
 		// miss. //
 		m.damage(victim, 0, damageType)
@@ -622,6 +621,7 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 		}
 	}
 
+	dam += m.damroll()
 	enhancedDamage := m.skill("enhanced_damage")
 	if enhancedDamage != nil {
 		if !m.isNPC() && int(m.skill("enhanced_damage").Level) > 0 {
