@@ -148,7 +148,7 @@ func doGet(player *mob, argument string) {
 	argument, arg1 := oneArgument(argument)
 	argument, arg2 := oneArgument(argument)
 
-	if arg2 != "" {
+	if arg2 == "" {
 		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
 			// get obj
 			for _, i := range player.Room.Items {

@@ -87,5 +87,5 @@ func oneArgument(argument string) (string, string) {
 		return "", argument
 	}
 
-	return strings.Join(parts[1:], ""), parts[0]
+	return strings.Join(parts[1:], " "), parts[0]
 }
