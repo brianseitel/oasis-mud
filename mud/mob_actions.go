@@ -51,6 +51,102 @@ func (player *mob) changePosition(pos status) {
 
 }
 
+func doClose(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		player.notify("Close what?")
+		return
+	}
+
+	var obj *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			obj = i
+			break
+		}
+	}
+
+	if obj == nil {
+		for _, i := range player.Room.Items {
+			if matchesSubject(i.Name, arg1) {
+				obj = i
+				break
+			}
+		}
+	}
+
+	if obj != nil {
+		if obj.ItemType != itemContainer {
+			player.notify("That isn't a container.")
+			return
+		}
+
+		if obj.isClosed() {
+			player.notify("It's already closed.")
+			return
+		}
+
+		if !obj.isCloseable() {
+			player.notify("You can't do that.")
+			return
+		}
+
+		setBit(obj.ClosedFlags, containerClosed)
+		player.notify("Ok.")
+		act("$n closes $p.", player, obj, nil, actToRoom)
+		return
+	}
+
+	for _, e := range player.Room.Exits {
+		if matchesSubject(e.Dir, arg1) {
+
+			if e.isClosed() {
+				player.notify("It's already closed.")
+				return
+			}
+
+			setBit(e.Flags, exitClosed)
+			act("$n closes the $d.", player, nil, e.Keyword, actToRoom)
+			player.notify("Ok.")
+
+			// close other side
+			if e.Room != nil {
+				for _, ex := range e.Room.Exits {
+					if ex.Dir == reverseDirection(e.Dir) {
+						setBit(ex.Flags, exitClosed)
+						for _, m := range e.Room.Mobs {
+							act("The $d closes.", m, nil, ex.Keyword, actToChar)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	player.notify("That isn't here.")
+}
+
+func doCommands(player *mob, argument string) {
+	var buf bytes.Buffer
+	col := 0
+	for e := commandList.Front(); e != nil; e = e.Next() {
+		c := e.Value.(*cmd)
+		if c.Trust <= player.getTrust() {
+			buf.Write([]byte(fmt.Sprintf("%-12s", c.Name)))
+			col++
+			if col%6 == 0 {
+				output, _ := buf.ReadString('\n')
+				player.notify(output)
+			}
+		}
+	}
+
+	if col%6 != 0 {
+		player.notify("")
+	}
+}
+
 func doHide(player *mob, argument string) {
 	player.notify("You attempt to hide.")
 
@@ -326,6 +422,82 @@ func doPractice(player *mob, argument string) {
 	return
 }
 
+func doOpen(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		player.notify("Open what?")
+		return
+	}
+
+	var obj *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			obj = i
+			break
+		}
+	}
+
+	if obj == nil {
+		for _, i := range player.Room.Items {
+			if matchesSubject(i.Name, arg1) {
+				obj = i
+				break
+			}
+		}
+	}
+
+	if obj != nil {
+		if obj.ItemType != itemContainer {
+			player.notify("That isn't a container.")
+			return
+		}
+
+		if !obj.isClosed() {
+			player.notify("It's already open.")
+			return
+		}
+
+		if !obj.isCloseable() {
+			player.notify("You can't do that.")
+			return
+		}
+
+		removeBit(obj.ClosedFlags, containerClosed)
+		player.notify("Ok.")
+		act("$n closes $p.", player, obj, nil, actToRoom)
+		return
+	}
+
+	for _, e := range player.Room.Exits {
+		if matchesSubject(e.Dir, arg1) {
+
+			if e.isClosed() {
+				player.notify("It's already open.")
+				return
+			}
+
+			setBit(e.Flags, exitClosed)
+			act("$n open the $d.", player, nil, e.Keyword, actToRoom)
+			player.notify("Ok.")
+
+			// close other side
+			if e.Room != nil {
+				for _, ex := range e.Room.Exits {
+					if ex.Dir == reverseDirection(e.Dir) {
+						removeBit(ex.Flags, exitClosed)
+						for _, m := range e.Room.Mobs {
+							act("The $d opens.", m, nil, ex.Keyword, actToChar)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	player.notify("That isn't here.")
+}
+
 func doQui(player *mob, argument string) {
 	player.notify("If you want to quit, spell it out.")
 	return
@@ -357,6 +529,50 @@ func doRecall(player *mob, argument string) {
 	}
 
 	player.notify("Recall what?")
+}
+
+func doRest(player *mob, argument string) {
+	switch player.Status {
+	case resting:
+		player.notify("You are already resting.")
+		break
+
+	case sleeping:
+		player.notify("You sit up and rest.")
+		act("$n wakes up and rests.", player, nil, nil, actToRoom)
+		break
+
+	case standing:
+		player.notify("You rest.")
+		act("$n rests.", player, nil, nil, actToRoom)
+		player.Status = resting
+		break
+
+	case fighting:
+		player.notify("You're too busy fighting!")
+		break
+	}
+	return
+}
+
+func doSleep(player *mob, argument string) {
+	switch player.Status {
+	case sleeping:
+		player.notify("You are already sleeping.")
+		return
+
+	case resting:
+	case standing:
+		player.notify("You sleep.")
+		act("$n sleeps.", player, nil, nil, actToRoom)
+		player.Status = sleeping
+		break
+
+	case fighting:
+		player.notify("You're too busy fighting!")
+		break
+	}
+	return
 }
 
 func doSneak(player *mob, argument string) {
@@ -658,6 +874,41 @@ func doUnlock(player *mob, argument string) {
 				removeBit(reverseExit.Flags, exitLocked)
 			}
 		}
+	}
+	return
+}
+
+func doVisible(player *mob, argument string) {
+	player.stripAffect("invis")
+	player.stripAffect("mass_invis")
+	player.stripAffect("sneak")
+	removeBit(player.AffectedBy, affectHide)
+	removeBit(player.AffectedBy, affectInvisible)
+	removeBit(player.AffectedBy, affectSneak)
+	player.notify("Ok.")
+}
+
+func doWake(player *mob, argument string) {
+	switch player.Status {
+	case standing:
+		player.notify("You're already awake!")
+		break
+
+	case sleeping:
+		player.notify("You wake up, stretch, and climb to your feet.")
+		act("$n wakes up.", player, nil, nil, actToRoom)
+		player.Status = standing
+		break
+
+	case resting:
+		player.notify("You wake up and rest.")
+		act("$n wakes up and rests.", player, nil, nil, actToRoom)
+		player.Status = standing
+		break
+
+	case fighting:
+		player.notify("You're too busy fighting!")
+		break
 	}
 	return
 }

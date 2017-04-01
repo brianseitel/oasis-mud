@@ -14,6 +14,7 @@ var gameServer Server
 type Server struct {
 	connections []connection
 	Up          bool
+	Wizlock     bool
 }
 
 func (server *Server) handle(c *connection) {

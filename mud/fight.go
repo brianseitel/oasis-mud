@@ -94,7 +94,7 @@ func makeCorpse(victim *mob) {
 	corpse.Name = strings.Replace(corpse.ShortDescription, "[name]", name, 1)
 	corpse.Description = strings.Replace(corpse.Description, "[name]", name, 1)
 
-	for j, _ := range victim.Inventory {
+	for j := range victim.Inventory {
 		victim.Inventory, corpse.container = transferItem(j, victim.Inventory, corpse.container)
 	}
 

@@ -8,10 +8,6 @@ import (
 	"bytes"
 )
 
-func doHelp(wiz *mob, argument string) {
-	// do help
-}
-
 func doAdvance(wiz *mob, argument string) {
 	if len(argument) < 1 {
 		wiz.notify("Syntax: advance <char> <level>.")
@@ -79,6 +75,25 @@ func doAdvance(wiz *mob, argument string) {
 	return
 }
 
+func doAllow(wiz *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("Remove which site from the ban list?")
+		return
+	}
+
+	for e := banList.Front(); e != nil; e = e.Next() {
+		b := e.Value.(string)
+		if b == arg1 {
+			banList.Remove(e)
+			break
+		}
+	}
+
+	wiz.notify("Site is un-banned.")
+}
+
 func doAt(wiz *mob, argument string) {
 	if len(argument) < 2 {
 		wiz.notify("At where what?")
@@ -129,6 +144,33 @@ func doBamfout(wiz *mob, argument string) {
 	if !wiz.isNPC() {
 		wiz.Bamfout = argument
 	}
+}
+
+func doBan(wiz *mob, argument string) {
+	if wiz.isNPC() {
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("Banned sites:")
+		for e := banList.Front(); e != nil; e = e.Next() {
+			b := e.Value.(string)
+			wiz.notify(b)
+		}
+		return
+	}
+
+	for e := banList.Front(); e != nil; e = e.Next() {
+		b := e.Value.(string)
+		if b == arg1 {
+			wiz.notify("That site is already banned.")
+			return
+		}
+	}
+
+	wiz.notify("Ok.")
 }
 
 func doDeny(wiz *mob, argument string) {
@@ -490,6 +532,74 @@ func doMwhere(wiz *mob, argument string) {
 
 }
 
+func doNoEmote(wiz *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("NoEmote whom?")
+		return
+	}
+
+	victim := getPlayerByName(arg1)
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim.isNPC() {
+		wiz.notify("Not on NPCs.")
+		return
+	}
+
+	if victim.getTrust() >= wiz.getTrust() {
+		wiz.notify("You failed.")
+	}
+
+	if hasBit(victim.Act, playerNoEmote) {
+		removeBit(victim.Act, playerNoEmote)
+		victim.notify("You can emote again!")
+		wiz.notify("NO EMOTE removed.")
+	} else {
+		setBit(victim.Act, playerNoEmote)
+		victim.notify("You can't emote!")
+		wiz.notify("NO EMOTE set.")
+	}
+}
+
+func doNoTell(wiz *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("NoTell whom?")
+		return
+	}
+
+	victim := getPlayerByName(arg1)
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim.isNPC() {
+		wiz.notify("Not on NPCs.")
+		return
+	}
+
+	if victim.getTrust() >= wiz.getTrust() {
+		wiz.notify("You failed.")
+	}
+
+	if hasBit(victim.Act, playerNoTell) {
+		removeBit(victim.Act, playerNoTell)
+		victim.notify("You can tell again!")
+		wiz.notify("NO TELL removed.")
+	} else {
+		setBit(victim.Act, playerNoTell)
+		victim.notify("You can't tell anymore!")
+		wiz.notify("NO TELL set.")
+	}
+}
+
 func doOfind(wiz *mob, argument string) {
 	if len(argument) < 1 {
 		wiz.notify("Ofind whom?")
@@ -658,6 +768,15 @@ func doPardon(wiz *mob, argument string) {
 	return
 }
 
+func doPeace(wiz *mob, argument string) {
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		m := e.Value.(*mob)
+		m.stopFighting(true)
+	}
+
+	wiz.notify("Ok.")
+}
+
 func doPurge(wiz *mob, argument string) {
 	if len(argument) < 1 {
 		for _, m := range wiz.Room.Mobs {
@@ -807,6 +926,40 @@ func doRstat(wiz *mob, argument string) {
 	return
 }
 
+func doSilence(wiz *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("Silence whom?")
+		return
+	}
+
+	victim := getPlayerByName(arg1)
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim.isNPC() {
+		wiz.notify("Not on NPCs.")
+		return
+	}
+
+	if victim.getTrust() >= wiz.getTrust() {
+		wiz.notify("You failed.")
+	}
+
+	if hasBit(victim.Act, playerSilence) {
+		removeBit(victim.Act, playerSilence)
+		victim.notify("You can speak again!")
+		wiz.notify("SILENCE removed.")
+	} else {
+		setBit(victim.Act, playerSilence)
+		victim.notify("You have been silenced!")
+		wiz.notify("SILENCE set.")
+	}
+}
+
 func doShutdow(wiz *mob, argument string) {
 	wiz.notify("If you want to SHUTDOWN, spell it out.")
 	return
@@ -815,6 +968,66 @@ func doShutdow(wiz *mob, argument string) {
 func doShutdown(wiz *mob, argument string) {
 	doEcho(wiz, fmt.Sprintf("Shutdown by %s", wiz.Name))
 	gameServer.Up = false
+}
+
+func doSla(wiz *mob, argument string) {
+	wiz.notify("If you want to SLAY someone, spell it out.")
+	return
+}
+
+func doSlay(wiz *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("Slay whom?")
+		return
+	}
+
+	victim := getPlayerByName(arg1)
+	if victim == nil || victim.Room != wiz.Room {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim == wiz {
+		wiz.notify("Kill yourself the hard way, coward.")
+		return
+	}
+
+	if !victim.isNPC() && victim.Level >= wiz.Level {
+		wiz.notify("You failed.")
+		return
+	}
+
+	act("You slay $N in cold blood!", wiz, nil, victim, actToChar)
+	act("$n slays you in cold blood!", wiz, nil, victim, actToVict)
+	act("$n slays $N in cold blood!", wiz, nil, victim, actToNotVict)
+	return
+}
+
+func doSlookup(wiz *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("Slookup what?")
+		return
+	}
+
+	if arg1 == "all" {
+		for e := skillList.Front(); e != nil; e = e.Next() {
+			sk := e.Value.(*skill)
+			wiz.notify("ID: %4d Name: %s", sk.ID, sk.Name)
+		}
+	} else {
+		sk := getSkillByName(arg1)
+
+		if sk == nil {
+			wiz.notify("No such skill or spell.")
+			return
+		}
+
+		wiz.notify("ID: %4d Name: %s", sk.ID, sk.Name)
+	}
 }
 
 func doSnoop(wiz *mob, argument string) {
@@ -1003,4 +1216,39 @@ func doTrust(wiz *mob, argument string) {
 
 	victim.Trust = level
 	return
+}
+
+func doUsers(wiz *mob, argument string) {
+	count := 0
+
+	for _, c := range gameServer.connections {
+		if c.mob != nil && wiz.canSee(c.mob) {
+			count++
+
+			name := "(none)"
+			if c.original != nil {
+				name = c.original.Name
+			} else if c.mob != nil {
+				name = c.mob.Name
+			}
+			wiz.notify("[%3d] %s@%s", count, name, c.conn.LocalAddr)
+		}
+	}
+
+	suffix := ""
+	if count != 1 {
+		suffix = "s"
+	}
+	wiz.notify("%d user%", count, suffix)
+
+}
+
+func doWizlock(wiz *mob, argument string) {
+	gameServer.Wizlock = !gameServer.Wizlock
+
+	if gameServer.Wizlock {
+		wiz.notify("Game wizlocked.")
+	} else {
+		wiz.notify("Game un-wizlocked.")
+	}
 }

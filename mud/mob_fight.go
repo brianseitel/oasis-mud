@@ -211,6 +211,71 @@ func doKill(attacker *mob, argument string) {
 	return
 }
 
+func doRescue(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		player.notify("Rescue whom?")
+		return
+	}
+
+	var victim *mob
+	for _, m := range player.Room.Mobs {
+		if m.Playable && matchesSubject(m.Name, arg1) {
+			victim = m
+			break
+		}
+	}
+
+	if victim == nil {
+		player.notify("They aren't here.")
+		return
+	}
+
+	if victim == player {
+		player.notify("Maybe you should try running away.")
+		return
+	}
+
+	if !player.isNPC() && victim.isNPC() {
+		player.notify("They don't need your help.")
+		return
+	}
+
+	if player.Fight == victim {
+		player.notify("You're trying to kill them!")
+		return
+	}
+
+	if victim.Fight == nil {
+		player.notify("They aren't fighting right now.")
+		return
+	}
+
+	rescue := player.skill("rescue")
+	if rescue == nil {
+		player.notify("You don't know how to rescue!")
+		return
+	}
+
+	wait(player, rescue.Skill.Beats)
+
+	if !player.isNPC() && dice().Intn(100) > rescue.Level {
+		player.notify("You failed the rescue.")
+		return
+	}
+
+	act("You rescue $N!", player, nil, victim, actToRoom)
+	act("$n rescues you!", player, nil, victim, actToVict)
+	act("$n rescues $N!", player, nil, victim, actToNotVict)
+
+	attacker := victim.Fight
+	victim.stopFighting(false)
+	attacker.Fight = player
+	player.Fight = attacker
+	return
+}
+
 func (m *mob) damage(victim *mob, dam int, damageType int) {
 	if victim.Status == dead {
 		return

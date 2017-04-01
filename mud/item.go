@@ -176,6 +176,8 @@ type itemIndex struct {
 	Value            int
 	Min              int
 	Max              int
+	SkillID          int /* items can have skills */
+	Charges          int
 
 	count int
 }
@@ -202,6 +204,10 @@ type item struct {
 	Value            int
 	Min              int
 	Max              int
+	Skill            *skill /* items can have skills or spells */
+	Charges          int
+
+	ClosedFlags int
 }
 
 func (item *item) canWear(position int) bool {
@@ -213,7 +219,11 @@ func (item *item) hasExtraFlag(flag int) bool {
 }
 
 func (item *item) isClosed() bool {
-	return false
+	return hasBit(item.ClosedFlags, containerClosed)
+}
+
+func (item *item) isCloseable() bool {
+	return hasBit(item.ClosedFlags, containerClosable)
 }
 
 func (item *item) removeObject(target *item) {

@@ -70,6 +70,15 @@ func doAnswer(player *mob, argument string) {
 	player.talkChannel(argument, channelQuestion, "answer")
 }
 
+func doShout(player *mob, argument string) {
+	player.talkChannel(argument, channelShout, "shout")
+	wait(player, 12)
+}
+
+func doYell(player *mob, argument string) {
+	player.talkChannel(argument, channelYell, "yell")
+}
+
 func doImmtalk(player *mob, argument string) {
 	player.talkChannel(argument, channelImmtalk, "immtalk")
 }

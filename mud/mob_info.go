@@ -29,6 +29,102 @@ func doAffect(player *mob, argument string) {
 	}
 }
 
+func doAreas(player *mob, argument string) {
+	for e := areaList.Front(); e != nil; e = e.Next() {
+		a := e.Value.(*area)
+		player.notify(a.Name)
+	}
+}
+
+func doCompare(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+	argument, arg2 := oneArgument(argument)
+
+	if arg1 == "" {
+		player.notify("Compare what to what?")
+		return
+	}
+
+	var obj1 *item
+	var obj2 *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			obj1 = i
+			break
+		}
+	}
+
+	if obj1 == nil {
+		player.notify("You don't have that.")
+		return
+	}
+
+	if arg2 == "" {
+		for _, i := range player.Inventory {
+			if i.WearLocation == wearNone && player.canSeeItem(i) && i.ItemType == obj1.ItemType && (obj1.WearFlags&i.WearFlags & ^itemTake != 0) {
+				obj2 = i
+				break
+			}
+		}
+
+		if obj2 == nil {
+			player.notify("You don't have anything comparable.")
+			return
+		}
+	} else {
+		for _, i := range player.Inventory {
+			if matchesSubject(i.Name, arg2) {
+				obj2 = i
+				break
+			}
+		}
+
+		if obj2 == nil {
+			player.notify("You don't have that.")
+			return
+		}
+	}
+
+	msg := ""
+	value1 := 0
+	value2 := 0
+
+	if obj1 == obj2 {
+		msg = "You compare $p to itself. It looks about the same."
+	} else if obj1.ItemType != obj2.ItemType {
+		msg = "You can't compare $p to $P."
+	} else {
+		switch obj1.ItemType {
+		default:
+			msg = "You can't compare $p to $P."
+			break
+
+		case itemArmor:
+			value1 = obj1.Min
+			value2 = obj2.Min
+			break
+
+		case itemWeapon:
+			value1 = obj1.Min + obj1.Max
+			value2 = obj2.Min + obj2.Max
+			break
+		}
+	}
+
+	if msg == "" {
+		if value1 == value2 {
+			msg = "$p and $P look about the same."
+		} else if value1 > value2 {
+			msg = "$p looks better than $P."
+		} else {
+			msg = "$p looks worse than $P."
+		}
+	}
+
+	act(msg, player, obj1, obj2, actToChar)
+	return
+}
+
 func doConsider(player *mob, argument string) {
 	if len(argument) == 0 {
 		player.notify("Consider killing whom?")
@@ -70,6 +166,74 @@ func doConsider(player *mob, argument string) {
 
 	act(msg, player, nil, victim, actToChar)
 	return
+}
+
+func doExamine(player *mob, argument string) {
+	if len(argument) == 0 {
+		player.notify("Examine what?")
+		return
+	}
+
+	argument, arg1 := oneArgument(argument)
+
+	doLook(player, arg1)
+
+	var obj *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			obj = i
+			break
+		}
+	}
+
+	if obj == nil {
+		for _, i := range player.Room.Items {
+			if matchesSubject(i.Name, arg1) {
+				obj = i
+				break
+			}
+		}
+	}
+
+	if obj != nil {
+		switch obj.ItemType {
+		case itemDrinkContainer:
+		case itemContainer:
+		case itemCorpseNPC:
+		case itemCorpsePC:
+			player.notify("When you look inside you see:")
+			doLook(player, fmt.Sprintf("in %s", arg1))
+			break
+		default:
+			break
+		}
+	}
+}
+
+func doHelp(player *mob, argument string) {
+	if argument == "" {
+		argument = "summary"
+	}
+
+	for e := helpList.Front(); e != nil; e = e.Next() {
+		h := e.Value.(*help)
+		if h.Level < player.getTrust() {
+			continue
+		}
+
+		if matchesSubject(h.Keyword, argument) {
+			if h.Level >= 0 && argument != "imotd" {
+				player.notify(h.Keyword)
+				player.notify("")
+			}
+
+			text := strings.TrimLeft(h.Text, ".")
+			player.notify(text)
+			return
+		}
+	}
+
+	player.notify("No help on that word.")
 }
 
 func doInventory(player *mob, argument string) {

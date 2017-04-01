@@ -24,7 +24,7 @@ type skill struct {
 	Name       string        `json:"name"`
 	Levels     []*skillLevel `gorm:"ForeignKey:SkillID"`
 	Callback   string        `json:"callback"`
-	Target     string        `json:"target"`
+	Target     targetType    `json:"target"`
 	MinMana    int           `json:"minMana"`
 	Beats      int           `json:"beats"`
 	NounDamage string        `json:"nounDamage"` // noun containing message for damage, if applicable

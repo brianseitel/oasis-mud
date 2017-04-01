@@ -35,6 +35,77 @@ func (m *mob) carrying(str string) *item {
 	return nil
 }
 
+func doBrandish(player *mob, argument string) {
+	staff := player.equippedItem(wearHold)
+	if staff == nil {
+		player.notify("You hold nothing in your hand.")
+		return
+	}
+
+	if staff.ItemType != itemStaff {
+		player.notify("You can only brandish with a staff.")
+		return
+	}
+
+	brandish := player.skill("brandish")
+	if brandish == nil {
+		return
+	}
+
+	wait(player, 2*pulseViolence)
+
+	if staff.Skill != nil {
+		act("$n brandishes $p.", player, staff, nil, actToRoom)
+		act("You brandish $p.", player, staff, nil, actToChar)
+
+		for _, victim := range player.Room.Mobs {
+			switch staff.Skill.Target {
+			case targetIgnore:
+				if victim == player {
+					continue
+				}
+				break
+
+			case targetCharacterOffensive:
+				if player.isNPC() {
+					if victim.isNPC() {
+						continue
+					} else if !victim.isNPC() {
+						continue
+					}
+				}
+				break
+
+			case targetCharacterDefensive:
+				if player.isNPC() {
+					if !victim.isNPC() {
+						continue
+					} else if victim.isNPC() {
+						continue
+					}
+				}
+				break
+
+			case targetCharacterSelf:
+				if victim != player {
+					continue
+				}
+				break
+			}
+
+			objCastSpell(staff.Skill, staff.Level, player, victim, nil)
+		}
+	}
+
+	staff.Charges--
+	if staff.Charges <= 0 {
+		act("$n's $p blazes brightly and vanishes in a puff of rainbow sprinkles.", player, staff, nil, actToRoom)
+		act("Your $p blazes brightly and vanishes in a puff of rainbow sprinkles.", player, staff, nil, actToChar)
+		extractObj(staff)
+	}
+	return
+}
+
 func doDrop(player *mob, argument string) {
 	if len(argument) <= 1 {
 		player.notify("Drop what?")
@@ -137,6 +208,46 @@ func doDrop(player *mob, argument string) {
 	}
 
 	return
+}
+
+func doEat(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		player.notify("Eat what?")
+		return
+	}
+
+	var obj *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			obj = i
+			break
+		}
+	}
+
+	if obj == nil {
+		player.notify("You don't have that item.")
+		return
+	}
+
+	if !player.isImmortal() {
+		if obj.ItemType != itemFood && obj.ItemType != itemPill {
+			player.notify("That isn't edible.")
+			return
+		}
+	}
+
+	act("$n eats $p.", player, obj, nil, actToRoom)
+	act("You eat $p.", player, obj, nil, actToChar)
+
+	switch obj.ItemType {
+	case itemPill:
+		objCastSpell(obj.Skill, obj.Min, player, player, nil)
+		break
+	}
+
+	extractObj(obj)
 }
 
 func doGet(player *mob, argument string) {
@@ -471,6 +582,74 @@ func doPut(player *mob, argument string) {
 	}
 }
 
+func doQuaff(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		player.notify("Quaff what?")
+		return
+	}
+
+	var obj *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			obj = i
+			break
+		}
+	}
+
+	if obj == nil {
+		player.notify("You don't have that item.")
+		return
+	}
+
+	if obj.ItemType != itemPotion {
+		player.notify("You can quaff only potions.")
+		return
+	}
+
+	act("$n quaffs $p.", player, obj, nil, actToRoom)
+	act("You quaff $p.", player, obj, nil, actToChar)
+
+	objCastSpell(obj.Skill, obj.Min, player, player, nil)
+
+	extractObj(obj)
+}
+
+func doRecite(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		player.notify("Recite what?")
+		return
+	}
+
+	var obj *item
+	for _, i := range player.Inventory {
+		if matchesSubject(i.Name, arg1) {
+			obj = i
+			break
+		}
+	}
+
+	if obj == nil {
+		player.notify("You don't have that item.")
+		return
+	}
+
+	if obj.ItemType != itemScroll {
+		player.notify("You can recite only scrolls.")
+		return
+	}
+
+	act("$n recites $p.", player, obj, nil, actToRoom)
+	act("You recite $p.", player, obj, nil, actToChar)
+
+	objCastSpell(obj.Skill, obj.Min, player, player, nil)
+
+	extractObj(obj)
+}
+
 func doWear(player *mob, argument string) {
 	if len(argument) < 1 {
 		player.notify("Wear, wield, or hold what?")
@@ -513,6 +692,86 @@ func doRemove(player *mob, argument string) {
 
 	player.unwearItem(obj.WearLocation, false)
 	return
+}
+
+func doZap(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if player.Fight == nil && arg1 == "" {
+		player.notify("Zap whom or what?")
+		return
+	}
+
+	wand := player.equippedItem(wearHold)
+	if wand == nil {
+		player.notify("You aren't holding anything.")
+		return
+	}
+
+	if wand.ItemType != itemWand {
+		player.notify("You can only zap with a wind.")
+		return
+	}
+
+	var obj *item
+	var victim *mob
+	if arg1 == "" {
+		if player.Fight != nil {
+			victim = player.Fight
+		} else {
+			player.notify("Zap whom or what?")
+			return
+		}
+	} else {
+		for _, m := range player.Room.Mobs {
+			if matchesSubject(m.Name, arg1) {
+				victim = m
+				break
+			}
+		}
+
+		for _, o := range player.Inventory {
+			if matchesSubject(o.Name, arg1) {
+				obj = o
+				break
+			}
+		}
+
+		if obj == nil {
+			for _, o := range player.Room.Items {
+				if matchesSubject(o.Name, arg1) {
+					obj = o
+					break
+				}
+			}
+		}
+
+		if obj == nil && victim == nil {
+			player.notify("You can't find it.")
+		}
+	}
+
+	wait(player, 2*pulseViolence)
+
+	if wand.Skill != nil {
+		if victim != nil {
+			act("$n zap $N with $p.", player, wand, victim, actToRoom)
+			act("You zap $N with $p.", player, wand, victim, actToChar)
+		} else {
+			act("$n zaps $P with $p.", player, wand, obj, actToRoom)
+			act("You zap $P with $p.", player, wand, obj, actToChar)
+		}
+
+		objCastSpell(wand.Skill, wand.Level, player, victim, obj)
+	}
+
+	wand.Charges--
+
+	if wand.Charges <= 0 {
+		act("$n's $p explodes into a shower of rainbow sprinkles.", player, wand, nil, actToRoom)
+		act("Your $p explodes into a shower of rainbow sprinkles.", player, wand, nil, actToChar)
+		extractObj(wand)
+	}
 }
 
 func (m *mob) equippedName(name string) *item {
