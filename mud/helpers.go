@@ -17,6 +17,18 @@ func dd(i interface{}) {
 	os.Exit(1)
 }
 
+func isSameGroup(p1 *mob, p2 *mob) bool {
+	if p1.leader != nil {
+		p1 = p1.leader
+	}
+
+	if p2.leader != nil {
+		p2 = p2.leader
+	}
+
+	return p1 == p2
+}
+
 func sliceContainsUint(s []uint, e uint) bool {
 	for _, a := range s {
 		if a == e {

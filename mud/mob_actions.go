@@ -147,6 +147,83 @@ func doCommands(player *mob, argument string) {
 	}
 }
 
+func doGroup(player *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		leader := player.leader
+		if leader == nil {
+			leader = player
+		}
+
+		for e := mobList.Front(); e != nil; e = e.Next() {
+			m := e.Value.(*mob)
+
+			if m.Playable && m.client != nil {
+				if m.leader == player || player.leader == m {
+					job := "Mob"
+					if !m.isNPC() {
+						job = m.Job.Name
+					}
+					player.notify("[%2d %8s] %-16s %4d/%4d hp %4d/%4d mana %4d/%4d mv %5dxp", m.Level, job, pers(m, player), m.Hitpoints, m.MaxHitpoints, m.Mana, m.MaxMana, m.Movement, m.MaxMovement, m.Exp)
+				}
+			}
+		}
+		return
+	}
+
+	var victim *mob
+	for _, m := range player.Room.Mobs {
+		if matchesSubject(m.Name, arg1) {
+			victim = m
+			break
+		}
+	}
+
+	if victim == nil || victim.Room.ID != player.Room.ID {
+		player.notify("They aren't here.")
+		return
+	}
+
+	if victim.isNPC() {
+		player.notify("You can't group NPCs.")
+		return
+	}
+
+	if player.master != nil || (player.leader != nil && player.leader != player) {
+		player.notify("But you are following someone else!")
+		return
+	}
+
+	if victim.master != nil && victim.master != player {
+		act("$N isn't following you.", player, nil, victim, actToChar)
+		return
+	}
+
+	if isSameGroup(player, victim) && player != victim {
+		victim.leader = nil
+		doFollow(victim, victim.Name)
+		act("$n removes $N from $s group.", player, nil, victim, actToNotVict)
+		act("$n removes you from $s group.", player, nil, victim, actToVict)
+		act("You remove $N from your group.", player, nil, victim, actToChar)
+		return
+	}
+
+	if player.Level-victim.Level < -5 || player.Level-victim.Level > 5 {
+		act("$N cannot join $n's group.", player, nil, victim, actToNotVict)
+		act("You cannot join $n's group.", player, nil, victim, actToVict)
+		act("$N cannot join your group.", player, nil, victim, actToChar)
+		return
+	}
+
+	victim.leader = player
+
+	act("$N joins $n's group.", player, nil, victim, actToNotVict)
+	act("You join $n's group.", player, nil, victim, actToVict)
+	act("$N joins your group.", player, nil, victim, actToChar)
+	return
+}
+
 func doHide(player *mob, argument string) {
 	player.notify("You attempt to hide.")
 

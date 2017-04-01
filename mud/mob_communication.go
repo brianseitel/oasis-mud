@@ -165,3 +165,23 @@ func doEmote(player *mob, argument string) {
 	player.notify("You %s", argument)
 	player.Room.notify(fmt.Sprintf("%s %s", strings.Title(player.Name), argument), player)
 }
+
+func doGroupTell(player *mob, argument string) {
+	if strings.Trim(argument, " ") == "" {
+		player.notify("Tell your group what?")
+		return
+	}
+
+	if hasBit(player.Act, playerNoTell) {
+		player.notify("Your message didn't get through!")
+		return
+	}
+
+	message := fmt.Sprintf("%s tells the group '%s'.", player.Name, argument)
+	for e := mobList.Front(); e != nil; e = e.Next() {
+		m := e.Value.(*mob)
+		if isSameGroup(player, m) {
+			m.notify(message)
+		}
+	}
+}

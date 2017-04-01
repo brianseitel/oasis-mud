@@ -80,11 +80,11 @@ type mobIndex struct {
 	Bamfout  string
 
 	Hitpoints    int
-	MaxHitpoints int
+	MaxHitpoints int `json:"max_hitpoints"`
 	Mana         int
-	MaxMana      int
+	MaxMana      int `json:"max_mana"`
 	Movement     int
-	MaxMovement  int
+	MaxMovement  int `json:"max_movement"`
 
 	Armor   int
 	Hitroll int
@@ -398,10 +398,10 @@ func (m *mob) move(e *exit) {
 
 func (m *mob) statusBar() {
 	if m.client != nil {
-		m.client.BufferData(fmt.Sprintf("%s[%d%s%shp %s%d%s%smana %s%d%s%smv%s] >>",
-			white, m.Hitpoints, reset, cyan,
-			white, m.Mana, reset, cyan,
-			white, m.Movement, reset, cyan,
+		m.client.BufferData(fmt.Sprintf("%s[%d/%d%s%shp %s%d/%d%s%smana %s%d/%d%s%smv%s] >>",
+			white, m.Hitpoints, m.MaxHitpoints, reset, cyan,
+			white, m.Mana, m.MaxMana, reset, cyan,
+			white, m.Movement, m.MaxMovement, reset, cyan,
 			white))
 		m.client.SendBuffer()
 	}
@@ -832,9 +832,7 @@ func formatItemToChar(item *item, player *mob) string {
 }
 
 func pers(m *mob, looker *mob) string {
-	fmt.Println("shit", m.Name)
 	if looker.canSee(m) {
-		fmt.Println("fuck", m.Name)
 		return m.Name
 	}
 

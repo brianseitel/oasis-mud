@@ -193,7 +193,7 @@ func loadCommands() {
 	commandList.PushBack(&cmd{Name: "tell", Trust: 0, Position: resting, Callback: doTell})
 	commandList.PushBack(&cmd{Name: "yell", Trust: 0, Position: resting, Callback: doYell})
 	commandList.PushBack(&cmd{Name: "shout", Trust: 0, Position: resting, Callback: doShout})
-	// commandList.PushBack(&cmd{Name: "gtell", Trust: 0, Position: standing, Callback: doGroupTell})
+	commandList.PushBack(&cmd{Name: "gtell", Trust: 0, Position: standing, Callback: doGroupTell})
 
 	// Object manip commands
 	commandList.PushBack(&cmd{Name: "brandish", Trust: 0, Position: resting, Callback: doBrandish})
@@ -230,7 +230,7 @@ func loadCommands() {
 
 	/* Misc Commands */
 	commandList.PushBack(&cmd{Name: "follow", Trust: 0, Position: resting, Callback: doFollow})
-	// commandList.PushBack(&cmd{Name: "group", Trust: 0, Position: sleeping, Callback: doGroup})
+	commandList.PushBack(&cmd{Name: "group", Trust: 0, Position: sleeping, Callback: doGroup})
 	commandList.PushBack(&cmd{Name: "hide", Trust: 0, Position: resting, Callback: doHide})
 	commandList.PushBack(&cmd{Name: "practice", Trust: 0, Position: sleeping, Callback: doPractice})
 	commandList.PushBack(&cmd{Name: "qui", Trust: 0, Position: dead, Callback: doQui})
