@@ -156,6 +156,7 @@ func doGroup(player *mob, argument string) {
 			leader = player
 		}
 
+		player.notify("%s's group:", leader.Name)
 		for e := mobList.Front(); e != nil; e = e.Next() {
 			m := e.Value.(*mob)
 
