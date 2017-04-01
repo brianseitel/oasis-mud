@@ -288,8 +288,8 @@ func loadCommands() {
 	commandList.PushBack(&cmd{Name: "goto", Trust: 95, Position: dead, Callback: doGoto})
 	commandList.PushBack(&cmd{Name: "holylight", Trust: 95, Position: dead, Callback: doHolylight})
 	commandList.PushBack(&cmd{Name: "invis", Trust: 95, Position: dead, Callback: doInvis})
-	// commandList.PushBack(&cmd{Name: "log", Trust: 95, Position: dead, Callback: doLog})
-	// commandList.PushBack(&cmd{Name: "memory", Trust: 95, Position: dead, Callback: doMemory})
+	commandList.PushBack(&cmd{Name: "log", Trust: 95, Position: dead, Callback: doLog})
+	commandList.PushBack(&cmd{Name: "memory", Trust: 95, Position: dead, Callback: doMemory})
 	commandList.PushBack(&cmd{Name: "mfind", Trust: 95, Position: dead, Callback: doMfind})
 	commandList.PushBack(&cmd{Name: "mstat", Trust: 95, Position: dead, Callback: doMstat})
 	commandList.PushBack(&cmd{Name: "mwhere", Trust: 95, Position: dead, Callback: doMwhere})
@@ -302,7 +302,7 @@ func loadCommands() {
 	commandList.PushBack(&cmd{Name: "slookup", Trust: 95, Position: dead, Callback: doSlookup})
 	commandList.PushBack(&cmd{Name: "snoop", Trust: 95, Position: dead, Callback: doSnoop})
 	commandList.PushBack(&cmd{Name: "switch", Trust: 95, Position: dead, Callback: doSwitch})
-	// commandList.PushBack(&cmd{Name: "wizhelp", Trust: 95, Position: dead, Callback: doWizhelp})
+	commandList.PushBack(&cmd{Name: "wizhelp", Trust: 95, Position: dead, Callback: doWizhelp})
 
 	commandList.PushBack(&cmd{Name: "immtalk", Trust: 95, Position: dead, Callback: doImmtalk})
 }

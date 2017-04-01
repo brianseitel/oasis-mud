@@ -326,6 +326,7 @@ func doLock(player *mob, argument string) {
 	}
 	return
 }
+
 func doMove(player *mob, d string) {
 	if player.Status != standing {
 		switch player.Status {

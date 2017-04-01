@@ -415,6 +415,54 @@ func doInvis(wiz *mob, argument string) {
 	return
 }
 
+func doLog(wiz *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		wiz.notify("Log whom?")
+		return
+	}
+
+	if arg1 == "all" {
+		wiz.notify("You can't log all.")
+	}
+
+	victim := getPlayerByName(arg1)
+	if victim == nil {
+		wiz.notify("They aren't here.")
+		return
+	}
+
+	if victim.isNPC() {
+		wiz.notify("Not on NPCs.")
+		return
+	}
+
+	if hasBit(victim.Act, playerLog) {
+		removeBit(victim.Act, playerLog)
+		wiz.notify("LOG removed.")
+	} else {
+		setBit(victim.Act, playerLog)
+		wiz.notify("LOG added.")
+	}
+}
+
+func doMemory(wiz *mob, argument string) {
+
+	wiz.notify("Areas:    %5d", areaList.Len())
+	wiz.notify("Bans:     %5d", banList.Len())
+	wiz.notify("Commands: %5d", commandList.Len())
+	wiz.notify("Helps:    %5d", helpList.Len())
+	wiz.notify("Mobs:     %5d", mobList.Len())
+	wiz.notify("Objects:  %5d", itemList.Len())
+	wiz.notify("Rooms:    %5d", roomList.Len())
+	wiz.notify("Shops:    %5d", shopList.Len())
+	wiz.notify("Skills:   %5d", skillList.Len())
+	wiz.notify("Socials:  %5d", socialList.Len())
+
+	return
+}
+
 func doMfind(wiz *mob, argument string) {
 	if len(argument) < 1 {
 		wiz.notify("Mfind whom?")
@@ -1241,6 +1289,26 @@ func doUsers(wiz *mob, argument string) {
 	}
 	wiz.notify("%d user%", count, suffix)
 
+}
+
+func doWizhelp(player *mob, argument string) {
+	var buf bytes.Buffer
+	col := 0
+	for e := helpList.Front(); e != nil; e = e.Next() {
+		h := e.Value.(*help)
+		if h.Level >= 90 && h.Level <= player.getTrust() {
+			buf.Write([]byte(fmt.Sprintf("%-12s", h.Keyword)))
+			col++
+			if col%6 == 0 {
+				output, _ := buf.ReadString('\n')
+				player.notify(output)
+			}
+		}
+	}
+
+	if col%6 != 0 {
+		player.notify("")
+	}
 }
 
 func doWizlock(wiz *mob, argument string) {
