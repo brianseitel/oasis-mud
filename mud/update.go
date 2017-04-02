@@ -127,7 +127,7 @@ func charUpdate() {
 			}
 		}
 
-		// save and quit if necessary
+		saveCharacter(player)
 		return
 	}
 }

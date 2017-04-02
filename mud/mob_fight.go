@@ -326,9 +326,9 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 			if m.isNPC() && dice().Intn(100) < m.Level/2 {
 				m.disarm(victim)
 			}
-			// if m.isNPC() && dice().Intn(100) < m.Level/2 {
-			// 	m.trip(victim)
-			// }
+			if m.isNPC() && dice().Intn(100) < m.Level/2 {
+				m.trip()
+			}
 			if m.parry(victim) {
 				return
 			}

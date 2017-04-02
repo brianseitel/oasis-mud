@@ -42,7 +42,7 @@ func violenceUpdate() {
 				// auto-assist other players in group
 
 				if !attacker.isNPC() {
-					if !m.isNPC() /* && attacker.GroupedWith(m) */ {
+					if !m.isNPC() && isSameGroup(attacker, m) {
 						multiHit(m, attacker, typeUndefined)
 					}
 				}
@@ -53,7 +53,7 @@ func violenceUpdate() {
 						var target *mob
 
 						for _, neighbor := range m.Room.Mobs {
-							if m.canSee(neighbor) /* && m.GroupedWith(neighbor) */ && dice().Intn(number+1) == 0 {
+							if m.canSee(neighbor) && isSameGroup(m, neighbor) && dice().Intn(number+1) == 0 {
 								target = neighbor
 								number++
 							}
@@ -147,7 +147,12 @@ func groupGain(player *mob, victim *mob) {
 				continue
 			}
 
-			// zap and stuff
+			if (i.hasExtraFlag(itemAntiEvil) && m.isEvil()) || (i.hasExtraFlag(itemAntiGood) && m.isGood()) || (i.hasExtraFlag(itemAntiNeutral) && m.isNeutral()) {
+				act("You are zapped by $p.", m, i, nil, actToChar)
+				act("$n is zapped by $p.", m, i, nil, actToRoom)
+				m.removeItem(i)
+				m.Room.Items = append(m.Room.Items, i)
+			}
 		}
 	}
 }

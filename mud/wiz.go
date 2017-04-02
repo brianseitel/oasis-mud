@@ -347,8 +347,7 @@ func doFreeze(wiz *mob, argument string) {
 		wiz.notify("FREEZE set.")
 	}
 
-	// victim.Save(); TODO
-
+	saveCharacter(victim)
 	return
 }
 

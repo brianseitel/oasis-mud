@@ -734,7 +734,7 @@ func doSteal(player *mob, argument string) {
 			if victim.isNPC() {
 				multiHit(victim, player, typeUndefined)
 			} else {
-				// TODO: set player as thief
+				setBit(player.Act, playerThief)
 			}
 		}
 

@@ -193,8 +193,6 @@ func doDrop(player *mob, argument string) {
 				player.Room.Items = append(player.Room.Items, item)
 				act("$n drops $p.", player, item, nil, actToRoom)
 				act("You drop $p.", player, item, nil, actToChar)
-				// player.notify("You drop %s.", item.Name)
-				// player.Room.notify(fmt.Sprintf("%s drops %s.", player.Name, item.Name), player)
 			}
 		}
 
