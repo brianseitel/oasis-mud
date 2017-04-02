@@ -407,10 +407,15 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 		}
 	}
 
-	// TODO: wimpy
+	if victim.isNPC() && dam > 0 {
+		if hasBit(victim.Act, actWimpy) && dBits(1) == 0 && victim.Hitpoints < victim.MaxHitpoints/2 {
+			doFlee(victim, "")
+		}
+	}
 
-	// TODO: flee
-
+	if !victim.isNPC() && victim.Hitpoints < 0 && victim.wait == 0 {
+		doFlee(victim, "")
+	}
 	return
 }
 

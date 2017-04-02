@@ -571,7 +571,13 @@ func (m *mob) equipItem(item *item, position int) {
 	if (item.hasExtraFlag(itemAntiEvil) && m.isEvil()) || (item.hasExtraFlag(itemAntiGood) && m.isGood()) || (item.hasExtraFlag(itemAntiNeutral) && m.isNeutral()) {
 		m.notify("You are zapped by %s and drop it!%s", item.Name, newline)
 		m.Room.notify(fmt.Sprintf("%s is zapped by %s and drops it!%s", m.Name, item.Name, newline), m)
-		// TODO: dropItem()
+		m.Room.Items = append(m.Room.Items, item)
+		for j, i := range m.Inventory {
+			if i == item {
+				m.Inventory = append(m.Inventory[:j], m.Inventory[j+1:]...)
+				break
+			}
+		}
 		return
 	}
 

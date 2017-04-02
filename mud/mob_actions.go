@@ -478,7 +478,7 @@ func doPractice(player *mob, argument string) {
 		if player.isNPC() {
 			adept = 100
 		} else {
-			adept = 100 // TODO
+			adept = player.Job.SkillAdept
 		}
 
 		pSkill = player.skill(arg1)
@@ -728,8 +728,7 @@ func doSteal(player *mob, argument string) {
 		act("$n tried to steal from you.", player, nil, victim, actToVict)
 		act("$n tried to steal from $N.", player, nil, victim, actToNotVict)
 
-		// TODO
-		// shout(fmt.Sprintf("%s is a bloody thief!", player.Name))
+		doShout(player, fmt.Sprintf("%s is a bloody thief!", player.Name))
 
 		if !player.isNPC() {
 			if victim.isNPC() {

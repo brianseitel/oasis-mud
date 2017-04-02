@@ -452,6 +452,7 @@ func loadCommands() {
 func loadHelps() {
 	// TODO
 }
+
 func loadItems() {
 	itemFiles, _ := filepath.Glob("./data/items/*.json")
 
@@ -695,7 +696,7 @@ func extractMob(m *mob, pull bool) {
 	}
 
 	if pull {
-		// TODO: m.dieFollower()
+		m.dieFollower()
 	}
 
 	m.stopFighting(true)
