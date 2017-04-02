@@ -612,7 +612,7 @@ func (m *mob) dodge(attacker *mob) bool {
 		return false
 	}
 
-	m.notify("You dodge %s's attack.", m.Name)
+	m.notify("You dodge %s's attack.", attacker.Name)
 	attacker.notify("%s dodges your attack.", attacker.Name)
 
 	return true

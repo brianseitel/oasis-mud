@@ -228,7 +228,7 @@ func (m *mob) advanceLevel() {
 
 	addMovement = dice().Intn(m.currentConstitution()+(m.currentDexterity()/4)) + 5
 
-	addPracs = bonusTableWisdom[m.currentWisdom()].practice
+	addPracs = bonusTableWisdom[m.currentWisdom()].practice + dice().Intn(3) + 1
 
 	addHP = max(1, addHP)
 	addMana = max(0, addMana)
@@ -237,6 +237,7 @@ func (m *mob) advanceLevel() {
 	m.MaxHitpoints += addHP
 	m.MaxMana += addMana
 	m.MaxMovement += addMovement
+	m.Practices += addPracs
 
 	if !m.isNPC() {
 		removeBit(m.Act, playerBoughtPet)
@@ -402,7 +403,7 @@ func (m *mob) gainExp(gain int) {
 		return
 	}
 
-	m.Exp += max(1000, m.Exp+gain)
+	m.Exp = max(1000, m.Exp+gain)
 	for m.Level < 99 && m.Exp >= 1000*(m.Level+1) {
 		m.notify("You raise a level!")
 		m.Level++
@@ -473,7 +474,7 @@ func (m *mob) hit() int {
 }
 
 func (m mob) TNL() int {
-	return (m.Level * 1000) - m.Exp
+	return ((m.Level + 1) * 1000) - m.Exp
 }
 
 func (m *mob) move(e *exit) {

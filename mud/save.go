@@ -113,7 +113,7 @@ func saveCharacter(character *mob) {
 	}
 
 	fmt.Println("Saving", character.Name)
-	path := fmt.Sprintf("./data/savefiles/%s.json", character.Name)
+	path := fmt.Sprintf("./data/players/%s.json", character.Name)
 	writeCharacter(character, path)
 
 	return
