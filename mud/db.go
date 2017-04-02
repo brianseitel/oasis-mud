@@ -91,8 +91,10 @@ func createMob(index *mobIndex) *mob {
 
 	m := &mob{}
 
+	m.ID = index.ID
 	m.index = index
 	m.Name = index.Name
+	m.Password = index.Password
 	m.Title = index.Title
 	m.Description = index.Description
 	m.Affects = index.Affects
@@ -100,11 +102,10 @@ func createMob(index *mobIndex) *mob {
 
 	m.Skills = index.Skills
 
-	for _, i := range index.ItemIds {
-		m.Inventory = append(m.Inventory, createItem(getItem(i)))
-	}
-	for _, i := range index.EquippedIds {
-		m.Equipped = append(m.Equipped, createItem(getItem(i)))
+	for _, i := range index.Inventory {
+		index := getItem(i.ID)
+		i.index = *index
+		m.Inventory = append(m.Inventory, i)
 	}
 
 	m.ExitVerb = index.ExitVerb
@@ -132,8 +133,8 @@ func createMob(index *mobIndex) *mob {
 	m.CarryWeight = index.CarryWeight
 	m.CarryWeightMax = index.CarryWeightMax
 
-	m.Job = getJob(uint(index.JobID))
-	m.Race = getRace(uint(index.RaceID))
+	m.Job = getJob(index.JobID)
+	m.Race = getRace(index.RaceID)
 	m.Gender = index.Gender
 
 	m.Attributes = index.Attributes
@@ -148,10 +149,6 @@ func createMob(index *mobIndex) *mob {
 		skills = append(skills, &mobSkill{Skill: skill, SkillID: s.SkillID, Level: s.Level})
 	}
 	m.Skills = skills
-
-	for _, i := range m.Equipped {
-		m.wear(i, false)
-	}
 
 	if m.isNPC() && (m.Room != nil && m.Room.isDark()) {
 		setBit(m.AffectedBy, affectInfrared)
@@ -383,7 +380,7 @@ func loadCommands() {
 	commandList.PushBack(&cmd{Name: "recall", Trust: 0, Position: fighting, Callback: doRecall})
 	// commandList.PushBack(&cmd{Name: "rent", Trust: 0, Position: dead, Callback: doRent})
 	commandList.PushBack(&cmd{Name: "rest", Trust: 0, Position: sleeping, Callback: doRest})
-	// commandList.PushBack(&cmd{Name: "save", Trust: 0, Position: dead, Callback: doSave})
+	commandList.PushBack(&cmd{Name: "save", Trust: 0, Position: dead, Callback: doSave})
 	commandList.PushBack(&cmd{Name: "sleep", Trust: 0, Position: sleeping, Callback: doSleep})
 	commandList.PushBack(&cmd{Name: "sneak", Trust: 0, Position: standing, Callback: doSneak})
 	// commandList.PushBack(&cmd{Name: "split", Trust: 0, Position: resting, Callback: doSplit})

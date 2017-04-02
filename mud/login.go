@@ -49,6 +49,7 @@ func login(c *connection) *mob {
 	p.client = c
 	p.Status = standing
 	p.Room.Mobs = append(p.Room.Mobs, p)
+
 	mobList.PushBack(p)
 	return p
 }

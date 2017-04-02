@@ -70,10 +70,10 @@ type mobIndex struct {
 	AffectedBy int
 	Act        int
 
-	Skills      []*mobSkill
-	ItemIds     []int `json:"items"`
-	EquippedIds []int `json:"equipped"`
-	RoomID      int   `json:"current_room"`
+	Skills    []*mobSkill
+	Inventory []*item `json:"inventory"`
+	Equipped  []*item `json:"equipped"`
+	RoomID    int     `json:"current_room"`
 
 	ExitVerb string
 	Bamfin   string
@@ -122,12 +122,14 @@ type mobIndex struct {
 }
 
 type mob struct {
-	ID int
+	ID      int
+	SavedAt string
 
 	index *mobIndex
 
 	//Mob information
 	Name        string `json:"name"`
+	Password    string
 	Description string
 	Title       string
 
@@ -174,23 +176,19 @@ type mob struct {
 	Attributes         *attributeSet
 	ModifiedAttributes *attributeSet
 
-	Status      status
-	Identifiers string
-
-	Fight *mob
-
-	master *mob
-	leader *mob
-	wait   int
-
-	Timer     int
-	WasInRoom *room
-
+	Status       status
 	RecallRoomID int `json:"recall_room_id"`
-	replyTarget  *mob
 
-	Playable bool
-	client   *connection
+	/* dynamic stuff */
+	Fight       *mob
+	master      *mob
+	leader      *mob
+	wait        int
+	Timer       int
+	WasInRoom   *room
+	replyTarget *mob
+	Playable    bool
+	client      *connection
 }
 
 func (m *mob) addAffect(af *affect) {
@@ -221,16 +219,16 @@ func (m *mob) advanceLevel() {
 	)
 
 	job := m.Job
-	addHP = bonusTableConstitution[m.ModifiedAttributes.Constitution].hitpoints + (dice().Intn(job.MaxHitpoints) + job.MinHitpoints)
+	addHP = bonusTableConstitution[m.currentConstitution()].hitpoints + (dice().Intn(job.MaxHitpoints) + job.MinHitpoints)
 
 	addMana = 0
 	if job.GainsMana {
-		addMana = dice().Intn((m.ModifiedAttributes.Intelligence*2)+(m.ModifiedAttributes.Wisdom/8)) + 2
+		addMana = dice().Intn((m.currentIntelligence()*2)+(m.currentWisdom()/8)) + 2
 	}
 
-	addMovement = dice().Intn(m.ModifiedAttributes.Constitution+(m.ModifiedAttributes.Dexterity/4)) + 5
+	addMovement = dice().Intn(m.currentConstitution()+(m.currentDexterity()/4)) + 5
 
-	addPracs = bonusTableWisdom[m.ModifiedAttributes.Wisdom].practice
+	addPracs = bonusTableWisdom[m.currentWisdom()].practice
 
 	addHP = max(1, addHP)
 	addMana = max(0, addMana)
@@ -245,6 +243,102 @@ func (m *mob) advanceLevel() {
 	}
 
 	m.notify("Your gain is: %d/%d hp, %d/%d mana, %d/%d movement, and %d/%d practices.", addHP, m.MaxHitpoints, addMana, m.MaxMana, addMovement, m.MaxMovement, addPracs, m.Practices)
+}
+
+func (m *mob) currentStrength() int {
+	if m.isNPC() {
+		return 13
+	}
+
+	var max int
+	if m.Job != nil && m.Job.PrimeAttribute == applyStrength {
+		max = 27
+	} else {
+		max = 21
+	}
+
+	return uRange(3, m.Attributes.Strength+m.ModifiedAttributes.Strength, max)
+
+}
+
+func (m *mob) currentIntelligence() int {
+	if m.isNPC() {
+		return 13
+	}
+
+	var max int
+	if m.Job != nil && m.Job.PrimeAttribute == applyIntelligence {
+		max = 27
+	} else {
+		max = 21
+	}
+
+	return uRange(3, m.Attributes.Intelligence+m.ModifiedAttributes.Intelligence, max)
+
+}
+
+func (m *mob) currentWisdom() int {
+	if m.isNPC() {
+		return 13
+	}
+
+	var max int
+	if m.Job != nil && m.Job.PrimeAttribute == applyWisdom {
+		max = 27
+	} else {
+		max = 21
+	}
+
+	return uRange(3, m.Attributes.Wisdom+m.ModifiedAttributes.Wisdom, max)
+
+}
+
+func (m *mob) currentDexterity() int {
+	if m.isNPC() {
+		return 13
+	}
+
+	var max int
+	if m.Job != nil && m.Job.PrimeAttribute == applyDexterity {
+		max = 27
+	} else {
+		max = 21
+	}
+
+	return uRange(3, m.Attributes.Dexterity+m.ModifiedAttributes.Dexterity, max)
+
+}
+
+func (m *mob) currentConstitution() int {
+	if m.isNPC() {
+		return 13
+	}
+
+	var max int
+	if m.Job != nil && m.Job.PrimeAttribute == applyConstitution {
+		max = 27
+	} else {
+		max = 21
+	}
+
+	return uRange(3, m.Attributes.Constitution+m.ModifiedAttributes.Constitution, max)
+
+}
+
+func (m *mob) currentCharisma() int {
+	if m.isNPC() {
+		return 13
+	}
+
+	var max int
+	if m.Job != nil && m.Job.PrimeAttribute == applyCharisma {
+		max = 27
+	} else {
+		max = 21
+	}
+
+	return uRange(3, m.Attributes.Charisma+m.ModifiedAttributes.Charisma, max)
+
 }
 
 func (m *mob) removeAffect(af *affect) {
@@ -483,14 +577,6 @@ func (m *mob) equipItem(item *item, position int) {
 	m.Armor -= applyAC(item, int(position))
 	item.WearLocation = position
 
-	m.Equipped = append(m.Equipped, item)
-	for j, i := range m.Inventory {
-		if i == item {
-			m.Inventory = append(m.Inventory[0:j], m.Inventory[j+1:]...)
-			break
-		}
-	}
-
 	// TODO: item effects
 
 	// TODO: light up room if it's a light
@@ -499,7 +585,7 @@ func (m *mob) equipItem(item *item, position int) {
 }
 
 func (m *mob) equippedItem(position int) *item {
-	for _, i := range m.Equipped {
+	for _, i := range m.Inventory {
 		if i.WearLocation == position {
 			return i
 		}
@@ -508,24 +594,14 @@ func (m *mob) equippedItem(position int) *item {
 }
 
 func (m *mob) hitroll() int {
-	return m.Hitroll + m.ModifiedAttributes.Strength
+	return m.Hitroll + m.currentStrength()
 }
 
 func (m *mob) notify(message string, a ...interface{}) {
 	if m.client != nil {
-		message = fmt.Sprintf("%s%s", message, newline)
+		message = fmt.Sprintf("%s%s%s", reset, message, newline)
 		m.client.SendString(fmt.Sprintf(message, a...))
 	}
-}
-
-func (m *mob) regen() {
-	if m.Playable && m.client == nil {
-		return
-	}
-
-	m.regenHitpoints()
-	m.regenMana()
-	m.regenMovement()
 }
 
 func (m *mob) regenHitpoints() int {
@@ -537,10 +613,10 @@ func (m *mob) regenHitpoints() int {
 
 		switch m.Status {
 		case sleeping:
-			gain += m.ModifiedAttributes.Constitution
+			gain += m.currentConstitution()
 			break
 		case resting:
-			gain += m.ModifiedAttributes.Constitution / 2
+			gain += m.currentConstitution() / 2
 			break
 		}
 	}
@@ -549,6 +625,7 @@ func (m *mob) regenHitpoints() int {
 		gain /= 4
 	}
 
+	fmt.Println("Gaining ", gain, " Con:", m.currentConstitution())
 	return min(gain, m.MaxHitpoints-m.Hitpoints)
 }
 
@@ -561,10 +638,10 @@ func (m *mob) regenMana() int {
 
 		switch m.Status {
 		case sleeping:
-			gain += m.ModifiedAttributes.Intelligence
+			gain += m.currentIntelligence()
 			break
 		case resting:
-			gain += m.ModifiedAttributes.Intelligence / 2
+			gain += m.currentIntelligence() / 2
 			break
 		}
 	}
@@ -585,10 +662,10 @@ func (m *mob) regenMovement() int {
 
 		switch m.Status {
 		case sleeping:
-			gain += m.ModifiedAttributes.Dexterity
+			gain += m.currentDexterity()
 			break
 		case resting:
-			gain += m.ModifiedAttributes.Dexterity / 2
+			gain += m.currentDexterity() / 2
 			break
 		}
 
@@ -649,7 +726,7 @@ func (m *mob) wander() {
 
 func (m *mob) skill(name string) *mobSkill {
 	for _, s := range m.Skills {
-		if s.Skill.Name == name {
+		if s.Skill != nil && s.Skill.Name == name {
 			return s
 		}
 	}

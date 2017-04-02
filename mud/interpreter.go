@@ -18,6 +18,14 @@ func interpret(player *mob, argument string) {
 		return
 	}
 
+	void := getRoom(0)
+	if player.Room == void && player.WasInRoom != nil {
+		player.Room = player.WasInRoom
+		player.Room.Mobs = append(player.Room.Mobs, player)
+		act("$n reappears out of nowhere.", player, nil, nil, actToRoom)
+		player.WasInRoom = nil
+	}
+
 	// No hiding
 	removeBit(player.AffectedBy, affectHide)
 

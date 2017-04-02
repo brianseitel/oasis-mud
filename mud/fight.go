@@ -1,6 +1,7 @@
 package mud
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -101,6 +102,56 @@ func makeCorpse(victim *mob) {
 	victim.Room.Items = append(victim.Room.Items, corpse)
 }
 
+func groupGain(player *mob, victim *mob) {
+	if player.isNPC() || !victim.isNPC() || victim == player {
+		return
+	}
+
+	members := 0
+	for _, m := range player.Room.Mobs {
+		if isSameGroup(player, m) {
+			members++
+		}
+	}
+
+	if members == 0 {
+		members = 1
+	}
+
+	leader := player
+	if player.leader != nil {
+		leader = player.leader
+	}
+
+	for _, m := range player.Room.Mobs {
+		if !isSameGroup(player, m) {
+			continue
+		}
+
+		if m.Level-leader.Level > 5 {
+			m.notify("You are too high for this group.")
+			continue
+		}
+
+		if m.Level-leader.Level < -5 {
+			m.notify("You are too low for this group.")
+			continue
+		}
+
+		xp := xpCompute(m, victim) / members
+		m.notify("You receive %d experience points.", xp)
+		m.gainExp(xp)
+		fmt.Println("shit", m.Name)
+		for _, i := range m.Inventory {
+			if i.WearLocation == wearNone {
+				continue
+			}
+
+			// zap and stuff
+		}
+	}
+}
+
 func multiHit(attacker *mob, victim *mob, damageType int) {
 	var chance int
 
@@ -183,7 +234,7 @@ func rawKill(victim *mob) {
 	victim.Mana = max(1, victim.Mana)
 	victim.Movement = max(1, victim.Movement)
 
-	// victim.Save() // TODO
+	saveCharacter(victim)
 
 	return
 }

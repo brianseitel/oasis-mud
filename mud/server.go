@@ -27,6 +27,9 @@ func (server *Server) handle(c *connection) {
 
 	interpret(c.mob, "look")
 	for {
+		if c.mob == nil || c.mob.client == nil {
+			break
+		}
 		c.mob.statusBar()
 		input, err := c.buffer.ReadString('\n')
 		if err != nil {

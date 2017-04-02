@@ -536,7 +536,7 @@ func doMstat(wiz *mob, argument string) {
 	}
 
 	wiz.notify("Name: %s. ID: %d. Sex: %d. Room: %d.", victim.Name, victim.ID, victim.Gender, victim.Room.ID)
-	wiz.notify("Str: %d. Int: %d. Wis: %d. Dex: %d. Cha: %d. Con: %d.", victim.ModifiedAttributes.Strength, victim.ModifiedAttributes.Intelligence, victim.ModifiedAttributes.Wisdom, victim.ModifiedAttributes.Dexterity, victim.ModifiedAttributes.Charisma, victim.ModifiedAttributes.Constitution)
+	wiz.notify("Str: %d. Int: %d. Wis: %d. Dex: %d. Cha: %d. Con: %d.", victim.currentStrength(), victim.currentIntelligence(), victim.currentWisdom(), victim.currentDexterity(), victim.currentCharisma(), victim.currentConstitution())
 	wiz.notify("HP: %d/%d. Mana: %d/%d. Movement: %d/%d. Practices: %d.", victim.Hitpoints, victim.MaxHitpoints, victim.Mana, victim.MaxMana, victim.Movement, victim.MaxMovement, victim.Practices)
 	wiz.notify("Level: %d. Class: %s. Alignment: %d. AC: %d. Gold: %d. Experience: %d.", victim.Level, victim.Job.Name, victim.Alignment, victim.Armor, victim.Gold, victim.Exp)
 	wiz.notify("Hitroll: %d. Damroll: %d. Position: %d. Wimpy: %d", victim.Hitroll, victim.Damroll, victim.Status, 0)

@@ -1,7 +1,7 @@
 package mud
 
 type job struct {
-	ID             uint
+	ID             int
 	Name           string
 	Abbr           string
 	StartingWeapon int
@@ -14,7 +14,7 @@ type job struct {
 	GainsMana      bool
 }
 
-func getJob(id uint) *job {
+func getJob(id int) *job {
 	for e := jobList.Front(); e != nil; e = e.Next() {
 		j := e.Value.(*job)
 		if j.ID == id {

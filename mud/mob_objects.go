@@ -690,7 +690,7 @@ func doRemove(player *mob, argument string) {
 		return
 	}
 
-	player.unwearItem(obj.WearLocation, false)
+	player.unwearItem(obj.WearLocation, true)
 	return
 }
 
@@ -775,8 +775,8 @@ func doZap(player *mob, argument string) {
 }
 
 func (m *mob) equippedName(name string) *item {
-	for _, i := range m.Equipped {
-		if matchesSubject(i.Name, name) {
+	for _, i := range m.Inventory {
+		if i.WearLocation != wearNone && matchesSubject(i.Name, name) {
 			return i
 		}
 	}
@@ -879,6 +879,8 @@ func (m *mob) unwearItem(location int, replace bool) bool {
 		act("You can't remove $p.", m, obj, nil, actToChar)
 		return false
 	}
+
+	obj.WearLocation = wearNone
 
 	act("$n stops using $p.", m, obj, nil, actToRoom)
 	act("You stop using $p.", m, obj, nil, actToChar)
@@ -1092,7 +1094,7 @@ func (m *mob) wear(wearable *item, replace bool) {
 			return
 		}
 
-		if wearable.Weight > m.ModifiedAttributes.Strength {
+		if wearable.Weight > m.currentStrength() {
 			m.notify("It is too heavy for you to wield.")
 			return
 		}

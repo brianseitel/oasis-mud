@@ -634,6 +634,10 @@ func doRest(player *mob, argument string) {
 	return
 }
 
+func doSave(player *mob, argument string) {
+	saveCharacter(player)
+}
+
 func doSleep(player *mob, argument string) {
 	switch player.Status {
 	case sleeping:

@@ -351,15 +351,6 @@ func doLook(player *mob, argument string) {
 		}
 	}
 
-	for _, i := range player.Equipped {
-		if matchesSubject(i.Name, argument) {
-			if player.canSeeItem(i) {
-				player.notify(i.Description)
-				return
-			}
-		}
-	}
-
 	for _, i := range player.Room.Items {
 		if matchesSubject(i.Name, argument) {
 			if player.canSeeItem(i) {
@@ -641,6 +632,9 @@ func inventoryString(m *mob) []string {
 	inventory := make(map[string]int)
 
 	for _, i := range m.Inventory {
+		if i.WearLocation != wearNone {
+			continue
+		}
 		if _, ok := inventory[i.Name]; ok {
 			inventory[i.Name]++
 		} else {

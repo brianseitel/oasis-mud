@@ -21,14 +21,12 @@ type skillLevel struct {
 
 type skill struct {
 	ID         int
-	Name       string        `json:"name"`
-	Levels     []*skillLevel `gorm:"ForeignKey:SkillID"`
-	Callback   string        `json:"callback"`
-	Target     targetType    `json:"target"`
-	MinMana    int           `json:"minMana"`
-	Beats      int           `json:"beats"`
-	NounDamage string        `json:"nounDamage"` // noun containing message for damage, if applicable
-	MessageOff string        `json:"messageOff"` // when skill/spell wears off
+	Name       string     `json:"name"`
+	Target     targetType `json:"target"`
+	MinMana    int        `json:"minMana"`
+	Beats      int        `json:"beats"`
+	NounDamage string     `json:"nounDamage"` // noun containing message for damage, if applicable
+	MessageOff string     `json:"messageOff"` // when skill/spell wears off
 }
 
 func getSkill(id int) *skill {

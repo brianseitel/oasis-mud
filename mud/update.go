@@ -61,15 +61,15 @@ func charUpdate() {
 
 		if player.Status >= stunned {
 			if player.Hitpoints < player.MaxHitpoints {
-				player.regenHitpoints()
+				player.Hitpoints += player.regenHitpoints()
 			}
 
 			if player.Mana < player.MaxMana {
-				player.regenMana()
+				player.Mana += player.regenMana()
 			}
 
 			if player.Movement < player.MaxMovement {
-				player.regenMovement()
+				player.Movement += player.regenMovement()
 			}
 		}
 
@@ -86,12 +86,7 @@ func charUpdate() {
 					act("$p goes out.", player, light, nil, actToRoom)
 					act("$p goes out.", player, light, nil, actToChar)
 
-					for j, i := range player.Equipped {
-						if i == light {
-							player.Equipped = append(player.Equipped[:j], player.Equipped[j+1:]...)
-							break
-						}
-					}
+					extractObj(light)
 				}
 			}
 

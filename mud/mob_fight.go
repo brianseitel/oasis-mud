@@ -381,7 +381,7 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 	}
 
 	if victim.Status == dead {
-		// TODO: groupGain()
+		groupGain(m, victim)
 
 		if !victim.isNPC() {
 			if victim.Exp > 1000*victim.Level {
@@ -505,7 +505,7 @@ func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
 }
 
 func (m *mob) damroll() int {
-	return m.Damroll + m.ModifiedAttributes.Strength
+	return m.Damroll + m.currentStrength()
 }
 
 func (m *mob) deathCry() {
@@ -583,9 +583,10 @@ func (m *mob) disarm(victim *mob) {
 	act("You disarm $N!", m, nil, victim, actToChar)
 	act("$n disarms $N!", m, nil, victim, actToNotVict)
 
-	for j, item := range m.Equipped {
+	for j, item := range m.Inventory {
 		if wield == item {
-			m.Equipped, m.Room.Items = transferItem(j, m.Equipped, m.Room.Items)
+			item.WearLocation = wearNone
+			m.Inventory, m.Room.Items = transferItem(j, m.Inventory, m.Room.Items)
 			break
 		}
 	}

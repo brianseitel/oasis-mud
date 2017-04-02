@@ -1,7 +1,7 @@
 package mud
 
 type race struct {
-	ID   uint
+	ID   int
 	Name string
 	Abbr string
 }
@@ -22,7 +22,7 @@ func (r race) defaultStats(s string) int {
 	return defaults[s]
 }
 
-func getRace(id uint) *race {
+func getRace(id int) *race {
 	for e := raceList.Front(); e != nil; e = e.Next() {
 		r := e.Value.(*race)
 		if r.ID == id {
