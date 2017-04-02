@@ -9,6 +9,14 @@ import (
 )
 
 var (
+	bonusTableStrength     map[int]bonusStrength
+	bonusTableIntelligence map[int]bonusIntelligence
+	bonusTableWisdom       map[int]bonusWisdom
+	bonusTableDexterity    map[int]bonusDexterity
+	bonusTableConstitution map[int]bonusConstitution
+)
+
+var (
 	areaList      list.List
 	banList       list.List
 	commandList   list.List
@@ -149,6 +157,143 @@ func createMob(index *mobIndex) *mob {
 		setBit(m.AffectedBy, affectInfrared)
 	}
 	return m
+}
+
+func loadBonuses() {
+	bonusTableStrength[0] = bonusStrength{toHit: -5, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[1] = bonusStrength{toHit: -4, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[2] = bonusStrength{toHit: -3, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[3] = bonusStrength{toHit: -2, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[4] = bonusStrength{toHit: -2, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[5] = bonusStrength{toHit: -1, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[6] = bonusStrength{toHit: -1, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[7] = bonusStrength{toHit: 0, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[8] = bonusStrength{toHit: 0, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[9] = bonusStrength{toHit: 0, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[10] = bonusStrength{toHit: 0, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[11] = bonusStrength{toHit: 0, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[12] = bonusStrength{toHit: 0, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[13] = bonusStrength{toHit: 0, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[14] = bonusStrength{toHit: 1, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[15] = bonusStrength{toHit: 1, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[16] = bonusStrength{toHit: 2, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[17] = bonusStrength{toHit: 2, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[18] = bonusStrength{toHit: 3, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[19] = bonusStrength{toHit: 3, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[20] = bonusStrength{toHit: 4, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[21] = bonusStrength{toHit: 5, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[22] = bonusStrength{toHit: 5, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[23] = bonusStrength{toHit: 6, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[24] = bonusStrength{toHit: 8, toDamage: -4, toCarry: 0, wield: 0}
+	bonusTableStrength[25] = bonusStrength{toHit: 10, toDamage: -4, toCarry: 0, wield: 0}
+
+	bonusTableIntelligence[0] = bonusIntelligence{learn: 3}
+	bonusTableIntelligence[1] = bonusIntelligence{learn: 5}
+	bonusTableIntelligence[2] = bonusIntelligence{learn: 7}
+	bonusTableIntelligence[3] = bonusIntelligence{learn: 8}
+	bonusTableIntelligence[4] = bonusIntelligence{learn: 9}
+	bonusTableIntelligence[5] = bonusIntelligence{learn: 10}
+	bonusTableIntelligence[6] = bonusIntelligence{learn: 11}
+	bonusTableIntelligence[7] = bonusIntelligence{learn: 12}
+	bonusTableIntelligence[8] = bonusIntelligence{learn: 13}
+	bonusTableIntelligence[9] = bonusIntelligence{learn: 15}
+	bonusTableIntelligence[10] = bonusIntelligence{learn: 17}
+	bonusTableIntelligence[11] = bonusIntelligence{learn: 19}
+	bonusTableIntelligence[12] = bonusIntelligence{learn: 22}
+	bonusTableIntelligence[13] = bonusIntelligence{learn: 25}
+	bonusTableIntelligence[14] = bonusIntelligence{learn: 28}
+	bonusTableIntelligence[15] = bonusIntelligence{learn: 31}
+	bonusTableIntelligence[16] = bonusIntelligence{learn: 34}
+	bonusTableIntelligence[17] = bonusIntelligence{learn: 37}
+	bonusTableIntelligence[18] = bonusIntelligence{learn: 40}
+	bonusTableIntelligence[19] = bonusIntelligence{learn: 44}
+	bonusTableIntelligence[20] = bonusIntelligence{learn: 49}
+	bonusTableIntelligence[21] = bonusIntelligence{learn: 55}
+	bonusTableIntelligence[22] = bonusIntelligence{learn: 60}
+	bonusTableIntelligence[23] = bonusIntelligence{learn: 70}
+	bonusTableIntelligence[24] = bonusIntelligence{learn: 85}
+	bonusTableIntelligence[25] = bonusIntelligence{learn: 99}
+
+	bonusTableWisdom[0] = bonusWisdom{practice: 0}
+	bonusTableWisdom[1] = bonusWisdom{practice: 0}
+	bonusTableWisdom[2] = bonusWisdom{practice: 0}
+	bonusTableWisdom[3] = bonusWisdom{practice: 0}
+	bonusTableWisdom[4] = bonusWisdom{practice: 0}
+	bonusTableWisdom[5] = bonusWisdom{practice: 1}
+	bonusTableWisdom[6] = bonusWisdom{practice: 1}
+	bonusTableWisdom[7] = bonusWisdom{practice: 1}
+	bonusTableWisdom[8] = bonusWisdom{practice: 1}
+	bonusTableWisdom[9] = bonusWisdom{practice: 1}
+	bonusTableWisdom[10] = bonusWisdom{practice: 2}
+	bonusTableWisdom[11] = bonusWisdom{practice: 2}
+	bonusTableWisdom[12] = bonusWisdom{practice: 2}
+	bonusTableWisdom[13] = bonusWisdom{practice: 2}
+	bonusTableWisdom[14] = bonusWisdom{practice: 2}
+	bonusTableWisdom[15] = bonusWisdom{practice: 3}
+	bonusTableWisdom[16] = bonusWisdom{practice: 3}
+	bonusTableWisdom[17] = bonusWisdom{practice: 4}
+	bonusTableWisdom[18] = bonusWisdom{practice: 5}
+	bonusTableWisdom[19] = bonusWisdom{practice: 5}
+	bonusTableWisdom[20] = bonusWisdom{practice: 5}
+	bonusTableWisdom[21] = bonusWisdom{practice: 6}
+	bonusTableWisdom[22] = bonusWisdom{practice: 6}
+	bonusTableWisdom[23] = bonusWisdom{practice: 6}
+	bonusTableWisdom[24] = bonusWisdom{practice: 6}
+	bonusTableWisdom[25] = bonusWisdom{practice: 7}
+
+	bonusTableDexterity[0] = bonusDexterity{defensive: 60}
+	bonusTableDexterity[1] = bonusDexterity{defensive: 50}
+	bonusTableDexterity[2] = bonusDexterity{defensive: 50}
+	bonusTableDexterity[3] = bonusDexterity{defensive: 40}
+	bonusTableDexterity[4] = bonusDexterity{defensive: 30}
+	bonusTableDexterity[5] = bonusDexterity{defensive: 20}
+	bonusTableDexterity[6] = bonusDexterity{defensive: 10}
+	bonusTableDexterity[7] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[8] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[9] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[10] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[11] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[12] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[13] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[14] = bonusDexterity{defensive: 0}
+	bonusTableDexterity[15] = bonusDexterity{defensive: -10}
+	bonusTableDexterity[16] = bonusDexterity{defensive: -15}
+	bonusTableDexterity[17] = bonusDexterity{defensive: -20}
+	bonusTableDexterity[18] = bonusDexterity{defensive: -30}
+	bonusTableDexterity[19] = bonusDexterity{defensive: -40}
+	bonusTableDexterity[20] = bonusDexterity{defensive: -50}
+	bonusTableDexterity[21] = bonusDexterity{defensive: -60}
+	bonusTableDexterity[22] = bonusDexterity{defensive: -75}
+	bonusTableDexterity[23] = bonusDexterity{defensive: -90}
+	bonusTableDexterity[24] = bonusDexterity{defensive: -105}
+	bonusTableDexterity[25] = bonusDexterity{defensive: -120}
+
+	bonusTableConstitution[0] = bonusConstitution{hitpoints: -4, shock: 20}
+	bonusTableConstitution[1] = bonusConstitution{hitpoints: -3, shock: 25}
+	bonusTableConstitution[2] = bonusConstitution{hitpoints: -2, shock: 30}
+	bonusTableConstitution[3] = bonusConstitution{hitpoints: -1, shock: 35}
+	bonusTableConstitution[4] = bonusConstitution{hitpoints: -1, shock: 40}
+	bonusTableConstitution[5] = bonusConstitution{hitpoints: -1, shock: 45}
+	bonusTableConstitution[6] = bonusConstitution{hitpoints: 0, shock: 50}
+	bonusTableConstitution[7] = bonusConstitution{hitpoints: 0, shock: 55}
+	bonusTableConstitution[8] = bonusConstitution{hitpoints: 0, shock: 60}
+	bonusTableConstitution[9] = bonusConstitution{hitpoints: 0, shock: 65}
+	bonusTableConstitution[10] = bonusConstitution{hitpoints: 0, shock: 70}
+	bonusTableConstitution[11] = bonusConstitution{hitpoints: 0, shock: 75}
+	bonusTableConstitution[12] = bonusConstitution{hitpoints: 0, shock: 80}
+	bonusTableConstitution[13] = bonusConstitution{hitpoints: 0, shock: 85}
+	bonusTableConstitution[14] = bonusConstitution{hitpoints: 0, shock: 90}
+	bonusTableConstitution[15] = bonusConstitution{hitpoints: 1, shock: 95}
+	bonusTableConstitution[16] = bonusConstitution{hitpoints: 2, shock: 99}
+	bonusTableConstitution[17] = bonusConstitution{hitpoints: 2, shock: 99}
+	bonusTableConstitution[18] = bonusConstitution{hitpoints: 3, shock: 99}
+	bonusTableConstitution[19] = bonusConstitution{hitpoints: 3, shock: 99}
+	bonusTableConstitution[20] = bonusConstitution{hitpoints: 4, shock: 99}
+	bonusTableConstitution[21] = bonusConstitution{hitpoints: 4, shock: 99}
+	bonusTableConstitution[22] = bonusConstitution{hitpoints: 5, shock: 99}
+	bonusTableConstitution[23] = bonusConstitution{hitpoints: 6, shock: 99}
+	bonusTableConstitution[24] = bonusConstitution{hitpoints: 7, shock: 29}
+	bonusTableConstitution[25] = bonusConstitution{hitpoints: 8, shock: 99}
 }
 
 func loadCommands() {

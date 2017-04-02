@@ -213,7 +213,38 @@ func (m *mob) addFollower(master *mob) {
 }
 
 func (m *mob) advanceLevel() {
+	var (
+		addHP       int
+		addMana     int
+		addMovement int
+		addPracs    int
+	)
 
+	job := m.Job
+	addHP = bonusTableConstitution[m.ModifiedAttributes.Constitution].hitpoints + (dice().Intn(job.MaxHitpoints) + job.MinHitpoints)
+
+	addMana = 0
+	if job.GainsMana {
+		addMana = dice().Intn((m.ModifiedAttributes.Intelligence*2)+(m.ModifiedAttributes.Wisdom/8)) + 2
+	}
+
+	addMovement = dice().Intn(m.ModifiedAttributes.Constitution+(m.ModifiedAttributes.Dexterity/4)) + 5
+
+	addPracs = bonusTableWisdom[m.ModifiedAttributes.Wisdom].practice
+
+	addHP = max(1, addHP)
+	addMana = max(0, addMana)
+	addMovement = max(10, addMovement)
+
+	m.MaxHitpoints += addHP
+	m.MaxMana += addMana
+	m.MaxMovement += addMovement
+
+	if !m.isNPC() {
+		removeBit(m.Act, playerBoughtPet)
+	}
+
+	m.notify("Your gain is: %d/%d hp, %d/%d mana, %d/%d movement, and %d/%d practices.", addHP, m.MaxHitpoints, addMana, m.MaxMana, addMovement, m.MaxMovement, addPracs, m.Practices)
 }
 
 func (m *mob) removeAffect(af *affect) {
