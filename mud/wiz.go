@@ -1017,7 +1017,7 @@ func doShutdown(wiz *mob, argument string) {
 	gameServer.Up = false
 }
 
-func doSla(wiz *mob, argument string) {
+func doSlayIncomplete(wiz *mob, argument string) {
 	wiz.notify("If you want to SLAY someone, spell it out.")
 	return
 }

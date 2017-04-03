@@ -11,6 +11,7 @@ import (
 
 var gameServer Server
 
+// Server object
 type Server struct {
 	connections []connection
 	Up          bool
@@ -45,6 +46,7 @@ func (server *Server) handle(c *connection) {
 	}
 }
 
+// Serve boots up the server
 func (server *Server) Serve(port int) {
 	server.init()
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))

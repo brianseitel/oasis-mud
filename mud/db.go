@@ -418,7 +418,7 @@ func loadCommands() {
 	commandList.PushBack(&cmd{Name: "restore", Trust: 96, Position: dead, Callback: doRestore})
 	// commandList.PushBack(&cmd{Name: "rset", Trust: 96, Position: dead, Callback: doRset})
 	commandList.PushBack(&cmd{Name: "silence", Trust: 96, Position: dead, Callback: doSilence})
-	commandList.PushBack(&cmd{Name: "sla", Trust: 96, Position: dead, Callback: doSla})
+	commandList.PushBack(&cmd{Name: "sla", Trust: 96, Position: dead, Callback: doSlayIncomplete})
 	commandList.PushBack(&cmd{Name: "slay", Trust: 96, Position: dead, Callback: doSlay})
 	// commandList.PushBack(&cmd{Name: "sset", Trust: 96, Position: dead, Callback: doSset})
 	commandList.PushBack(&cmd{Name: "transfer", Trust: 96, Position: dead, Callback: doTransfer})
