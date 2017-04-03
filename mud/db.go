@@ -102,15 +102,18 @@ func createMob(index *mobIndex) *mob {
 	m.AffectedBy = index.AffectedBy
 
 	m.Skills = index.Skills
+	m.Room = getRoom(index.RoomID)
 
 	for _, i := range index.Inventory {
 		index := getItem(i.ID)
 		i.index = *index
+		if i.WearFlags == itemWearLight {
+			m.Room.Light++
+		}
 		m.Inventory = append(m.Inventory, i)
 	}
 
 	m.ExitVerb = index.ExitVerb
-	m.Room = getRoom(index.RoomID)
 
 	m.Hitpoints = index.Hitpoints
 	m.MaxHitpoints = index.MaxHitpoints
@@ -154,6 +157,7 @@ func createMob(index *mobIndex) *mob {
 	if m.isNPC() && (m.Room != nil && m.Room.isDark()) {
 		setBit(m.AffectedBy, affectInfrared)
 	}
+
 	return m
 }
 

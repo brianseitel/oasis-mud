@@ -20,6 +20,7 @@ func register(c *connection, name string) *mob {
 	var m *mob
 	newPlayer := &mob{
 		Name:         m.Name,
+		Password:     password,
 		Job:          &job,
 		Race:         &race,
 		Hitpoints:    m.Race.defaultStats("hitpoints"),
@@ -49,6 +50,8 @@ func register(c *connection, name string) *mob {
 		Room:   getRoom(1),
 		Status: standing,
 	}
+
+	fmt.Println(newPlayer)
 
 	m.client = c
 	return m
