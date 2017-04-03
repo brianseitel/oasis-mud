@@ -15,7 +15,7 @@
         "level": 1,
         "job_id": 1,
         "race_id": 1,
-        "room_id": 3,
+        "room_id": 103,
         "gender": null,
         "status": 8,
         "attributes": {
@@ -64,7 +64,7 @@
         "level": 1,
         "job_id": 1,
         "race_id": 1,
-        "room_id": 6,
+        "room_id": 106,
         "gender": null,
         "status": 8,
         "attributes": {
@@ -107,7 +107,7 @@
         "level": 1,
         "job_id": 1,
         "race_id": 1,
-        "room_id": 8,
+        "room_id": 108,
         "gender": null,
         "status": 8,
         "attributes": {
@@ -156,7 +156,7 @@
         "level": 1,
         "job_id": 1,
         "race_id": 2,
-        "room_id": 13,
+        "room_id": 1013,
         "gender": null,
         "status": 8,
         "attributes": {

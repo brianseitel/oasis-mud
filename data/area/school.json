@@ -1,0 +1,383 @@
+{
+    "id": 0,
+    "name": "The School",
+    "rooms": [
+        {
+            "id": 1,
+            "name": "Entrance to The School",
+            "description": "This is the entrance to Mud School. Go north to go through Mud School. If you have been here before, go down to the Meadow.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "You see a path into another room.",
+                    "room_id": 2
+                },
+                {
+                    "direction": "down",
+                    "description": "Below you see an expansive world, ready for exploration.",
+                    "room_id": 101
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 2,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room. The walls are all blank, with no windows. Light bounces off the ceiling in soft white tones. Of course, there is a sign on the wall. The exits are west and south. A small plaque is on the wall.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "You see the next room.",
+                    "room_id": 3
+                },
+                {
+                    "direction": "south",
+                    "description": "You see the beginning of Mud School.",
+                    "room_id": 1
+                },
+                {
+                    "keyword": "plaque",
+                    "description": "This zone is Mud School.",
+                    "room_id": null
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Equipment check time! Type 'equipment' to see your current equipment. Right now, you just have a vest, shield, and a weapon. As you go through Mud School, you will acquire a full set of equipment.\n\nTo pick up items on the ground as you see them, type 'GET <item>'.\r\nTo wear a piece of armor, type 'WEAR <item>'.\r\nTo hold a light source, tyoe 'HOLD <light>'.\r\nTo wield a weapon, type 'WIELD <weapon>'.\r\nTo stop using a piece of equipment, type 'REMOVE <item>'.\r\nFinally, to see your inventory, type 'INVENTORY'.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 3,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room. The walls are all blank, with no windows. Light bounces off the ceiling in soft white tones. Of course, there is a sign on the wall. Exits lead in ALL directions",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "You see a room.",
+                    "room_id": 2
+                },
+                {
+                    "direction": "north",
+                    "description": "You see the next room.",
+                    "room_id": 4
+                },
+                {
+                    "direction": "west",
+                    "description": "You see the next room.",
+                    "room_id": 5
+                },
+                {
+                    "direction": "south",
+                    "description": "You see the next room.",
+                    "room_id": 6
+                },
+                {
+                    "direction": "up",
+                    "description": "You see the next room.",
+                    "room_id": 7
+                },
+                {
+                    "direction": "down",
+                    "description": "You see the next room.",
+                    "room_id": 8
+                },
+                {
+                    "keyword": "sign",
+                    "description": "This is the movement practicing room. The directions you can go in any room are: north, south, east, west, up, or down. Of course, not all rooms have all exits available.\r\n\r\n To see all obvious exits in a room, type 'EXITS'.\r\n\r\nSometimes doors are closed, locked, or secret. Then you have to notice clues in the room description or try going into that direction and see that you bump into a door.\r\n\r\nTry going in each direction. When you are done, go NORTH.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 6,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is north.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "You see the central room.",
+                    "room_id": 3
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Go north to get back to the central room.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 5,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is east.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "You see the central room.",
+                    "room_id": 3
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Go east to get back to the central room.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 7,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is down.",
+            "exits": [
+                {
+                    "direction": "down",
+                    "description": "You see the central room.",
+                    "room_id": 3
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Go down to get back to the central room.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 8,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is up.",
+            "exits": [
+                {
+                    "direction": "up",
+                    "description": "You see the central room.",
+                    "room_id": 3
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Go up to get back to the central room.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 4,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The exits lead north and south.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "You see the central room.",
+                    "room_id": 3
+                },
+                {
+                    "direction": "north",
+                    "description": "You see the combat room ahead.",
+                    "room_id": 9
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Since you are here, let's have another lesson. You can see the statistics on yourself by typing 'SCORE'. Do that right now. At higher levels, 'SCORE' gives you more information.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 9,
+            "name": "A Room in Mud School",
+            "description": "You are in the cage room. Below is a cage with a monster. The next station is to the south.",
+            "exits": [
+                {
+                    "direction": "down",
+                    "description": "You see a cage.",
+                    "room_id": 10
+                },
+                {
+                    "direction": "south",
+                    "description": "You see the next station ahead.",
+                    "room_id": 11
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Time to fight! The first lesson is knowing whom to fight. Use the command 'CONSIDER' to consider killing a monster. Avoid fighting monsters that will kill you easily.\r\nWhen you're ready, type 'KILL <monster>' to begin attacking the monster.\r\nOnce the monster is dead, you may get items from its corpse by typing 'GET ALL CORPSE'. When you are done, you may sacrifice the corpse to your gods by typing 'SACRIFICE corpse'. Your god should reward you for this.\r\nBetween fights, you may need to rest to recover much-needed Hitpoints, Mana, or Movement. You can do this by typing 'SLEEP'. When you are ready to wake, type 'WAKE'.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 10,
+            "name": "A Cage",
+            "description": "You are in a metal cage. Blood and guts are scattered across the floor and walls. There's a sign on the wall. The only exit is back up!",
+            "exits": [
+                {
+                    "direction": "up",
+                    "description": "You see the cage room.",
+                    "room_id": 9
+                },
+                {
+                    "keyword": "sign",
+                    "description": "Time to fight! The first lesson is knowing whom to fight. Use the command 'CONSIDER' to consider killing a monster. Avoid fighting monsters that will kill you easily.\r\nWhen you're ready, type 'KILL <monster>' to begin attacking the monster. Now, go DOWN and fight your first opponent!",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [ ],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 11,
+            "name": "A Room in Mud School",
+            "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  Find your own exit here.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "You see the cage room.",
+                    "room_id": 9
+                },
+                {
+                    "direction": "west",
+                    "description": "You see the next station.",
+                    "room_id": 12
+                },
+                {
+                    "keyword": "sign",
+                    "description": "You must be hurt. Time to buy potions to heal yourself! To the west is a store. Inside the store, you can use these commands:\r\n\r\nBUY    Buy an item.\r\n\r\nLIST   List what is for sale.\r\n\r\nAfter buying a potion, type 'DRINK potion' to drink it.\r\n\r\nAfter that, find the next exit yourself!",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 12,
+            "name": "The Mud School Emporium",
+            "description": "You are in a cramped room. Stacked neatly on the shelves are items and packages. Of course, there's a sign on the wall. The only exits are north and east.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "You see a room.",
+                    "room_id": 11
+                },
+                {
+                    "direction": "north",
+                    "description": "You see the next station.",
+                    "room_id": 14
+                },
+                {
+                    "keyword": "sign",
+                    "description": "The sign reads:\r\n\r\nBUY   - Buy something from the storekeeper\r\nLIST  - The storekeeper will tell you what's for sale\r\nVALUE - The storekeeper will tell you how much he will give you for that item\r\nSELL  - Sell that item to the storekeeper.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 14,
+            "name": "The Mud School Emporium",
+            "description": "You are in a square white room. The walls are all blank, with no windows. Of course, there is a sign on the wall. The exits are to the south and west.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "You see the Mud School Emporium.",
+                    "room_id": 12
+                },
+                {
+                    "direction": "west",
+                    "description": "You see a dark room.",
+                    "room_id": 15
+                },
+                {
+                    "direction": "east",
+                    "description": "You see a door.",
+                    "room_id": 16,
+                    "key": 1
+                },
+                {
+                    "keyword": "sign",
+                    "description": "West of you is a dark room. I hope you still have the lantern! If not, you'll have to go back to the store to buy one.\r\n\r\nIn the room is a monster with a key that you need. After killing the monster and getting the key, come back here, UNLOCK EAST, OPEN EAST, and continue east.",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 15,
+            "name": "The Darkened Room",
+            "description": "This room was purposefully darkened so that you would need to hold a light source to go through. The room is white and has blank walls. The only exit is to the east.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "You see a room.",
+                    "room_id": 14,
+                    "key": 1
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 1,
+            "light": 0
+        },
+        {
+            "id": 16,
+            "name": "The End of Mud School",
+            "description": "This is an extremely bright room, with a marble pedestal in the center. Behind the pedestal stands a person cloaked in a robe. Tapestries flow from every wall, and you feel very happy to be here right now. There is a big sign here. The only exit is behind you to the west.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "You see a dark room.",
+                    "room_id": 14
+                },
+                {
+                    "keyword": "sign",
+                    "description": "You have graduated from Mud School! Get your diploma from the pedestal by typing 'GET diploma pedestal'. Once you have done so, you may return to the Real World by typing 'RECALL'.\r\n\r\nIf you need more help during the game, type 'HELP'. You may also chat with other players by typing 'CHAT <message>'.\r\n\r\nGood luck and enjoy your adventures!",
+                    "room_id": null
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        }
+    ]
+}

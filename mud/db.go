@@ -102,6 +102,7 @@ func createMob(index *mobIndex) *mob {
 	m.AffectedBy = index.AffectedBy
 
 	m.Skills = index.Skills
+
 	m.Room = getRoom(index.RoomID)
 
 	for _, i := range index.Inventory {
@@ -570,7 +571,9 @@ func loadRooms() {
 		for e := roomList.Front(); e != nil; e = e.Next() {
 			room := e.Value.(*room)
 			for j, x := range room.Exits {
-				room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
+				if x.RoomID > 0 {
+					room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
+				}
 			}
 
 			exitsList.PushBack(room)

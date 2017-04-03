@@ -9,8 +9,8 @@ const (
 
 type exit struct {
 	ID          int
-	Keyword     string
-	Description string
+	Keyword     string `json:"keyword"`
+	Description string `json:"description"`
 	Dir         string `json:"direction"`
 	Room        *room
 	RoomID      int `json:"room_id"`

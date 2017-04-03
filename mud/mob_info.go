@@ -360,29 +360,37 @@ func doLook(player *mob, argument string) {
 		}
 	}
 
-	var door string
-	if strings.HasPrefix(argument, "n") || strings.HasPrefix(argument, "north") {
-		door = "north"
-	} else if strings.HasPrefix(argument, "e") || strings.HasPrefix(argument, "east") {
-		door = "east"
-	} else if strings.HasPrefix(argument, "s") || strings.HasPrefix(argument, "south") {
-		door = "south"
-	} else if strings.HasPrefix(argument, "w") || strings.HasPrefix(argument, "west") {
-		door = "west"
-	} else if strings.HasPrefix(argument, "u") || strings.HasPrefix(argument, "up") {
-		door = "up"
-	} else if strings.HasPrefix(argument, "d") || strings.HasPrefix(argument, "down") {
-		door = "down"
-	} else {
-		player.notify("You do not see that here.")
-		return
-	}
-
 	var exit *exit
 	for _, e := range player.Room.Exits {
-		if e.Dir == door {
+		if matchesSubject(e.Keyword, argument) {
 			exit = e
 			break
+		}
+	}
+
+	if exit == nil {
+		var door string
+		if strings.HasPrefix(argument, "n") || strings.HasPrefix(argument, "north") {
+			door = "north"
+		} else if strings.HasPrefix(argument, "e") || strings.HasPrefix(argument, "east") {
+			door = "east"
+		} else if strings.HasPrefix(argument, "s") || strings.HasPrefix(argument, "south") {
+			door = "south"
+		} else if strings.HasPrefix(argument, "w") || strings.HasPrefix(argument, "west") {
+			door = "west"
+		} else if strings.HasPrefix(argument, "u") || strings.HasPrefix(argument, "up") {
+			door = "up"
+		} else if strings.HasPrefix(argument, "d") || strings.HasPrefix(argument, "down") {
+			door = "down"
+		} else {
+			door = argument
+		}
+
+		for _, e := range player.Room.Exits {
+			if matchesSubject(e.Keyword, door) || matchesSubject(e.Dir, door) {
+				exit = e
+				break
+			}
 		}
 	}
 
@@ -391,13 +399,15 @@ func doLook(player *mob, argument string) {
 		return
 	}
 
-	if len(exit.Description) == 0 {
+	if exit.Description != "" {
+		dump("hi!")
 		player.notify(exit.Description)
 	} else {
+		dd("fuck!")
 		player.notify("Nothing special there.")
 	}
 
-	if len(exit.Keyword) == 0 {
+	if exit.Key == 0 {
 		if exit.isClosed() {
 			act("The $d is closed.", player, nil, exit.Keyword, actToChar)
 		} else if exit.hasDoor() {
@@ -410,6 +420,9 @@ func doLook(player *mob, argument string) {
 func doScan(player *mob, argument string) {
 	room := getRoom(player.Room.ID)
 	for _, x := range room.Exits {
+		if x.Dir == "" {
+			continue
+		}
 		player.notify("[%s]", x.Dir)
 
 		if len(x.Room.Mobs) > 0 {
