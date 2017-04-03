@@ -75,7 +75,7 @@ const (
 
 /* wear locations */
 const (
-	wearNone        = 99999
+	wearNone        = 0
 	wearLight       = 1
 	wearArmor       = 2
 	wearFingerLeft  = 3
@@ -189,23 +189,23 @@ type item struct {
 	inObject         *item
 	carriedBy        *mob
 	Room             *room
-	Affected         []*affect
-	Name             string
-	Description      string
-	ShortDescription string
-	ItemType         int
-	ExtraFlags       int
-	WearFlags        int
-	WearLocation     int
-	Weight           int
-	Cost             int
-	Level            int
-	Timer            int
-	Value            int
-	Min              int
-	Max              int
-	Skill            *skill /* items can have skills or spells */
-	Charges          int
+	Affected         []*affect `json:"affected"`
+	Name             string    `json:"name"`
+	Description      string    `json:"description"`
+	ShortDescription string    `json:"short_description"`
+	ItemType         int       `json:"item_type"`
+	ExtraFlags       int       `json:"extra_flags"`
+	WearFlags        int       `json:"wear_flags"`
+	WearLocation     int       `json:"wear_location"`
+	Weight           int       `json:"weight"`
+	Cost             int       `json:"cost"`
+	Level            int       `json:"level"`
+	Timer            int       `json:"timer"`
+	Value            int       `json:"value"`
+	Min              int       `json:"min"`
+	Max              int       `json:"max"`
+	Skill            *skill    `json:"skill"` /* items can have skills or spells */
+	Charges          int       `json:"charges"`
 
 	ClosedFlags int
 }

@@ -73,7 +73,6 @@ func (r *room) decayItems() {
 			break
 		}
 		item.Timer--
-		fmt.Println("Decaying ", item.Name, " (", item.Timer, " ticks remaining")
 	}
 }
 

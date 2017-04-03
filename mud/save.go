@@ -9,37 +9,37 @@ import (
 
 type saveAffect struct {
 	AffectType saveSkill
-	Duration   int
-	Location   int
-	Modifier   int
-	Bitvector  int
+	Duration   int `json:"duration"`
+	Location   int `json:"location"`
+	Modifier   int `json:"modifier"`
+	Bitvector  int `json:"bitvector"`
 }
 
 type saveItem struct {
-	ID               int
-	Name             string
-	Description      string
-	ShortDescription string
-	ItemType         int        `json:"item_type"`
-	Contained        []saveItem `json:"contained"`
-	Affected         []saveAffect
-	ExtraFlags       int
-	WearFlags        int
-	WearLocation     int
-	Weight           int
-	Cost             int
-	Level            int
-	Timer            int
-	Value            int
-	Min              int
-	Max              int
-	SkillID          int /* items can have skills */
-	Charges          int
+	ID               int          `json:"id"`
+	Name             string       `json:"name"`
+	Description      string       `json:"description"`
+	ShortDescription string       `json:"short_description"`
+	ItemType         int          `json:"item_type"`
+	Contained        []saveItem   `json:"contained"`
+	Affected         []saveAffect `json:"affected"`
+	ExtraFlags       int          `json:"extra_flags"`
+	WearFlags        int          `json:"wear_flags"`
+	WearLocation     int          `json:"wear_location"`
+	Weight           int          `json:"weight"`
+	Cost             int          `json:"cost"`
+	Level            int          `json:"level"`
+	Timer            int          `json:"timer"`
+	Value            int          `json:"value"`
+	Min              int          `json:"min"`
+	Max              int          `json:"max"`
+	SkillID          int          `json:"skill_id"` /* items can have skills */
+	Charges          int          `json:"charges"`
 }
 
 type saveSkill struct {
-	SkillID int
-	Level   int
+	SkillID int `json:"skill_id"`
+	Level   int `json:"level"`
 }
 
 type savePlayer struct {
@@ -104,7 +104,6 @@ type savePlayer struct {
 func saveCharacter(character *mob) {
 
 	if character.isNPC() { //|| character.Level < 2 {
-		fmt.Println("fuck")
 		return
 	}
 
@@ -112,7 +111,6 @@ func saveCharacter(character *mob) {
 		character = character.client.original
 	}
 
-	fmt.Println("Saving", character.Name)
 	path := fmt.Sprintf("./data/players/%s.json", character.Name)
 	writeCharacter(character, path)
 
@@ -132,7 +130,11 @@ func writeCharacter(character *mob, path string) {
 	save.RaceID = character.Race.ID
 	save.Level = character.Level
 	save.Trust = character.Trust
-	save.RoomID = character.Room.ID
+	if character.Room == nil {
+		save.RoomID = 0
+	} else {
+		save.RoomID = character.Room.ID
+	}
 	save.Hitpoints = character.Hitpoints
 	save.MaxHitpoints = character.MaxHitpoints
 	save.Mana = character.Mana
@@ -166,10 +168,7 @@ func writeCharacter(character *mob, path string) {
 
 		var skills []saveSkill
 		for _, sk := range character.Skills {
-			var skill struct {
-				SkillID int
-				Level   int
-			}
+			var skill saveSkill
 
 			skill.SkillID = sk.SkillID
 			skill.Level = sk.Level
@@ -197,6 +196,9 @@ func writeCharacter(character *mob, path string) {
 	save.Affects = affects
 
 	save.Inventory = saveItems(character.Inventory, character)
+
+	save.CarryMax = character.CarryMax
+	save.CarryWeightMax = character.CarryWeightMax
 
 	save.RecallRoomID = character.RecallRoomID
 	save.Playable = true
@@ -246,6 +248,7 @@ func saveItems(items []*item, character *mob) []saveItem {
 
 		item.ExtraFlags = i.ExtraFlags
 		item.WearFlags = i.WearFlags
+		item.WearLocation = i.WearLocation
 		item.Weight = i.Weight
 		item.Value = i.Value
 		item.Min = i.Min

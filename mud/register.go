@@ -17,7 +17,6 @@ func register(c *connection, name string) *mob {
 	job := askForJob(c)
 	race := askForRace(c)
 
-	fmt.Println(password)
 	var m *mob
 	newPlayer := &mob{
 		Name:         m.Name,
@@ -50,8 +49,6 @@ func register(c *connection, name string) *mob {
 		Room:   getRoom(1),
 		Status: standing,
 	}
-
-	fmt.Println(newPlayer)
 
 	m.client = c
 	return m

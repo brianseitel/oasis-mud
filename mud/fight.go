@@ -1,7 +1,6 @@
 package mud
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -141,7 +140,7 @@ func groupGain(player *mob, victim *mob) {
 		xp := xpCompute(m, victim) / members
 		m.notify("You receive %d experience points.", xp)
 		m.gainExp(xp)
-		fmt.Println("shit", m.Name)
+
 		for _, i := range m.Inventory {
 			if i.WearLocation == wearNone {
 				continue

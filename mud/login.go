@@ -46,6 +46,7 @@ func login(c *connection) *mob {
 	}
 
 	p := createMob(player)
+
 	p.client = c
 	p.Status = standing
 	p.Room.Mobs = append(p.Room.Mobs, p)

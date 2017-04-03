@@ -19,7 +19,7 @@
             "name": "flaming ball of fire",
             "description": "A flaming ball of fire hovers woozily in the air.",
             "short_description": "Hobbits don't need doors as much as you need protection.",
-            "item_type": 0,
+            "item_type": 1,
             "extra_flags": 0,
             "wear_flags": 32769,
             "wear_location": 99999,

@@ -659,7 +659,6 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 		diceroll = dBits(5)
 	}
 
-	fmt.Println(m.Name, thac0, "-", victim.Name, victimAC, "diceroll", diceroll)
 	if diceroll == 0 || (diceroll != 19 && diceroll < thac0-victimAC) {
 		// miss. //
 		m.damage(victim, 0, damageType)

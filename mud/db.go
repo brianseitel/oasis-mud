@@ -84,6 +84,7 @@ func createItem(index *itemIndex) *item {
 	item.index.count++
 	item.container = contained
 	itemList.PushBack(item)
+
 	return item
 }
 

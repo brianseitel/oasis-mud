@@ -185,6 +185,7 @@ type mob struct {
 	leader      *mob
 	wait        int
 	Timer       int
+	Light       int
 	WasInRoom   *room
 	replyTarget *mob
 	Playable    bool
@@ -506,6 +507,15 @@ func (m *mob) move(e *exit) {
 	m.Room = e.Room
 	m.Room.Mobs = append(m.Room.Mobs, m)
 
+	if m.equippedItem(itemLight) != nil {
+		if oldRoom.Light > 0 {
+			oldRoom.Light--
+		}
+		if m.Room != nil {
+			m.Room.Light++
+		}
+	}
+
 	for _, rm := range oldRoom.Mobs {
 		if rm.master == m {
 			rm.move(e)
@@ -586,8 +596,9 @@ func (m *mob) equipItem(item *item, position int) {
 
 	// TODO: item effects
 
-	// TODO: light up room if it's a light
-
+	if item.ItemType == itemLight && m.Room != nil {
+		m.Room.Light++
+	}
 	return
 }
 
@@ -632,7 +643,6 @@ func (m *mob) regenHitpoints() int {
 		gain /= 4
 	}
 
-	fmt.Println("Gaining ", gain, " Con:", m.currentConstitution())
 	return min(gain, m.MaxHitpoints-m.Hitpoints)
 }
 

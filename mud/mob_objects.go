@@ -180,7 +180,6 @@ func doDrop(player *mob, argument string) {
 			name = words[1]
 		}
 
-		fmt.Println(name)
 		for j := 0; j < len(player.Inventory); j++ {
 			item := player.Inventory[j]
 			if arg1 == "all" || matchesSubject(item.Name, name) {
@@ -878,6 +877,9 @@ func (m *mob) unwearItem(location int, replace bool) bool {
 		return false
 	}
 
+	if obj.ItemType == itemLight {
+		m.Room.Light--
+	}
 	obj.WearLocation = wearNone
 
 	act("$n stops using $p.", m, obj, nil, actToRoom)
@@ -913,7 +915,7 @@ func (m *mob) wear(wearable *item, replace bool) {
 		return
 	}
 
-	if wearable.ItemType == itemLight {
+	if wearable.ItemType == itemLight && wearable.canWear(itemWearLight) {
 		removed := m.unwearItem(wearLight, replace)
 		if !removed {
 			return
@@ -1104,5 +1106,4 @@ func (m *mob) wear(wearable *item, replace bool) {
 	}
 
 	m.notify("You can't wear, wield, or hold that.")
-	fmt.Println("You can't wear, wield, or hold that.")
 }
