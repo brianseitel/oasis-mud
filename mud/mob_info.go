@@ -339,7 +339,8 @@ func doLook(player *mob, argument string) {
 	}
 
 	if victim != nil {
-		showCharacterToPlayer(victim, player)
+		showCharacterToPlayer(victim, player, true)
+		return
 	}
 
 	for _, i := range player.Inventory {
@@ -400,11 +401,10 @@ func doLook(player *mob, argument string) {
 	}
 
 	if exit.Description != "" {
-		dump("hi!")
 		player.notify(exit.Description)
 	} else {
-		dd("fuck!")
 		player.notify("Nothing special there.")
+		return
 	}
 
 	if exit.Key == 0 {

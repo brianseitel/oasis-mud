@@ -1,0 +1,58 @@
+[
+    {
+        "id": 1,
+        "name": "An old man",
+        "description": "A old man in a white robe stands before you.",
+        "long_description": "An old man in a white robe stands before you. He spreads his arms wide and welcomes you to the MUD school. He introduces himself as The Dude. Whatever that means.",
+        "act": [2,64],
+        "affected_by": [8,128],
+        "alignment": 1000,
+        "exit_verb": null,
+        "hitpoints": 25,
+        "max_hitpoints": 25,
+        "mana": 0,
+        "max_mana": 0,
+        "movement": 100,
+        "max_movement": 100,
+        "hitroll": 29999,
+        "damroll": 40,
+        "armor": -20,
+        "experience": -99000,
+        "level": 0,
+        "status": 8,
+        "gender": 1,
+
+        "job_id": 1,
+        "race_id": 1,
+        "room_id": 1,
+        "attributes": {
+            "strength": 3,
+            "wisdom": 3,
+            "intelligence": 3,
+            "dexterity": 3,
+            "charisma": 3,
+            "constitution": 3
+        },
+        "modified_attributes": {
+            "strength": 3,
+            "wisdom": 3,
+            "intelligence": 3,
+            "dexterity": 3,
+            "charisma": 3,
+            "constitution": 3
+        },
+        "identifiers": "doe",
+        "inventory": [],
+        "equipped": [],
+        "skills": [
+            {
+                "skill_id": 1,
+                "level": 75
+            }
+        ],
+        "carrying": 0,
+        "carry_max": 100,
+        "carry_weight": 0,
+        "carry_weight_max": 100
+    }
+]

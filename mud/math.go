@@ -52,3 +52,64 @@ func toggleBit(flag int, bit int) int {
 	}
 	return flag
 }
+
+func playerActFlags(flags int) []int {
+	var results []int
+
+	var playerFlags []int
+	playerFlags = append(playerFlags, actIsNPC)
+	playerFlags = append(playerFlags, actSentinel)
+	playerFlags = append(playerFlags, actScavenger)
+	playerFlags = append(playerFlags, actAggressive)
+	playerFlags = append(playerFlags, actStayArea)
+	playerFlags = append(playerFlags, actWimpy)
+	playerFlags = append(playerFlags, actPet)
+	playerFlags = append(playerFlags, actTrain)
+	playerFlags = append(playerFlags, actPet)
+
+	for _, flag := range playerFlags {
+		if hasBit(flags, flag) {
+			results = append(results, flag)
+			flags ^= flag
+		}
+	}
+
+	return results
+}
+
+func playerAffectFlags(flags int) []int {
+	var results []int
+
+	var playerFlags []int
+
+	playerFlags = append(playerFlags, affectBlind)
+	playerFlags = append(playerFlags, affectInvisible)
+	playerFlags = append(playerFlags, affectDetectEvil)
+	playerFlags = append(playerFlags, affectDetectInvisible)
+	playerFlags = append(playerFlags, affectDetectMagic)
+	playerFlags = append(playerFlags, affectDetectHidden)
+	playerFlags = append(playerFlags, affectHold)
+	playerFlags = append(playerFlags, affectSanctuary)
+	playerFlags = append(playerFlags, affectFaerieFire)
+	playerFlags = append(playerFlags, affectInfrared)
+	playerFlags = append(playerFlags, affectCurse)
+	playerFlags = append(playerFlags, affectFlaming)
+	playerFlags = append(playerFlags, affectPoison)
+	playerFlags = append(playerFlags, affectProtect)
+	playerFlags = append(playerFlags, affectParalysis)
+	playerFlags = append(playerFlags, affectSneak)
+	playerFlags = append(playerFlags, affectHide)
+	playerFlags = append(playerFlags, affectSleep)
+	playerFlags = append(playerFlags, affectCharm)
+	playerFlags = append(playerFlags, affectFlying)
+	playerFlags = append(playerFlags, affectPassDoor)
+
+	for _, flag := range playerFlags {
+		if hasBit(flags, flag) {
+			results = append(results, flag)
+			flags ^= flag
+		}
+	}
+
+	return results
+}

@@ -19,7 +19,7 @@
                 }
             ],
             "items": [],
-            "mobs": [],
+            "mobs": [1],
             "sector_type": 3,
             "light": 0
         },

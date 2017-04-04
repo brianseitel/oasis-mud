@@ -63,12 +63,13 @@ type mobIndex struct {
 	Name     string
 	Password string
 
-	Description string
-	Title       string
+	Description     string
+	LongDescription string `json:"long_description"`
+	Title           string
 
 	Affects    []*affect
-	AffectedBy int
-	Act        int
+	AffectedBy []int
+	Act        []int
 
 	Skills    []*mobSkill
 	Inventory []*item `json:"inventory"`
@@ -128,10 +129,11 @@ type mob struct {
 	index *mobIndex
 
 	//Mob information
-	Name        string `json:"name"`
-	Password    string
-	Description string
-	Title       string
+	Name            string `json:"name"`
+	Password        string
+	Description     string
+	LongDescription string
+	Title           string
 
 	Affects    []*affect /* list of affects, incl durations */
 	AffectedBy int       /* bit flag */
@@ -795,14 +797,14 @@ func showCharactersToPlayer(chars []*mob, player *mob) {
 			continue
 		}
 		if player.canSee(char) {
-			showCharacterToPlayer(char, player)
+			showCharacterToPlayer(char, player, false)
 		} else if player.Room.isDark() && player.isAffected(affectInfrared) {
 			player.notify("%sYou see glowing red eyes watching YOU!%s", red, reset)
 		}
 	}
 }
 
-func showCharacterToPlayer(victim *mob, player *mob) {
+func showCharacterToPlayer(victim *mob, player *mob, showLongDesc bool) {
 	var buf bytes.Buffer
 
 	if victim == player {
@@ -832,7 +834,12 @@ func showCharacterToPlayer(victim *mob, player *mob) {
 	}
 
 	if victim.Status == standing && len(victim.Description) > 0 {
-		buf.Write([]byte(victim.Description))
+
+		if showLongDesc {
+			buf.Write([]byte(victim.LongDescription))
+		} else {
+			buf.Write([]byte(victim.Description))
+		}
 		buf.Write([]byte(reset))
 		player.notify("%s%s%s", cyan, buf.String(), reset)
 		return

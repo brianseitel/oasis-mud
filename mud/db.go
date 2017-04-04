@@ -98,12 +98,32 @@ func createMob(index *mobIndex) *mob {
 	m.Password = index.Password
 	m.Title = index.Title
 	m.Description = index.Description
+	m.LongDescription = index.LongDescription
 	m.Affects = index.Affects
-	m.AffectedBy = index.AffectedBy
+
+	var act int
+	for _, a := range index.Act {
+		act |= a
+	}
+	m.Act = act
+
+	var affects int
+	for _, a := range index.AffectedBy {
+		affects |= a
+	}
+	m.AffectedBy = affects
 
 	m.Skills = index.Skills
 
 	m.Room = getRoom(index.RoomID)
+
+	if m.Room == nil {
+		m.Room = getRoom(index.RecallRoomID)
+	}
+
+	if m.Room == nil {
+		m.Room = getRoom(1) // start back at mudschool
+	}
 
 	for _, i := range index.Inventory {
 		index := getItem(i.ID)
@@ -507,6 +527,7 @@ func loadMobs() {
 		var list []*mobIndex
 		err = json.Unmarshal(file, &list)
 		if err != nil {
+			dump(list)
 			panic(err)
 		}
 

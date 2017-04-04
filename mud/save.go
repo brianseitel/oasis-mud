@@ -52,8 +52,8 @@ type savePlayer struct {
 	Title       string `json:"title"`
 
 	Affects    []saveAffect `json:"affects"`
-	AffectedBy int          `json:"affected_by"`
-	Act        int          `json:"act"`
+	AffectedBy []int        `json:"affected_by"`
+	Act        []int        `json:"act"`
 
 	Skills    []saveSkill `json:"skills"`
 	Inventory []saveItem  `json:"inventory"`
@@ -143,8 +143,9 @@ func writeCharacter(character *mob, path string) {
 	save.MaxMovement = character.MaxMovement
 	save.Gold = character.Gold
 	save.Exp = character.Exp
-	save.Act = character.Act
-	save.AffectedBy = character.AffectedBy
+
+	save.Act = playerActFlags(character.Act)
+	save.AffectedBy = playerAffectFlags(character.AffectedBy)
 
 	if character.Status == fighting {
 		save.Status = standing
