@@ -3,9 +3,9 @@ package mud
 import (
 	"container/list"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -27,13 +27,14 @@ var (
 	mobList       *list.List
 	mobIndexList  list.List
 	raceList      list.List
+	resetList     list.List
 	roomList      list.List
 	shopList      list.List
 	skillList     list.List
 	socialList    list.List
 )
 
-func areaUpdate() {
+func areaUpdate(now bool) {
 	for e := areaList.Front(); e != nil; e = e.Next() {
 		area := e.Value.(*area)
 		area.age++
@@ -50,7 +51,7 @@ func areaUpdate() {
 			}
 		}
 
-		if playerCount == 0 || area.age >= 15 {
+		if playerCount == 0 || (now || area.age >= 15) {
 			resetArea(area)
 			area.age = dice().Intn(3)
 		}
@@ -68,13 +69,14 @@ func bootDB() {
 	loadMobs()
 	loadRooms()
 	loadShops()
+	loadResets()
 
-	areaUpdate()
+	areaUpdate(true)
 }
 
 func createItem(index *itemIndex) *item {
 	var contained []*item
-	item := &item{Name: index.Name, Description: index.Description, ShortDescription: index.ShortDescription, ItemType: index.ItemType, ExtraFlags: index.ExtraFlags, WearFlags: index.WearFlags, Weight: index.Weight, Value: index.Value, Timer: -1}
+	item := &item{Name: index.Name, Description: index.Description, ShortDescription: index.ShortDescription, ItemType: index.ItemType, ExtraFlags: index.ExtraFlags, WearFlags: index.WearFlags, Weight: index.Weight, Value: index.Value, Timer: -1, Cost: index.Cost}
 	for _, id := range index.ContainedIDs {
 		i := getItem(id)
 		contained = append(contained, createItem(i))
@@ -547,6 +549,28 @@ func loadRaces() {
 	raceList.PushBack(&race{ID: 6, Name: "Dragon", Abbr: "drg"})
 }
 
+func loadResets() {
+	resetFiles, _ := filepath.Glob("./data/resets/*.json")
+
+	for _, resetFile := range resetFiles {
+		if strings.HasSuffix(resetFile, "sample.json") {
+			continue
+		}
+		file, err := ioutil.ReadFile(resetFile)
+		if err != nil {
+			panic(err)
+		}
+
+		var res *resetData
+		err = json.Unmarshal(file, &res)
+
+		if err != nil {
+			panic(err)
+		}
+		resetList.PushBack(res)
+	}
+}
+
 func loadRooms() {
 	areaFiles, _ := filepath.Glob("./data/area/*.json")
 
@@ -627,6 +651,7 @@ func loadShops() {
 
 		for _, sh := range list {
 			sh.keeper = getMob(sh.KeeperID)
+			sh.keeper.Shop = sh
 			shopList.PushBack(sh)
 		}
 	}
@@ -665,58 +690,6 @@ func loadSocials() {
 	for _, sk := range list {
 		socialList.PushBack(sk)
 	}
-}
-
-func resetArea(ar *area) {
-	filename := toSnake(ar.Name)
-
-	areaFile := fmt.Sprintf("./data/areas/%s.json", filename)
-	file, err := ioutil.ReadFile(areaFile)
-	if err != nil {
-		panic(err)
-	}
-
-	var a *area
-	json.Unmarshal(file, &a)
-	if err != nil {
-		panic(err)
-	}
-
-	var masterArea *area
-	for e := areaList.Front(); e != nil; e = e.Next() {
-		area := e.Value.(*area)
-		if area.ID == a.ID {
-			masterArea = area
-			break
-		}
-	}
-
-	var tempRooms []*room
-	for _, ro := range a.Rooms {
-		ro.AreaID = int(a.ID)
-		for _, i := range ro.ItemIds {
-			index := getItem(i)
-			item := createItem(index)
-			ro.Items = append(ro.Items, item)
-		}
-
-		for _, i := range ro.MobIds {
-			mob := createMob(getMob(i))
-			ro.Mobs = append(ro.Mobs, mob)
-		}
-
-		for e := roomList.Front(); e != nil; e = e.Next() {
-			room := e.Value.(*room)
-			if room.ID == ro.ID {
-				room = ro
-			}
-		}
-
-		tempRooms = append(tempRooms, ro)
-	}
-
-	masterArea.Rooms = tempRooms
-	return
 }
 
 func extractMob(m *mob, pull bool) {

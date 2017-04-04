@@ -1,11 +1,13 @@
 package mud
 
+import "fmt"
+
 const (
 	pulsePerSecond = 4
 	pulseViolence  = 3 * pulsePerSecond
 	pulseMobile    = 4 * pulsePerSecond
 	pulseTick      = 30 * pulsePerSecond
-	pulseArea      = 60 * pulsePerSecond
+	pulseArea      = 1 * pulsePerSecond
 )
 
 var (
@@ -242,23 +244,28 @@ func updateHandler() {
 
 	if pulseTimerArea <= 0 {
 		pulseTimerArea = pulseArea
-		// area_update()
+		fmt.Printf("A")
+		areaUpdate(false)
 	}
 
 	if pulseTimerMobs <= 0 {
 		pulseTimerMobs = pulseMobile
+		fmt.Printf("M")
 		mobUpdate()
 	}
 
 	if pulseTimerViolence <= 0 {
 		pulseTimerViolence = pulseViolence
+		fmt.Printf("V")
 		violenceUpdate()
 	}
 
 	if pulseTimerPoint <= 0 {
 		pulseTimerPoint = dice().Intn(3*pulseTick/2) + (pulseTick / 2)
 		// weather_update()
+		fmt.Printf("C")
 		charUpdate()
+		fmt.Printf("I")
 		objUpdate()
 	}
 

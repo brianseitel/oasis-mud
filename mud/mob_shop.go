@@ -65,7 +65,6 @@ func doBuy(player *mob, argument string) {
 		} else {
 			item = obj
 			keeper.removeItem(obj)
-			return
 		}
 		player.addItem(item)
 	}
@@ -118,20 +117,46 @@ func doList(player *mob, argument string) {
 	} else {
 		keeper := player.findKeeper()
 		if keeper == nil {
+			fmt.Println("no keeper.")
 			return
 		}
 
 		argument, arg1 := oneArgument(argument)
 		found := false
+
+		inventory := make(map[int]int)
+
+		for _, i := range keeper.Inventory {
+			if i.WearLocation != wearNone {
+				continue
+			}
+			if _, ok := inventory[i.index.ID]; ok {
+				inventory[i.index.ID]++
+			} else {
+				inventory[i.index.ID] = 1
+			}
+		}
+
+		seen := make(map[int]bool)
 		for _, i := range keeper.Inventory {
 			cost := keeper.getCost(i, true)
 			if i.WearLocation == wearNone && player.canSeeItem(i) && cost > 0 && len(argument) == 0 && matchesSubject(i.Name, arg1) {
 				if !found {
 					found = true
-					player.notify("[Lv Price] Item")
+
+					player.notify("[Lv Price] Qty Item")
 				}
 
-				player.notify("[%2d %5d] %s", i.Level, cost, strings.Title(i.Name))
+				if _, ok := seen[i.index.ID]; ok {
+					continue
+				}
+
+				qty := inventory[i.index.ID]
+				if qty > 0 {
+					player.notify("[%2d %5d] %3d %s", i.Level, cost, qty, strings.Title(i.Name))
+				}
+
+				seen[i.index.ID] = true
 			}
 		}
 

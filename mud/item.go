@@ -176,6 +176,8 @@ type itemIndex struct {
 	Value            int
 	Min              int
 	Max              int
+	Level            int `json:"level"`
+	Cost             int `json:"cost"`
 	SkillID          int /* items can have skills */
 	Charges          int
 

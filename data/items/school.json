@@ -1,0 +1,17 @@
+[
+        {
+            "id": 1,
+            "name": "a hooded brass lantern",
+            "description": "A hooded brass lantern",
+            "short_description": "It is a large and robust but somewhat battered oil lantern made from brass, equipped with a handle to make it handy and a hood to protect its flame. Some letters have been scratched on its bottom.",
+            "item_type": 1,
+            "extra_flags": 0,
+            "wear_flags": 32769,
+            "wear_location": 0,
+            "weight": 4,
+            "cost": 60,
+            "level": 1,
+            "timer": -1,
+            "value": 100
+        }
+]

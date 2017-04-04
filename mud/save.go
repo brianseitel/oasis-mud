@@ -204,7 +204,7 @@ func writeCharacter(character *mob, path string) {
 	save.RecallRoomID = character.RecallRoomID
 	save.Playable = true
 
-	results, err := json.Marshal(save)
+	results, err := json.MarshalIndent(save, "", "    ")
 
 	err = ioutil.WriteFile(path, results, 0655)
 

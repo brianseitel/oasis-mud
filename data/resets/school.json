@@ -1,0 +1,24 @@
+{
+    "area_id": 1,
+    "mobs": [
+        {
+            "mob_id": 2,
+            "limit": 1,
+            "room_id": 12,
+            "comments": "Shopkeeper for emporium"
+        }
+    ],
+    "objects": [],
+    "container_objects": [],
+    "mob_objects": [
+        {
+            "mob_id": 2,
+            "limit": 999,
+            "item_id": 1,
+            "room_id": 12,
+            "comments": "lanterns"
+        }
+    ],
+    "mob_objects_equip": [],
+    "doors": []
+}

@@ -1,0 +1,10 @@
+[
+    {
+        "keeper_id": 2,
+        "buy_types": [1, 15, 17, 19, 0],
+        "profit_buy": 100,
+        "profit_sell": 100,
+        "open_hour": 0,
+        "close_hour": 23
+    }
+]

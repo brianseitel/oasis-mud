@@ -1,0 +1,50 @@
+{
+    "mobs": [
+        {
+            "mob_id": 0,
+            "limit": 1,
+            "room_id": 1,
+            "comments": ""
+        }
+    ],
+    "objects": [
+        {
+            "item_id": 0,
+            "limit": 1,
+            "room_id": 1,
+            "comments": ""
+        }
+    ],
+    "container_objects": [
+        {
+            "item_id": 0,
+            "limit": 1,
+            "container_id": 0,
+            "comments": ""
+        }
+    ],
+    "mob_objects": [
+        {
+            "mob_id": 0,
+            "limit": 1,
+            "item_id": 0,
+            "comments": ""
+        }
+    ],
+    "mob_objects_equip": [
+        {
+            "mob_id": 0,
+            "item_id": 0,
+            "wear_location": 0,
+            "comments": ""
+        }
+    ],
+    "doors": [
+        {
+            "room_id": 0,
+            "direction": "east",
+            "state": "open",
+            "comments": ""
+        }
+    ]
+}

@@ -4,12 +4,12 @@ const maxTrade = 5
 
 type shop struct {
 	keeper     *mobIndex
-	KeeperID   int
-	BuyType    [maxTrade]int
-	ProfitBuy  int
-	ProfitSell int
-	OpenHour   int
-	CloseHour  int
+	KeeperID   int           `json:"keeper_id"`
+	BuyType    [maxTrade]int `json:"buy_types"`
+	ProfitBuy  int           `json:"profit_buy"`
+	ProfitSell int           `json:"profit_sell"`
+	OpenHour   int           `json:"open_hour"`
+	CloseHour  int           `json:"close_hour"`
 }
 
 func (keeper *mob) getCost(item *item, buy bool) int {
