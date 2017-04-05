@@ -277,6 +277,7 @@ func (m *mob) currentIntelligence() int {
 		max = 21
 	}
 
+	dump(m.Attributes)
 	return uRange(3, m.Attributes.Intelligence+m.ModifiedAttributes.Intelligence, max)
 
 }

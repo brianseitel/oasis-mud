@@ -425,20 +425,57 @@ func doPractice(player *mob, argument string) {
 	argument, arg1 := oneArgument(argument)
 	if arg1 == "" {
 		col := 0
+		var buf bytes.Buffer
+
+		var allSkills []*skill
 		for e := skillList.Front(); e != nil; e = e.Next() {
 			skill := e.Value.(*skill)
-			var buf bytes.Buffer
-
-			pSkill := player.skill(skill.Name)
-			buf.Write([]byte(fmt.Sprintf("%18s %3d%%  ", skill.Name, pSkill.Level)))
-			col++
-			if col%3 == 0 {
-				player.notify("%s\r\n", buf.String())
+			maxLevel := 99
+			switch player.Job.Name {
+			case "Warrior":
+				maxLevel = skill.Levels.Warrior
+				break
+			case "Mage":
+				maxLevel = skill.Levels.Mage
+				break
+			case "Cleric":
+				maxLevel = skill.Levels.Cleric
+				break
+			case "Thief":
+				maxLevel = skill.Levels.Thief
+				break
+			case "Ranger":
+				maxLevel = skill.Levels.Ranger
+				break
+			case "Bard":
+				maxLevel = skill.Levels.Bard
+				break
+			}
+			if player.Level >= maxLevel {
+				allSkills = append(allSkills, skill)
 			}
 		}
 
-		if col%3 != 0 {
-			player.notify(newline)
+		dump(allSkills)
+		for _, skill := range allSkills {
+			pSkill := player.skill(skill.Name)
+
+			skillLevel := 0
+			if pSkill != nil {
+				skillLevel = pSkill.Level
+			}
+
+			buf.Write([]byte(fmt.Sprintf("%-12s %3d  ", skill.Name, skillLevel)))
+			col++
+			if col%4 == 0 {
+				str := buf.String()
+				player.notify(str)
+			}
+		}
+
+		if buf.Len() > 0 {
+			str := buf.String()
+			player.notify(str)
 		}
 
 		player.notify("You have %d practices remaining.", player.Practices)
@@ -469,8 +506,36 @@ func doPractice(player *mob, argument string) {
 		}
 
 		skill := getSkillByName(arg1)
+
+		if skill == nil {
+			player.notify("That's not something you can learn.")
+			return
+		}
 		pSkill := player.skill(skill.Name)
-		if skill == nil || (!player.isNPC() && player.Level < int(pSkill.Level)) {
+
+		maxLevel := 99
+		switch player.Job.Name {
+		case "Warrior":
+			maxLevel = skill.Levels.Warrior
+			break
+		case "Mage":
+			maxLevel = skill.Levels.Mage
+			break
+		case "Cleric":
+			maxLevel = skill.Levels.Cleric
+			break
+		case "Thief":
+			maxLevel = skill.Levels.Thief
+			break
+		case "Ranger":
+			maxLevel = skill.Levels.Ranger
+			break
+		case "Bard":
+			maxLevel = skill.Levels.Bard
+			break
+		}
+
+		if skill == nil || (!player.isNPC() && player.Level < maxLevel) {
 			player.notify("You can't practice that.")
 			return
 		}
@@ -482,13 +547,24 @@ func doPractice(player *mob, argument string) {
 		}
 
 		pSkill = player.skill(arg1)
+
+		if pSkill == nil {
+			pSkill = &mobSkill{Skill: skill, Level: 0}
+			player.Skills = append(player.Skills, pSkill)
+		}
+
 		if pSkill.Level >= adept {
 			player.notify("You've already mastered %s.", pSkill.Skill.Name)
 			return
 		}
 
 		player.Practices--
-		pSkill.Level++
+
+		pSkill.Level += bonusTableIntelligence[player.currentIntelligence()].learn
+		if pSkill.Level > player.Job.SkillAdept {
+			pSkill.Level = player.Job.SkillAdept
+		}
+
 		if pSkill.Level < adept {
 			act("You practice $T.", player, nil, pSkill.Skill.Name, actToChar)
 			act("$n practices $T.", player, nil, pSkill.Skill.Name, actToRoom)

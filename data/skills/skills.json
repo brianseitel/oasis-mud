@@ -2,7 +2,14 @@
     {
         "id": 1,
         "name": "parry",
-        "levels": {},
+        "levels": {
+            "Warrior": 1,
+            "Cleric": 51,
+            "Mage": 51,
+            "Thief": 5,
+            "Ranger": 5,
+            "Bard": 51
+        },
         "callback": "parry",
         "target": "defensive",
         "minMana": 0,
@@ -14,7 +21,14 @@
     {
         "id": 2,
         "name": "trip",
-        "levels": {},
+        "levels": {
+            "Warrior": 1,
+            "Cleric": 51,
+            "Mage": 51,
+            "Thief": 5,
+            "Ranger": 5,
+            "Bard": 51
+        },
         "callback": "trip",
         "target": "offensive",
         "minMana": 0,
@@ -26,7 +40,14 @@
     {
         "id": 3,
         "name": "armor",
-        "levels": {},
+        "levels": {
+            "Warrior": 51,
+            "Cleric": 3,
+            "Mage": 10,
+            "Thief": 51,
+            "Ranger": 51,
+            "Bard": 15
+        },
         "callback": "spell_armor",
         "target": "defensive",
         "minMana": 5,
@@ -38,7 +59,14 @@
     {
         "id": 4,
         "name": "sneak",
-        "levels": {},
+        "levels": {
+            "Warrior": 21,
+            "Cleric": 51,
+            "Mage": 51,
+            "Thief": 3,
+            "Ranger": 8,
+            "Bard": 51
+        },
         "callback": "do_sneak",
         "target": "self",
         "minMana": 0,

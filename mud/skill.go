@@ -10,23 +10,22 @@ const (
 	targetObjectInventory    targetType = "inventory" // used on an object
 )
 
-type skillLevel struct {
-	ID      int
-	Skill   *skill
-	SkillID int
-	Job     *job
-	JobID   int
-	Level   int
-}
-
 type skill struct {
-	ID         int
-	Name       string     `json:"name"`
-	Target     targetType `json:"target"`
-	MinMana    int        `json:"minMana"`
-	Beats      int        `json:"beats"`
-	NounDamage string     `json:"nounDamage"` // noun containing message for damage, if applicable
-	MessageOff string     `json:"messageOff"` // when skill/spell wears off
+	ID     int
+	Name   string     `json:"name"`
+	Target targetType `json:"target"`
+	Levels struct {
+		Warrior int
+		Mage    int
+		Cleric  int
+		Thief   int
+		Ranger  int
+		Bard    int
+	}
+	MinMana    int    `json:"minMana"`
+	Beats      int    `json:"beats"`
+	NounDamage string `json:"nounDamage"` // noun containing message for damage, if applicable
+	MessageOff string `json:"messageOff"` // when skill/spell wears off
 }
 
 func getSkill(id int) *skill {

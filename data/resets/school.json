@@ -6,6 +6,12 @@
             "limit": 1,
             "room_id": 12,
             "comments": "Shopkeeper for emporium"
+        },
+        {
+            "mob_id": 3,
+            "limit": 1,
+            "room_id": 16,
+            "comments": "Trainer"
         }
     ],
     "objects": [],

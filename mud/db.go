@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	bonusTableStrength     map[int]bonusStrength
-	bonusTableIntelligence map[int]bonusIntelligence
-	bonusTableWisdom       map[int]bonusWisdom
-	bonusTableDexterity    map[int]bonusDexterity
-	bonusTableConstitution map[int]bonusConstitution
+	bonusTableStrength     = make(map[int]bonusStrength)
+	bonusTableIntelligence = make(map[int]bonusIntelligence)
+	bonusTableWisdom       = make(map[int]bonusWisdom)
+	bonusTableDexterity    = make(map[int]bonusDexterity)
+	bonusTableConstitution = make(map[int]bonusConstitution)
 )
 
 var (
@@ -59,6 +59,7 @@ func areaUpdate(now bool) {
 }
 
 func bootDB() {
+	loadBonuses()
 	loadHelps()
 	loadCommands()
 	loadSkills()
@@ -119,6 +120,10 @@ func createMob(index *mobIndex) *mob {
 
 	m.Room = getRoom(index.RoomID)
 
+	if m.Room == nil && m.WasInRoom != nil {
+		m.Room = m.WasInRoom
+	}
+
 	if m.Room == nil {
 		m.Room = getRoom(index.RecallRoomID)
 	}
@@ -165,7 +170,7 @@ func createMob(index *mobIndex) *mob {
 	m.Gender = index.Gender
 
 	m.Attributes = index.Attributes
-	m.ModifiedAttributes = index.ModifiedAttributes
+	m.ModifiedAttributes = &attributeSet{}
 
 	m.Status = index.Status
 	m.Playable = index.Playable

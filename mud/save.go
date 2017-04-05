@@ -165,13 +165,12 @@ func writeCharacter(character *mob, path string) {
 		save.Bamfout = character.Bamfout
 		save.Title = character.Title
 		save.Attributes = character.Attributes
-		save.ModifiedAttributes = character.ModifiedAttributes
 
 		var skills []saveSkill
 		for _, sk := range character.Skills {
 			var skill saveSkill
 
-			skill.SkillID = sk.SkillID
+			skill.SkillID = sk.Skill.ID
 			skill.Level = sk.Level
 
 			skills = append(skills, skill)
