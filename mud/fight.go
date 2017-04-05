@@ -91,7 +91,7 @@ func makeCorpse(victim *mob) {
 		}
 	}
 
-	corpse.Name = strings.Replace(corpse.ShortDescription, "[name]", name, 1)
+	corpse.Name = strings.Replace(corpse.Name, "[name]", name, 1)
 	corpse.Description = strings.Replace(corpse.Description, "[name]", name, 1)
 
 	for j := range victim.Inventory {

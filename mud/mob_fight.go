@@ -169,8 +169,9 @@ func doKick(player *mob, argument string) {
 func doKill(attacker *mob, argument string) {
 	var victim *mob
 	for _, m := range attacker.Room.Mobs {
-		if matchesSubject(m.Name, argument) {
+		if matchesSubject(m.Description, argument) {
 			victim = m
+			break
 		}
 	}
 
@@ -567,8 +568,10 @@ func (m *mob) deathCry() {
 
 	oldRoom := m.Room
 	for _, exit := range m.Room.Exits {
-		m.Room = exit.Room
-		act(msg, m, nil, nil, actToRoom)
+		if exit.Room != nil {
+			m.Room = exit.Room
+			act(msg, m, nil, nil, actToRoom)
+		}
 	}
 	m.Room = oldRoom
 }

@@ -792,7 +792,7 @@ func doEquipment(player *mob, argument string) {
 }
 
 func (m *mob) get(item *item, container *item) {
-	if !item.canWear(itemTake) {
+	if !hasBit(item.ItemType, itemTake) {
 		m.notify("You can't take that.")
 		return
 	}
@@ -843,6 +843,15 @@ func doSacrifice(player *mob, argument string) {
 
 	argument, arg1 := oneArgument(argument)
 	obj := player.carrying(arg1)
+	if obj == nil {
+		for _, i := range player.Room.Items {
+			if matchesSubject(i.Name, arg1) {
+				obj = i
+				break
+			}
+		}
+	}
+
 	if obj == nil {
 		player.notify("You can't find it.")
 		return

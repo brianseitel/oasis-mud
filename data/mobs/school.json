@@ -33,14 +33,6 @@
             "charisma": 3,
             "constitution": 3
         },
-        "modified_attributes": {
-            "strength": 3,
-            "wisdom": 3,
-            "intelligence": 3,
-            "dexterity": 3,
-            "charisma": 3,
-            "constitution": 3
-        },
         "inventory": [],
         "equipped": [],
         "skills": [
@@ -81,14 +73,6 @@
         "race_id": 1,
         "room_id": 1,
         "attributes": {
-            "strength": 3,
-            "wisdom": 3,
-            "intelligence": 3,
-            "dexterity": 3,
-            "charisma": 3,
-            "constitution": 3
-        },
-        "modified_attributes": {
             "strength": 3,
             "wisdom": 3,
             "intelligence": 3,
@@ -142,7 +126,45 @@
             "charisma": 3,
             "constitution": 3
         },
-        "modified_attributes": {
+        "inventory": [],
+        "equipped": [],
+        "skills": [
+            {
+                "skill_id": 1,
+                "level": 75
+            }
+        ],
+        "carrying": 0,
+        "carry_max": 100,
+        "carry_weight": 0,
+        "carry_weight_max": 100
+    },
+    {
+        "id": 4,
+        "name": "A battered murderer",
+        "description": "A man convicted of beating his wife to death cowers in the corner.",
+        "long_description": "This pathetic specimen of a creature cowers in the dark, awaiting his death sentence. Go ahead. Administer justice.",
+        "act": [2,64],
+        "affected_by": [],
+        "alignment": 1000,
+        "exit_verb": null,
+        "hitpoints": 25,
+        "max_hitpoints": 25,
+        "mana": 0,
+        "max_mana": 0,
+        "movement": 100,
+        "max_movement": 100,
+        "hitroll": 20,
+        "damroll": 40,
+        "armor": -20,
+        "experience": -99000,
+        "level": 1,
+        "status": 8,
+        "gender": 1,
+        "job_id": 1,
+        "race_id": 1,
+        "room_id": 1,
+        "attributes": {
             "strength": 3,
             "wisdom": 3,
             "intelligence": 3,
@@ -152,12 +174,7 @@
         },
         "inventory": [],
         "equipped": [],
-        "skills": [
-            {
-                "skill_id": 1,
-                "level": 75
-            }
-        ],
+        "skills": [],
         "carrying": 0,
         "carry_max": 100,
         "carry_weight": 0,

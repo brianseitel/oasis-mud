@@ -23,6 +23,10 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 		return
 	}
 
+	if player.Room == nil {
+		return
+	}
+
 	to := player.Room.Mobs
 
 	var (
