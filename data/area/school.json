@@ -222,6 +222,11 @@
                 },
                 {
                     "direction": "south",
+                    "description": "You see a room.",
+                    "room_id": 4
+                },
+                {
+                    "direction": "west",
                     "description": "You see the next station ahead.",
                     "room_id": 11
                 },
@@ -263,7 +268,7 @@
             "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  Find your own exit here.",
             "exits": [
                 {
-                    "direction": "north",
+                    "direction": "east",
                     "description": "You see the cage room.",
                     "room_id": 9
                 },

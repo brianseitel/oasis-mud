@@ -38,7 +38,7 @@ func areaUpdate(now bool) {
 	for e := areaList.Front(); e != nil; e = e.Next() {
 		area := e.Value.(*area)
 		area.age++
-		if area.age < 3 {
+		if area.age < 3 && !now {
 			continue
 		}
 
@@ -51,7 +51,7 @@ func areaUpdate(now bool) {
 			}
 		}
 
-		if playerCount == 0 || (now || area.age >= 15) {
+		if now || area.age >= 15 {
 			resetArea(area)
 			area.age = dice().Intn(3)
 		}
@@ -627,6 +627,7 @@ func loadRooms() {
 		roomList = *exitsList
 
 		areaList.PushBack(area)
+
 	}
 
 	for e := roomList.Front(); e != nil; e = e.Next() {
