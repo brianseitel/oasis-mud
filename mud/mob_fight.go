@@ -306,7 +306,7 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 		 * If they're invisible, fade them in
 		 */
 		if hasBit(m.AffectedBy, affectInvisible) {
-			removeBit(m.AffectedBy, affectInvisible)
+			m.AffectedBy = removeBit(m.AffectedBy, affectInvisible)
 			m.stripAffect("invis")
 			act("$n fades into existence.", m, nil, nil, actToRoom)
 		}

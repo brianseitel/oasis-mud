@@ -27,7 +27,7 @@ func interpret(player *mob, argument string) {
 	}
 
 	// No hiding
-	removeBit(player.AffectedBy, affectHide)
+	player.AffectedBy = removeBit(player.AffectedBy, affectHide)
 
 	// Check freeze
 	if !player.isNPC() && hasBit(player.Act, playerFreeze) {

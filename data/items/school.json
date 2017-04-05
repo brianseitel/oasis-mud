@@ -13,5 +13,20 @@
             "level": 1,
             "timer": -1,
             "value": 100
+        },
+        {
+            "id": 2,
+            "name": "a plain key",
+            "description": "A plain key",
+            "short_description": "A plain old key.",
+            "item_type": 13,
+            "extra_flags": 0,
+            "wear_flags": 32769,
+            "wear_location": 0,
+            "weight": 4,
+            "cost": 60,
+            "level": 1,
+            "timer": -1,
+            "value": 100
         }
 ]

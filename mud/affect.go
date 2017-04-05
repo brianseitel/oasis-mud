@@ -67,13 +67,13 @@ func affectModify(player *mob, paf *affect, add bool) {
 
 	if add {
 		player.Affects = append(player.Affects, paf)
-		setBit(player.AffectedBy, paf.bitVector)
+		player.AffectedBy = setBit(player.AffectedBy, paf.bitVector)
 	} else {
 		for j, affect := range player.Affects {
 			if paf == affect {
 				player.Affects = append(player.Affects[0:j], player.Affects[j+1:]...)
 				player.notify("%s", paf.affectType.Skill.MessageOff)
-				removeBit(player.AffectedBy, paf.bitVector)
+				player.AffectedBy = removeBit(player.AffectedBy, paf.bitVector)
 				return
 			}
 		}

@@ -46,9 +46,9 @@ func removeBit(flag int, bit int) int {
 
 func toggleBit(flag int, bit int) int {
 	if hasBit(flag, bit) {
-		removeBit(flag, bit)
+		flag = removeBit(flag, bit)
 	} else {
-		setBit(flag, bit)
+		flag = setBit(flag, bit)
 	}
 	return flag
 }

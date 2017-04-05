@@ -183,7 +183,7 @@ func createMob(index *mobIndex) *mob {
 	m.Skills = skills
 
 	if m.isNPC() && (m.Room != nil && m.Room.isDark()) {
-		setBit(m.AffectedBy, affectInfrared)
+		m.AffectedBy = setBit(m.AffectedBy, affectInfrared)
 	}
 
 	return m

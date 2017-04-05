@@ -196,7 +196,7 @@ func doDeny(wiz *mob, argument string) {
 		return
 	}
 
-	setBit(victim.Act, playerDeny)
+	victim.Act = setBit(victim.Act, playerDeny)
 	victim.notify("You are denied access!")
 	wiz.notify("OK.")
 	interpret(wiz, "quit")
@@ -338,11 +338,11 @@ func doFreeze(wiz *mob, argument string) {
 	}
 
 	if hasBit(victim.Act, playerFreeze) {
-		removeBit(victim.Act, playerFreeze)
+		victim.Act = removeBit(victim.Act, playerFreeze)
 		victim.notify("You can play again.")
 		wiz.notify("FREEZE removed.")
 	} else {
-		setBit(victim.Act, playerFreeze)
+		victim.Act = setBit(victim.Act, playerFreeze)
 		victim.notify("You can't do ANYthing.")
 		wiz.notify("FREEZE set.")
 	}
@@ -389,10 +389,10 @@ func doHolylight(wiz *mob, argument string) {
 	}
 
 	if hasBit(wiz.Act, playerHolylight) {
-		removeBit(wiz.Act, playerHolylight)
+		wiz.Act = removeBit(wiz.Act, playerHolylight)
 		wiz.notify("Holy light mode off.")
 	} else {
-		setBit(wiz.Act, playerHolylight)
+		wiz.Act = setBit(wiz.Act, playerHolylight)
 		wiz.notify("Holy light mode on.")
 	}
 }
@@ -403,11 +403,11 @@ func doInvis(wiz *mob, argument string) {
 	}
 
 	if hasBit(wiz.Act, playerWizInvis) {
-		removeBit(wiz.Act, playerWizInvis)
+		wiz.Act = removeBit(wiz.Act, playerWizInvis)
 		act("$n slowly fades into existence.", wiz, nil, nil, actToRoom)
 		wiz.notify("You slowly fade back into extistence.")
 	} else {
-		setBit(wiz.Act, playerWizInvis)
+		wiz.Act = setBit(wiz.Act, playerWizInvis)
 		act("$n slowly fades out of sight.", wiz, nil, nil, actToRoom)
 		wiz.notify("You slowly vanish out of sight.")
 	}
@@ -438,10 +438,10 @@ func doLog(wiz *mob, argument string) {
 	}
 
 	if hasBit(victim.Act, playerLog) {
-		removeBit(victim.Act, playerLog)
+		victim.Act = removeBit(victim.Act, playerLog)
 		wiz.notify("LOG removed.")
 	} else {
-		setBit(victim.Act, playerLog)
+		victim.Act = setBit(victim.Act, playerLog)
 		wiz.notify("LOG added.")
 	}
 }
@@ -603,11 +603,11 @@ func doNoEmote(wiz *mob, argument string) {
 	}
 
 	if hasBit(victim.Act, playerNoEmote) {
-		removeBit(victim.Act, playerNoEmote)
+		victim.Act = removeBit(victim.Act, playerNoEmote)
 		victim.notify("You can emote again!")
 		wiz.notify("NO EMOTE removed.")
 	} else {
-		setBit(victim.Act, playerNoEmote)
+		victim.Act = setBit(victim.Act, playerNoEmote)
 		victim.notify("You can't emote!")
 		wiz.notify("NO EMOTE set.")
 	}
@@ -637,11 +637,11 @@ func doNoTell(wiz *mob, argument string) {
 	}
 
 	if hasBit(victim.Act, playerNoTell) {
-		removeBit(victim.Act, playerNoTell)
+		victim.Act = removeBit(victim.Act, playerNoTell)
 		victim.notify("You can tell again!")
 		wiz.notify("NO TELL removed.")
 	} else {
-		setBit(victim.Act, playerNoTell)
+		victim.Act = setBit(victim.Act, playerNoTell)
 		victim.notify("You can't tell anymore!")
 		wiz.notify("NO TELL set.")
 	}
@@ -795,7 +795,7 @@ func doPardon(wiz *mob, argument string) {
 
 	if arg2 == "killer" {
 		if hasBit(victim.Act, playerKiller) {
-			removeBit(victim.Act, playerKiller)
+			victim.Act = removeBit(victim.Act, playerKiller)
 			wiz.notify("Killer flag removed.")
 			victim.notify("You are no longer a KILLER.")
 		}
@@ -804,7 +804,7 @@ func doPardon(wiz *mob, argument string) {
 
 	if arg2 == "thief" {
 		if hasBit(victim.Act, playerThief) {
-			removeBit(victim.Act, playerThief)
+			victim.Act = removeBit(victim.Act, playerThief)
 			wiz.notify("Thief flag removed.")
 			victim.notify("You are no longer a THIEF.")
 		}
@@ -997,11 +997,11 @@ func doSilence(wiz *mob, argument string) {
 	}
 
 	if hasBit(victim.Act, playerSilence) {
-		removeBit(victim.Act, playerSilence)
+		victim.Act = removeBit(victim.Act, playerSilence)
 		victim.notify("You can speak again!")
 		wiz.notify("SILENCE removed.")
 	} else {
-		setBit(victim.Act, playerSilence)
+		victim.Act = setBit(victim.Act, playerSilence)
 		victim.notify("You have been silenced!")
 		wiz.notify("SILENCE set.")
 	}

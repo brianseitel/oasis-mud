@@ -182,6 +182,10 @@ func doDrop(player *mob, argument string) {
 
 		for j := 0; j < len(player.Inventory); j++ {
 			item := player.Inventory[j]
+
+			if !player.canDropItem(item) || item.WearLocation != wearNone {
+				continue
+			}
 			if arg1 == "all" || matchesSubject(item.Name, name) {
 				found = true
 
@@ -260,7 +264,7 @@ func doGet(player *mob, argument string) {
 		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
 			// get obj
 			for _, i := range player.Room.Items {
-				if matchesSubject(i.Name, arg1) {
+				if matchesSubject(i.Description, arg1) {
 					player.get(i, nil)
 					return
 				}
@@ -274,10 +278,11 @@ func doGet(player *mob, argument string) {
 			if len(words) > 1 {
 				name = words[1]
 			}
+
 			found := false
 			if len(player.Room.Items) > 0 {
 				for _, i := range player.Room.Items {
-					if matchesSubject(i.Name, name) || len(name) == 0 {
+					if matchesSubject(i.Description, name) || len(name) == 0 {
 						player.get(i, nil)
 						found = true
 					}
@@ -301,7 +306,7 @@ func doGet(player *mob, argument string) {
 
 		var container *item
 		for _, i := range player.Room.Items {
-			if strings.HasPrefix(i.Name, arg2) {
+			if matchesSubject(i.Description, arg2) {
 				container = i
 				break
 			}
@@ -310,7 +315,7 @@ func doGet(player *mob, argument string) {
 		if container == nil {
 			// try from inventory
 			for _, i := range player.Inventory {
-				if strings.HasPrefix(i.Name, arg1) {
+				if matchesSubject(i.Description, arg1) {
 					container = i
 					break
 				}
@@ -321,7 +326,7 @@ func doGet(player *mob, argument string) {
 			player.notify("I see no %s here.", arg2)
 			return
 		}
-
+		dump(container)
 		switch container.ItemType {
 		case itemContainer:
 		case itemCorpseNPC:
@@ -343,7 +348,7 @@ func doGet(player *mob, argument string) {
 		if arg1 != "all" && !strings.HasPrefix(arg1, "all.") {
 			// get obj container
 			for _, i := range container.container {
-				if matchesSubject(i.Name, arg1) {
+				if matchesSubject(i.Description, arg1) {
 					player.get(i, container)
 					return
 				}
@@ -359,7 +364,7 @@ func doGet(player *mob, argument string) {
 			}
 			found := false
 			for _, i := range container.container {
-				if matchesSubject(i.Name, name) || len(name) == 0 {
+				if matchesSubject(i.Description, name) || len(name) == 0 {
 					player.get(i, container)
 					found = true
 				}

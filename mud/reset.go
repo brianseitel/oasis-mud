@@ -93,7 +93,7 @@ func resetArea(ar *area) {
 		mob := createMob(mobIndex)
 
 		if roomIndex.isDark() {
-			setBit(mob.AffectedBy, affectInfrared)
+			mob.AffectedBy = setBit(mob.AffectedBy, affectInfrared)
 		}
 
 		mob.Room = roomIndex
@@ -259,16 +259,16 @@ func resetArea(ar *area) {
 			if x.Dir == d.Direction {
 				switch d.State {
 				case "open":
-					removeBit(x.Flags, exitClosed)
-					removeBit(x.Flags, exitLocked)
+					x.Flags = removeBit(x.Flags, exitClosed)
+					x.Flags = removeBit(x.Flags, exitLocked)
 					break
 				case "closed":
-					setBit(x.Flags, exitClosed)
-					removeBit(x.Flags, exitLocked)
+					x.Flags = setBit(x.Flags, exitClosed)
+					x.Flags = removeBit(x.Flags, exitLocked)
 					break
 				case "locked":
-					setBit(x.Flags, exitClosed)
-					setBit(x.Flags, exitLocked)
+					x.Flags = setBit(x.Flags, exitClosed)
+					x.Flags = setBit(x.Flags, exitLocked)
 					break
 				}
 			}

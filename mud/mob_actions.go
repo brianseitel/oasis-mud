@@ -92,7 +92,7 @@ func doClose(player *mob, argument string) {
 			return
 		}
 
-		setBit(obj.ClosedFlags, containerClosed)
+		obj.ClosedFlags = setBit(obj.ClosedFlags, containerClosed)
 		player.notify("Ok.")
 		act("$n closes $p.", player, obj, nil, actToRoom)
 		return
@@ -106,7 +106,7 @@ func doClose(player *mob, argument string) {
 				return
 			}
 
-			setBit(e.Flags, exitClosed)
+			e.Flags = setBit(e.Flags, exitClosed)
 			act("$n closes the $d.", player, nil, e.Keyword, actToRoom)
 			player.notify("Ok.")
 
@@ -114,13 +114,14 @@ func doClose(player *mob, argument string) {
 			if e.Room != nil {
 				for _, ex := range e.Room.Exits {
 					if ex.Dir == reverseDirection(e.Dir) {
-						setBit(ex.Flags, exitClosed)
+						ex.Flags = setBit(ex.Flags, exitClosed)
 						for _, m := range e.Room.Mobs {
 							act("The $d closes.", m, nil, ex.Keyword, actToChar)
 						}
 					}
 				}
 			}
+			return
 		}
 	}
 
@@ -234,7 +235,7 @@ func doHide(player *mob, argument string) {
 
 	hide := player.skill("hide")
 	if player.isNPC() || dice().Intn(100) < int(hide.Level) {
-		setBit(player.AffectedBy, affectHide)
+		player.AffectedBy = setBit(player.AffectedBy, affectHide)
 	}
 	return
 }
@@ -302,7 +303,7 @@ func doLock(player *mob, argument string) {
 			return
 		}
 
-		if player.hasKey(exit.Key) {
+		if !player.hasKey(exit.Key) {
 			player.notify("You don't have the key.")
 			return
 		}
@@ -312,7 +313,7 @@ func doLock(player *mob, argument string) {
 			return
 		}
 
-		setBit(exit.Flags, exitLocked)
+		exit.Flags = setBit(exit.Flags, exitLocked)
 		player.notify("*click*")
 		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
 
@@ -320,7 +321,7 @@ func doLock(player *mob, argument string) {
 		if exit.Room != nil {
 			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
 			if reverseExit != nil && reverseExit.Room == player.Room {
-				setBit(reverseExit.Flags, exitLocked)
+				reverseExit.Flags = setBit(reverseExit.Flags, exitLocked)
 			}
 		}
 	}
@@ -618,7 +619,7 @@ func doOpen(player *mob, argument string) {
 			return
 		}
 
-		removeBit(obj.ClosedFlags, containerClosed)
+		obj.ClosedFlags = removeBit(obj.ClosedFlags, containerClosed)
 		player.notify("Ok.")
 		act("$n closes $p.", player, obj, nil, actToRoom)
 		return
@@ -627,12 +628,17 @@ func doOpen(player *mob, argument string) {
 	for _, e := range player.Room.Exits {
 		if matchesSubject(e.Dir, arg1) {
 
-			if e.isClosed() {
+			if e.isLocked() {
+				player.notify("This door is locked.")
+				return
+			}
+
+			if !e.isClosed() {
 				player.notify("It's already open.")
 				return
 			}
 
-			setBit(e.Flags, exitClosed)
+			e.Flags = removeBit(e.Flags, exitClosed)
 			act("$n open the $d.", player, nil, e.Keyword, actToRoom)
 			player.notify("Ok.")
 
@@ -640,13 +646,14 @@ func doOpen(player *mob, argument string) {
 			if e.Room != nil {
 				for _, ex := range e.Room.Exits {
 					if ex.Dir == reverseDirection(e.Dir) {
-						removeBit(ex.Flags, exitClosed)
+						ex.Flags = removeBit(ex.Flags, exitClosed)
 						for _, m := range e.Room.Mobs {
 							act("The $d opens.", m, nil, ex.Keyword, actToChar)
 						}
 					}
 				}
 			}
+			return
 		}
 	}
 
@@ -810,7 +817,7 @@ func doSteal(player *mob, argument string) {
 			if victim.isNPC() {
 				multiHit(victim, player, typeUndefined)
 			} else {
-				setBit(player.Act, playerThief)
+				player.Act = setBit(player.Act, playerThief)
 			}
 		}
 
@@ -1010,7 +1017,7 @@ func doUnlock(player *mob, argument string) {
 			return
 		}
 
-		if player.hasKey(exit.Key) {
+		if !player.hasKey(exit.Key) {
 			player.notify("You don't have the key.")
 			return
 		}
@@ -1020,7 +1027,7 @@ func doUnlock(player *mob, argument string) {
 			return
 		}
 
-		removeBit(exit.Flags, exitLocked)
+		exit.Flags = removeBit(exit.Flags, exitLocked)
 		player.notify("*click*")
 		act("$n unlocks the $d.", player, nil, exit.Keyword, actToRoom)
 
@@ -1029,7 +1036,7 @@ func doUnlock(player *mob, argument string) {
 		if exit.Room != nil {
 			reverseExit := exit.Room.findExit(reverseDirection(exit.Dir))
 			if reverseExit != nil && reverseExit.Room == player.Room {
-				removeBit(reverseExit.Flags, exitLocked)
+				reverseExit.Flags = removeBit(reverseExit.Flags, exitLocked)
 			}
 		}
 	}

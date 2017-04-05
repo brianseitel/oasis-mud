@@ -5,7 +5,7 @@
         {
             "id": 1,
             "name": "Entrance to The School",
-            "description": "This is the entrance to Mud School. Go north to go through Mud School. If you have been here before, go down to the Meadow.",
+            "description": "This is the entrance to the School. Type \"NORTH\" or simply N to go north and proceed through the School.. If you have been here before, go down to the Docks.",
             "exits": [
                 {
                     "direction": "north",
@@ -25,8 +25,8 @@
         },
         {
             "id": 2,
-            "name": "A Room in Mud School",
-            "description": "You are in a square white room. The walls are all blank, with no windows. Light bounces off the ceiling in soft white tones. Of course, there is a sign on the wall. The exits are west and south. A small plaque is on the wall.",
+            "name": "A Room in the School",
+            "description": "You are in a square white room. The walls are all blank, with no windows. Light bounces off the ceiling in soft white tones. Of course, there is a sign on the wall. The exits are west and south. A small plaque is on the wall.\r\n\r\nYou may look at the sign or plaque by using the LOOK <target> command. Try it now.",
             "exits": [
                 {
                     "direction": "west",
@@ -35,17 +35,17 @@
                 },
                 {
                     "direction": "south",
-                    "description": "You see the beginning of Mud School.",
+                    "description": "You see the beginning of the School.",
                     "room_id": 1
                 },
                 {
                     "keyword": "plaque",
-                    "description": "This zone is Mud School.",
+                    "description": "This zone is the School.",
                     "room_id": null
                 },
                 {
                     "keyword": "sign",
-                    "description": "Equipment check time! Type 'equipment' to see your current equipment. Right now, you just have a vest, shield, and a weapon. As you go through Mud School, you will acquire a full set of equipment.\n\nTo pick up items on the ground as you see them, type 'GET <item>'.\r\nTo wear a piece of armor, type 'WEAR <item>'.\r\nTo hold a light source, tyoe 'HOLD <light>'.\r\nTo wield a weapon, type 'WIELD <weapon>'.\r\nTo stop using a piece of equipment, type 'REMOVE <item>'.\r\nFinally, to see your inventory, type 'INVENTORY'.",
+                    "description": "Equipment check time! Type 'equipment' to see your current equipment. Right now, you just have a vest, shield, and a weapon. As you go through the School, you will acquire a full set of equipment.\n\nTo pick up items on the ground as you see them, type 'GET <item>'.\r\nTo wear a piece of armor, type 'WEAR <item>'.\r\nTo hold a light source, tyoe 'HOLD <light>'.\r\nTo wield a weapon, type 'WIELD <weapon>'.\r\nTo stop using a piece of equipment, type 'REMOVE <item>'.\r\nFinally, to see your inventory, type 'INVENTORY'.",
                     "room_id": null
                 }
             ],
@@ -56,7 +56,7 @@
         },
         {
             "id": 3,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in a square white room. The walls are all blank, with no windows. Light bounces off the ceiling in soft white tones. Of course, there is a sign on the wall. Exits lead in ALL directions",
             "exits": [
                 {
@@ -102,7 +102,7 @@
         },
         {
             "id": 6,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is north.",
             "exits": [
                 {
@@ -123,7 +123,7 @@
         },
         {
             "id": 5,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is east.",
             "exits": [
                 {
@@ -144,7 +144,7 @@
         },
         {
             "id": 7,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is down.",
             "exits": [
                 {
@@ -165,7 +165,7 @@
         },
         {
             "id": 8,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The only exit is up.",
             "exits": [
                 {
@@ -186,7 +186,7 @@
         },
         {
             "id": 4,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  The exits lead north and south.",
             "exits": [
                 {
@@ -212,12 +212,12 @@
         },
         {
             "id": 9,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in the cage room. Below is a cage with a monster. The next station is to the south.",
             "exits": [
                 {
                     "direction": "down",
-                    "description": "You see a cage.",
+                    "description": "You see a jail cell.",
                     "room_id": 10
                 },
                 {
@@ -232,7 +232,7 @@
                 },
                 {
                     "keyword": "sign",
-                    "description": "Time to fight! The first lesson is knowing whom to fight. Use the command 'CONSIDER' to consider killing a monster. Avoid fighting monsters that will kill you easily.\r\nWhen you're ready, type 'KILL <monster>' to begin attacking the monster.\r\nOnce the monster is dead, you may get items from its corpse by typing 'GET ALL CORPSE'. When you are done, you may sacrifice the corpse to your gods by typing 'SACRIFICE corpse'. Your god should reward you for this.\r\nBetween fights, you may need to rest to recover much-needed Hitpoints, Mana, or Movement. You can do this by typing 'SLEEP'. When you are ready to wake, type 'WAKE'.",
+                    "description": "Time to fight! The first lesson is knowing whom to fight. Use the command 'CONSIDER' to consider killing a monster (mob). Avoid fighting monsters that will kill you easily.\r\n\r\nWhen you're ready, type 'KILL <monster>' to begin attacking the monster.\r\n\r\nOnce the monster is dead, you may get items from its corpse by typing 'GET ALL CORPSE'. When you are done, you may sacrifice the corpse to your gods by typing 'SACRIFICE corpse'. Your god should reward you for this.\r\n\r\nBetween fights, you may need to rest to recover much-needed Hitpoints, Mana, or Movement. You can do this by typing 'SLEEP'. When you are ready to wake, type 'WAKE'.",
                     "room_id": null
                 }
             ],
@@ -243,17 +243,17 @@
         },
         {
             "id": 10,
-            "name": "A Cage",
+            "name": "The Jail Cell",
             "description": "You are in a metal cage. Blood and guts are scattered across the floor and walls. There's a sign on the wall. The only exit is back up!",
             "exits": [
                 {
                     "direction": "up",
-                    "description": "You see the cage room.",
+                    "description": "You see the jail room.",
                     "room_id": 9
                 },
                 {
                     "keyword": "sign",
-                    "description": "Time to fight! The first lesson is knowing whom to fight. Use the command 'CONSIDER' to consider killing a monster. Avoid fighting monsters that will kill you easily.\r\nWhen you're ready, type 'KILL <monster>' to begin attacking the monster. Now, go DOWN and fight your first opponent!",
+                    "description": "Time to fight! The first lesson is knowing whom to fight. Use the command 'CONSIDER' to consider killing a monster (mobs). Avoid fighting mobs that will kill you easily.\r\nWhen you're ready, type 'KILL <monster>' to begin attacking the monster. Now, go DOWN and fight your first opponent!",
                     "room_id": null
                 }
             ],
@@ -264,7 +264,7 @@
         },
         {
             "id": 11,
-            "name": "A Room in Mud School",
+            "name": "A Room in the School",
             "description": "You are in a square white room.  The walls are all blank, with no windows. Light fluoresces off the ceiling in soft white tones.  Of course, there is a sign on the wall.  Find your own exit here.",
             "exits": [
                 {
@@ -279,7 +279,7 @@
                 },
                 {
                     "keyword": "sign",
-                    "description": "You must be hurt. Time to buy potions to heal yourself! To the west is a store. Inside the store, you can use these commands:\r\n\r\nBUY    Buy an item.\r\n\r\nLIST   List what is for sale.\r\n\r\nAfter buying a potion, type 'DRINK potion' to drink it.\r\n\r\nAfter that, find the next exit yourself!",
+                    "description": "A challenge is coming up ahead! To the west is a store. Inside the store, you can use these commands:\r\n\r\nBUY    Buy an item.\r\n\r\nLIST   List what is for sale.\r\n\r\nAfter buying a potion, type 'DRINK potion' to drink it.\r\n\r\nAfter that, find the next exit yourself!",
                     "room_id": null
                 }
             ],
@@ -290,7 +290,7 @@
         },
         {
             "id": 12,
-            "name": "The Mud School Emporium",
+            "name": "The School Emporium",
             "description": "You are in a cramped room. Stacked neatly on the shelves are items and packages. Of course, there's a sign on the wall. The only exits are north and east.",
             "exits": [
                 {
@@ -316,12 +316,12 @@
         },
         {
             "id": 14,
-            "name": "The Mud School Emporium",
+            "name": "A Room in the School",
             "description": "You are in a square white room. The walls are all blank, with no windows. Of course, there is a sign on the wall. The exits are to the south and west.",
             "exits": [
                 {
                     "direction": "south",
-                    "description": "You see the Mud School Emporium.",
+                    "description": "You see the School Emporium.",
                     "room_id": 12
                 },
                 {
@@ -333,11 +333,12 @@
                     "direction": "east",
                     "description": "You see a door.",
                     "room_id": 16,
-                    "key": 1
+                    "key": 2,
+                    "Flags": 2
                 },
                 {
                     "keyword": "sign",
-                    "description": "West of you is a dark room. I hope you still have the lantern! If not, you'll have to go back to the store to buy one.\r\n\r\nIn the room is a monster with a key that you need. After killing the monster and getting the key, come back here, UNLOCK EAST, OPEN EAST, and continue east.",
+                    "description": "West of you is a dark room. I hope you still have the lantern! If not, you'll have to go back to the store to buy one.\r\n\r\nIn the room is a thief with a key that you need. After killing the thief and getting the key, come back here, UNLOCK EAST, OPEN EAST, and continue east.",
                     "room_id": null
                 }
             ],
@@ -354,8 +355,7 @@
                 {
                     "direction": "east",
                     "description": "You see a room.",
-                    "room_id": 14,
-                    "key": 1
+                    "room_id": 14
                 }
             ],
             "items": [],
@@ -365,7 +365,7 @@
         },
         {
             "id": 16,
-            "name": "The End of Mud School",
+            "name": "The End of the School",
             "description": "This is an extremely bright room, with a marble pedestal in the center. Behind the pedestal stands a person cloaked in a robe. Tapestries flow from every wall, and you feel very happy to be here right now. There is a big sign here. The only exit is behind you to the west.",
             "exits": [
                 {
@@ -375,7 +375,7 @@
                 },
                 {
                     "keyword": "sign",
-                    "description": "You have graduated from Mud School! Get your diploma from the pedestal by typing 'GET diploma pedestal'. Once you have done so, you may return to the Real World by typing 'RECALL'.\r\n\r\nIf you need more help during the game, type 'HELP'. You may also chat with other players by typing 'CHAT <message>'.\r\n\r\nGood luck and enjoy your adventures!",
+                    "description": "You have graduated from the School! Get your diploma from the pedestal by typing 'GET diploma pedestal'. Once you have done so, you may return to the Real World by typing 'RECALL'.\r\n\r\nIf you need more help during the game, type 'HELP'. You may also chat with other players by typing 'CHAT <message>'.\r\n\r\nGood luck and enjoy your adventures!",
                     "room_id": null
                 }
             ],

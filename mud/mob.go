@@ -243,7 +243,7 @@ func (m *mob) advanceLevel() {
 	m.Practices += addPracs
 
 	if !m.isNPC() {
-		removeBit(m.Act, playerBoughtPet)
+		m.Act = removeBit(m.Act, playerBoughtPet)
 	}
 
 	m.notify("Your gain is: %d/%d hp, %d/%d mana, %d/%d movement, and %d/%d practices.", addHP, m.MaxHitpoints, addMana, m.MaxMana, addMovement, m.MaxMovement, addPracs, m.Practices)
@@ -552,7 +552,7 @@ func (m *mob) stopFollower() {
 	}
 
 	if hasBit(m.AffectedBy, affectCharm) {
-		removeBit(m.AffectedBy, affectCharm)
+		m.AffectedBy = removeBit(m.AffectedBy, affectCharm)
 		m.stripAffect("charm")
 	}
 

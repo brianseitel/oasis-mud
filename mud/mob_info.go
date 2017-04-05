@@ -134,7 +134,7 @@ func doConsider(player *mob, argument string) {
 	argument, arg1 := oneArgument(argument)
 	var victim *mob
 	for _, mob := range player.Room.Mobs {
-		if matchesSubject(mob.Name, arg1) {
+		if matchesSubject(mob.Description, arg1) {
 			victim = mob
 			break
 		}
@@ -425,6 +425,10 @@ func doScan(player *mob, argument string) {
 		}
 		player.notify("[%s]", x.Dir)
 
+		if x.isClosed() {
+			player.notify("    A closed door.")
+			continue
+		}
 		if len(x.Room.Mobs) > 0 {
 			mobs := x.Room.Mobs
 			for _, m := range mobs {

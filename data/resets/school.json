@@ -12,6 +12,12 @@
             "limit": 1,
             "room_id": 16,
             "comments": "Trainer"
+        },
+        {
+            "mob_id": 5,
+            "limit": 1,
+            "room_id": 15,
+            "comments": "thief"
         }
     ],
     "objects": [],
@@ -23,8 +29,21 @@
             "item_id": 1,
             "room_id": 12,
             "comments": "lanterns"
+        },
+        {
+            "mob_id": 5,
+            "limit": 1,
+            "item_id": 2,
+            "room_id": 15,
+            "comments": "key"
         }
     ],
     "mob_objects_equip": [],
-    "doors": []
+    "doors": [
+        {
+            "room_id": 14,
+            "direction": "east",
+            "state": "closed"
+        }
+    ]
 }
