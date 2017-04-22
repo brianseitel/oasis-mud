@@ -1,9 +1,22 @@
 package mud
 
+type raceStats struct {
+	Hitpoints    int
+	Mana         int
+	Movement     int
+	Strength     int
+	Wisdom       int
+	Dexterity    int
+	Charisma     int
+	Constitution int
+	Intelligence int
+}
+
 type race struct {
-	ID   int
-	Name string
-	Abbr string
+	ID    int
+	Name  string
+	Abbr  string
+	Stats raceStats
 }
 
 func (r race) defaultStats(s string) int {

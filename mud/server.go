@@ -16,6 +16,7 @@ type Server struct {
 	connections []connection
 	Up          bool
 	Wizlock     bool
+	BasePath    string
 }
 
 func (server *Server) handle(c *connection) {

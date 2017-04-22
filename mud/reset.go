@@ -201,9 +201,6 @@ func resetArea(ar *area) {
 		room := getRoom(mo.RoomID)
 
 		if ir == nil || m == nil || room == nil {
-
-			dump("equipped")
-			dump(mo)
 			continue
 		}
 

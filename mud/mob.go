@@ -18,6 +18,7 @@ const (
 	actPet        = 256  /* auto set for pets */
 	actTrain      = 512  /* can train PCs */
 	actPractice   = 1024 /* can practice PCs */
+	actGuardian   = 2048 /* is safe */
 )
 
 const (
@@ -277,7 +278,6 @@ func (m *mob) currentIntelligence() int {
 		max = 21
 	}
 
-	dump(m.Attributes)
 	return uRange(3, m.Attributes.Intelligence+m.ModifiedAttributes.Intelligence, max)
 
 }
@@ -453,15 +453,15 @@ func (m *mob) isNPC() bool {
 }
 
 func (m *mob) isSafe() bool {
-	return false
+	return hasBit(m.Act, actGuardian)
 }
 
 func (m *mob) isSilenced() bool {
-	return false
+	return hasBit(m.Act, playerSilence)
 }
 
 func (m *mob) isTrainer() bool {
-	return true
+	return hasBit(m.Act, actTrain) || hasBit(m.Act, actPractice)
 }
 
 func (m *mob) hasKey(key int) bool {
@@ -606,7 +606,7 @@ func (m *mob) equipItem(item *item, position int) {
 }
 
 func (m *mob) equippedItem(position int) *item {
-	for _, i := range m.Inventory {
+	for _, i := range m.Equipped {
 		if i.WearLocation == position {
 			return i
 		}
@@ -622,6 +622,7 @@ func (m *mob) notify(message string, a ...interface{}) {
 	if m.client != nil {
 		message = fmt.Sprintf("%s%s%s", reset, message, newline)
 		m.client.SendString(fmt.Sprintf(message, a...))
+		m.client.conn.Read([]byte{})
 	}
 }
 

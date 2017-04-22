@@ -74,5 +74,24 @@
         "nounDamage": "",
         "messageOff": "You are no longer sneaking.",
         "bitVector": 32768
+    },
+    {
+        "id": 5,
+        "name": "meteor",
+        "levels": {
+            "Warrior": 99,
+            "Cleric": 99,
+            "Mage": 99,
+            "Thief": 99,
+            "Ranger": 99,
+            "Bard": 99
+        },
+        "callback": "do_meteor",
+        "target": "self",
+        "minMana": 0,
+        "beats": 12,
+        "nounDamage": "",
+        "messageOff": "!METEOR!",
+        "bitVector": 32768
     }
 ]

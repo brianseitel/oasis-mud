@@ -115,7 +115,9 @@ func doSocials(player *mob, args string) {
 		}
 	}
 
-	if col%6 != 0 {
+	fmt.Println(col)
+
+	if col%7 != 0 {
 		player.notify("")
 	}
 }

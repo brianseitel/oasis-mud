@@ -62,7 +62,7 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 	}
 
 	if target == actToVict {
-		if victim == nil {
+		if victim == nil || victim.Room == nil {
 			return
 		}
 

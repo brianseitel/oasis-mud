@@ -60,7 +60,8 @@ func doBackstab(player *mob, argument string) {
 
 	wait(player, backstab.Skill.Beats)
 
-	if !victim.isAwake() || player.isNPC() || dice().Intn(100) < int(backstab.Level) {
+	chance := dice().Intn(100)
+	if !victim.isAwake() || player.isNPC() || chance > int(backstab.Level) {
 		multiHit(player, victim, typeBackstab)
 	} else {
 		player.damage(victim, 0, typeBackstab)
@@ -103,6 +104,7 @@ func doDisarm(player *mob, argument string) {
 	}
 	return
 }
+
 func doFlee(player *mob, argument string) {
 	victim := player.Fight
 	if victim == nil || player.Status != fighting {
@@ -111,9 +113,15 @@ func doFlee(player *mob, argument string) {
 	}
 
 	wasIn := player.Room
+	if len(player.Room.Exits) == 0 {
+		player.notify("There is nowhere to flee!")
+		return
+	}
 
 	for attempt := 0; attempt < 6; attempt++ {
-		number := dice().Intn(len(player.Room.Exits))
+		count := len(player.Room.Exits)
+
+		number := dice().Intn(count)
 		exit := player.Room.Exits[number]
 		if exit == nil || exit.isClosed() || (player.isNPC() && hasBit(exit.Room.RoomFlags, roomNoMob)) {
 			continue
@@ -167,19 +175,19 @@ func doKick(player *mob, argument string) {
 }
 
 func doKill(attacker *mob, argument string) {
+	argument, arg1 := oneArgument(argument)
+
+	if arg1 == "" {
+		attacker.notify("Kill whom?")
+		return
+	}
+
 	var victim *mob
 	for _, m := range attacker.Room.Mobs {
-		if matchesSubject(m.Description, argument) {
+		if matchesSubject(m.Name, arg1) {
 			victim = m
 			break
 		}
-	}
-
-	args := strings.Split(argument, " ")
-
-	if len(args) < 1 {
-		attacker.notify("Kill whom?")
-		return
 	}
 
 	if victim == nil {
@@ -187,14 +195,14 @@ func doKill(attacker *mob, argument string) {
 		return
 	}
 
-	if !victim.isNPC() {
-		attacker.notify("You cannot attack other attackers.")
-		return
-	}
-
 	if victim == attacker {
 		attacker.notify("You hit yourself. Ouch!")
 		multiHit(attacker, attacker, typeUndefined)
+		return
+	}
+
+	if !victim.isNPC() {
+		attacker.notify("You cannot attack other players.")
 		return
 	}
 
@@ -324,12 +332,12 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 		}
 
 		if damageType >= typeHit {
-			if m.isNPC() && dice().Intn(100) < m.Level/2 {
-				m.disarm(victim)
-			}
-			if m.isNPC() && dice().Intn(100) < m.Level/2 {
-				m.trip()
-			}
+			// if m.isNPC() && dice().Intn(100) < m.Level/2 {
+			// 	m.disarm(victim)
+			// }
+			// if m.isNPC() && dice().Intn(100) < m.Level/2 {
+			// 	m.trip()
+			// }
 			if m.parry(victim) {
 				return
 			}
@@ -392,9 +400,9 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 
 		rawKill(victim)
 
-		if !m.isNPC() && victim.isNPC() {
-			// TODO: autoloot, autosacrifice
-		}
+		// if !m.isNPC() && victim.isNPC() {
+		// 	// TODO: autoloot, autosacrifice
+		// }
 	}
 
 	if victim == m {
@@ -402,7 +410,8 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 	}
 
 	if !victim.isNPC() && victim.client == nil {
-		if dice().Intn(int(victim.wait)) == 0 {
+		wait := max(1, int(victim.wait))
+		if dice().Intn(wait) == 0 {
 			interpret(victim, "recall")
 			return
 		}
@@ -591,10 +600,10 @@ func (m *mob) disarm(victim *mob) {
 	act("You disarm $N!", m, nil, victim, actToChar)
 	act("$n disarms $N!", m, nil, victim, actToNotVict)
 
-	for j, item := range m.Inventory {
+	for j, item := range m.Equipped {
 		if wield == item {
 			item.WearLocation = wearNone
-			m.Inventory, m.Room.Items = transferItem(j, m.Inventory, m.Room.Items)
+			m.Equipped, m.Room.Items = transferItem(j, m.Equipped, m.Room.Items)
 			break
 		}
 	}
@@ -710,7 +719,7 @@ func (m *mob) parry(attacker *mob) bool {
 	if m.isNPC() {
 		chance = min(60, 2*m.Level)
 	} else {
-		if m.equippedItem(wearWield) == nil {
+		if m.equippedItem(itemWearWield) == nil {
 			return false
 		}
 
@@ -802,7 +811,7 @@ func (m *mob) updateStatus() {
 		return
 	}
 
-	if m.Hitpoints <= 6 {
+	if m.Hitpoints <= -6 {
 		m.Status = mortal
 	} else if m.Hitpoints <= -3 {
 		m.Status = incapacitated

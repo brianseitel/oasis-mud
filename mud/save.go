@@ -120,7 +120,6 @@ func saveCharacter(character *mob) {
 func writeCharacter(character *mob, path string) {
 
 	var save savePlayer
-
 	save.SavedAt = time.Now().String()
 	save.ID = character.ID
 	save.Name = character.Name
@@ -205,7 +204,7 @@ func writeCharacter(character *mob, path string) {
 
 	results, err := json.MarshalIndent(save, "", "    ")
 
-	err = ioutil.WriteFile(path, results, 0655)
+	err = ioutil.WriteFile(fmt.Sprintf("%s%s", gameServer.BasePath, path), results, 0655)
 
 	if err != nil {
 		panic(err)

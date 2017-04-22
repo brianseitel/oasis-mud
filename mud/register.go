@@ -17,44 +17,37 @@ func register(c *connection, name string) *mob {
 	job := askForJob(c)
 	race := askForRace(c)
 
-	var m *mob
 	newPlayer := &mob{
-		Name:         m.Name,
+		Name:         name,
 		Password:     password,
 		Job:          &job,
 		Race:         &race,
-		Hitpoints:    m.Race.defaultStats("hitpoints"),
-		MaxHitpoints: m.Race.defaultStats("hitpoints"),
-		Mana:         m.Race.defaultStats("mana"),
-		MaxMana:      m.Race.defaultStats("mana"),
-		Movement:     m.Race.defaultStats("movement"),
-		MaxMovement:  m.Race.defaultStats("movement"),
+		Hitpoints:    race.Stats.Hitpoints,
+		MaxHitpoints: race.Stats.Hitpoints,
+		Mana:         race.Stats.Mana,
+		MaxMana:      race.Stats.Mana,
+		Movement:     race.Stats.Movement,
+		MaxMovement:  race.Stats.Movement,
 		Attributes: &attributeSet{
-			Strength:     m.Race.defaultStats("strength"),
-			Wisdom:       m.Race.defaultStats("wisdom"),
-			Dexterity:    m.Race.defaultStats("dexterity"),
-			Charisma:     m.Race.defaultStats("charisma"),
-			Constitution: m.Race.defaultStats("constitution"),
-			Intelligence: m.Race.defaultStats("intelligence"),
+			Strength:     race.Stats.Strength,
+			Wisdom:       race.Stats.Wisdom,
+			Dexterity:    race.Stats.Dexterity,
+			Charisma:     race.Stats.Charisma,
+			Constitution: race.Stats.Constitution,
+			Intelligence: race.Stats.Intelligence,
 		},
-		ModifiedAttributes: &attributeSet{
-			Strength:     0,
-			Wisdom:       0,
-			Dexterity:    0,
-			Charisma:     0,
-			Constitution: 0,
-			Intelligence: 0,
-		},
-		Level:  1,
-		Exp:    0,
-		Room:   getRoom(1),
-		Status: standing,
+		Level:    1,
+		Exp:      0,
+		Room:     getRoom(1),
+		Status:   standing,
+		Playable: true,
 	}
 
-	fmt.Println(newPlayer)
-
-	m.client = c
-	return m
+	c.mob = newPlayer
+	newPlayer.client = c
+	newPlayer.index = &mobIndex{}
+	saveCharacter(newPlayer)
+	return newPlayer
 }
 
 func askIfNew(c *connection) string {
@@ -73,7 +66,6 @@ func askForPassword(c *connection) string {
 }
 
 func askForJob(c *connection) job {
-	var jobs []job
 	for e := jobList.Front(); e != nil; e = e.Next() {
 		j := e.Value.(*job)
 		c.SendString(fmt.Sprintf("[%s] %s%s", j.Abbr, j.Name, newline))
@@ -83,9 +75,11 @@ func askForJob(c *connection) job {
 		input, _ := c.buffer.ReadString('\n')
 		input = strings.Trim(input, "\r\n")
 
-		for _, j := range jobs {
+		for e := jobList.Front(); e != nil; e = e.Next() {
+			j := e.Value.(*job)
+
 			if strings.ToLower(input) == j.Abbr {
-				return j
+				return *j
 			}
 		}
 
@@ -94,8 +88,6 @@ func askForJob(c *connection) job {
 }
 
 func askForRace(c *connection) race {
-	var races []race
-
 	for e := raceList.Front(); e != nil; e = e.Next() {
 		r := e.Value.(*race)
 		c.SendString(fmt.Sprintf("[%s] %s%s", r.Abbr, r.Name, newline))
@@ -106,12 +98,12 @@ func askForRace(c *connection) race {
 		input, _ := c.buffer.ReadString('\n')
 
 		input = strings.Trim(input, "\r\n")
-		for _, r := range races {
+		for e := raceList.Front(); e != nil; e = e.Next() {
+			r := e.Value.(*race)
 			if strings.ToLower(input) == r.Abbr {
-				return r
+				return *r
 			}
 		}
 		c.SendString("\nInvalid selection. Try again." + newline)
-
 	}
 }

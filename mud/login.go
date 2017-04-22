@@ -27,6 +27,7 @@ func login(c *connection) *mob {
 	err = json.Unmarshal(file, &player)
 
 	if err != nil {
+		player = &mobIndex{}
 		player.Name = name
 		return register(c, name)
 	}

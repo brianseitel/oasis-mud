@@ -29,12 +29,6 @@ func violenceUpdate() {
 			attacker.stopFighting(false)
 		}
 
-		victim = attacker.Fight
-
-		if victim == nil {
-			continue
-		}
-
 		for _, m := range attacker.Room.Mobs {
 
 			if m.isAwake() && m.Fight == nil {
@@ -113,9 +107,7 @@ func groupGain(player *mob, victim *mob) {
 		}
 	}
 
-	if members == 0 {
-		members = 1
-	}
+	members = max(1, members)
 
 	leader := player
 	if player.leader != nil {
@@ -141,11 +133,7 @@ func groupGain(player *mob, victim *mob) {
 		m.notify("You receive %d experience points.", xp)
 		m.gainExp(xp)
 
-		for _, i := range m.Inventory {
-			if i.WearLocation == wearNone {
-				continue
-			}
-
+		for _, i := range m.Equipped {
 			if (i.hasExtraFlag(itemAntiEvil) && m.isEvil()) || (i.hasExtraFlag(itemAntiGood) && m.isGood()) || (i.hasExtraFlag(itemAntiNeutral) && m.isNeutral()) {
 				act("You are zapped by $p.", m, i, nil, actToChar)
 				act("$n is zapped by $p.", m, i, nil, actToRoom)

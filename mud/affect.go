@@ -69,8 +69,8 @@ func affectModify(player *mob, paf *affect, add bool) {
 		player.Affects = append(player.Affects, paf)
 		player.AffectedBy = setBit(player.AffectedBy, paf.bitVector)
 	} else {
-		for j, affect := range player.Affects {
-			if paf == affect {
+		for j, aff := range player.Affects {
+			if paf == aff {
 				player.Affects = append(player.Affects[0:j], player.Affects[j+1:]...)
 				player.notify("%s", paf.affectType.Skill.MessageOff)
 				player.AffectedBy = removeBit(player.AffectedBy, paf.bitVector)
@@ -119,7 +119,7 @@ func affectModify(player *mob, paf *affect, add bool) {
 		player.ModifiedAttributes.Constitution += mod
 		break
 	case applyMana:
-		player.MaxMana += mod
+		player.Mana += mod
 		break
 	case applyHitpoints:
 		player.Hitpoints += mod

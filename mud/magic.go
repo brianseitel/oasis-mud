@@ -8,7 +8,9 @@ func doSpell(spell *mobSkill, player *mob, victim *mob) {
 	af.modifier = -20
 	af.location = applyArmorClass
 
-	victim.addAffect(&af)
+	if victim != nil {
+		victim.addAffect(&af)
+	}
 
 	if player != victim {
 		player.notify("Ok\r\n")
@@ -23,9 +25,6 @@ func objCastSpell(spell *skill, level int, player *mob, victim *mob, obj *item) 
 
 	var target *mob
 	switch spell.Target {
-	default:
-		return
-
 	case targetIgnore:
 		target = nil
 		break
@@ -34,7 +33,6 @@ func objCastSpell(spell *skill, level int, player *mob, victim *mob, obj *item) 
 		if victim == nil {
 			victim = player.Fight
 		}
-
 		if victim == nil || !victim.isNPC() {
 			player.notify("You can't do that.")
 			return
@@ -58,9 +56,7 @@ func objCastSpell(spell *skill, level int, player *mob, victim *mob, obj *item) 
 	}
 
 	mspell := &mobSkill{Skill: spell, Level: player.Level}
-
 	doSpell(mspell, player, target)
-
 	if spell.Target == targetCharacterOffensive && victim != player && victim.master != player {
 		for _, m := range player.Room.Mobs {
 			if victim == m && victim.Fight == nil {

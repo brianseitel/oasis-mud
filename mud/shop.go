@@ -42,10 +42,12 @@ func (keeper *mob) getCost(item *item, buy bool) int {
 	return cost
 }
 
+// TODO
 func (s *shop) isBeforeOpen() bool {
 	return false
 }
 
+// TODO
 func (s *shop) isAfterClose() bool {
 	return false
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"path/filepath"
+
 	"github.com/brianseitel/oasis-mud/mud"
 )
 
@@ -19,4 +21,5 @@ func newGame(server *mud.Server) *game {
 func (g *game) Start() {
 	server := mud.Server{}
 	server.Serve(8099)
+	server.BasePath, _ = filepath.Abs("")
 }

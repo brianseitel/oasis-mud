@@ -3,7 +3,9 @@ package mud
 import (
 	"container/list"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net"
 	"path/filepath"
 	"strings"
 )
@@ -487,7 +489,7 @@ func loadHelps() {
 }
 
 func loadItems() {
-	itemFiles, _ := filepath.Glob("./data/items/*.json")
+	itemFiles, _ := filepath.Glob(fmt.Sprintf("%s%s", gameServer.BasePath, "./data/items/*.json"))
 
 	for _, itemFile := range itemFiles {
 		file, err := ioutil.ReadFile(itemFile)
@@ -523,7 +525,7 @@ func loadJobs() {
 func loadMobs() {
 	mobList = list.New()
 
-	mobFiles, _ := filepath.Glob("./data/mobs/*.json")
+	mobFiles, _ := filepath.Glob(fmt.Sprintf("%s%s", gameServer.BasePath, "./data/mobs/*.json"))
 
 	for _, mobFile := range mobFiles {
 		file, err := ioutil.ReadFile(mobFile)
@@ -534,7 +536,6 @@ func loadMobs() {
 		var list []*mobIndex
 		err = json.Unmarshal(file, &list)
 		if err != nil {
-			dump(list)
 			panic(err)
 		}
 
@@ -546,16 +547,16 @@ func loadMobs() {
 }
 
 func loadRaces() {
-	raceList.PushBack(&race{ID: 1, Name: "Human", Abbr: "hum"})
-	raceList.PushBack(&race{ID: 2, Name: "Elf", Abbr: "elf"})
-	raceList.PushBack(&race{ID: 3, Name: "Dwarf", Abbr: "dwf"})
-	raceList.PushBack(&race{ID: 4, Name: "Dark Elft", Abbr: "drw"})
-	raceList.PushBack(&race{ID: 5, Name: "Goblin", Abbr: "gob"})
-	raceList.PushBack(&race{ID: 6, Name: "Dragon", Abbr: "drg"})
+	raceList.PushBack(&race{ID: 1, Name: "Human", Abbr: "hum", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 2, Name: "Elf", Abbr: "elf", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 3, Name: "Dwarf", Abbr: "dwf", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 4, Name: "Dark Elf", Abbr: "drw", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 5, Name: "Goblin", Abbr: "gob", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 6, Name: "Dragon", Abbr: "drg", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
 }
 
 func loadResets() {
-	resetFiles, _ := filepath.Glob("./data/resets/*.json")
+	resetFiles, _ := filepath.Glob(fmt.Sprintf("%s%s", gameServer.BasePath, "./data/resets/*.json"))
 
 	for _, resetFile := range resetFiles {
 		if strings.HasSuffix(resetFile, "sample.json") {
@@ -577,7 +578,7 @@ func loadResets() {
 }
 
 func loadRooms() {
-	areaFiles, _ := filepath.Glob("./data/area/*.json")
+	areaFiles, _ := filepath.Glob(fmt.Sprintf("%s%s", gameServer.BasePath, "./data/area/*.json"))
 
 	voidArea := &area{ID: 0, Name: "Limbo", age: 0, numPlayers: 0}
 	void := &room{ID: 0, Exits: nil, ItemIds: nil, MobIds: nil, Name: "The Void", Description: "A dark, gaping void lies here."}
@@ -644,7 +645,7 @@ func loadRooms() {
 }
 
 func loadShops() {
-	shopFiles, _ := filepath.Glob("./data/shops/*.json")
+	shopFiles, _ := filepath.Glob(fmt.Sprintf("%s%s", gameServer.BasePath, "./data/shops/*.json"))
 
 	for _, shopFile := range shopFiles {
 		file, err := ioutil.ReadFile(shopFile)
@@ -664,7 +665,7 @@ func loadShops() {
 }
 
 func loadSkills() {
-	skillFiles, _ := filepath.Glob("./data/skills/*.json")
+	skillFiles, _ := filepath.Glob(fmt.Sprintf("%s%s", gameServer.BasePath, "./data/skills/*.json"))
 
 	for _, skillFile := range skillFiles {
 		file, err := ioutil.ReadFile(skillFile)
@@ -674,7 +675,6 @@ func loadSkills() {
 
 		var list []*skill
 		json.Unmarshal(file, &list)
-
 		for _, sk := range list {
 			skillList.PushBack(sk)
 		}
@@ -682,7 +682,7 @@ func loadSkills() {
 }
 
 func loadSocials() {
-	file, err := ioutil.ReadFile("./data/socials/socials.json")
+	file, err := ioutil.ReadFile(fmt.Sprintf("%s%s", gameServer.BasePath, "./data/socials/socials.json"))
 	if err != nil {
 		panic(err)
 	}
@@ -720,7 +720,7 @@ func extractMob(m *mob, pull bool) {
 		return
 	}
 
-	if m.isNPC() {
+	if !m.isNPC() {
 		m.index.count--
 	}
 
@@ -776,4 +776,147 @@ func extractObj(obj *item) {
 	obj.index.count--
 
 	return
+}
+
+func mockObject(name string, id int) *item {
+	index := &itemIndex{}
+
+	index.ID = 1
+	index.Name = name
+	index.Description = ""
+	index.ShortDescription = ""
+	index.ItemType = 1
+	index.ContainedIDs = []int{}
+	index.Affected = []*affect{}
+	index.ExtraFlags = 0
+	index.WearFlags = 0
+	index.Weight = 0
+	index.Value = 0
+	index.Min = 0
+	index.Max = 0
+	index.Level = 1
+	index.Cost = 0
+	index.SkillID = 0
+	index.Charges = 0
+
+	return createItem(index)
+}
+
+func mockPlayer(name string) *mob {
+	player := mockMob(name)
+	player.Playable = true
+
+	s, c := net.Pipe()
+	s.Close()
+	player.client = &connection{conn: c}
+	gameServer.connections = append(gameServer.connections, *player.client)
+
+	return player
+}
+
+func mockAffect(name string) *affect {
+	return &affect{affectType: mockSkill(name), bitVector: affectBlind}
+}
+
+func mockSkill(name string) *mobSkill {
+	return &mobSkill{Skill: &skill{Name: name}, Level: 1}
+}
+
+func mockMob(name string) *mob {
+	index := &mobIndex{}
+	index.ID = 1
+	index.Name = name
+	index.Password = ""
+	index.Description = ""
+	index.LongDescription = ""
+	index.Title = ""
+	index.Affects = nil
+	index.AffectedBy = []int{0}
+	index.Act = []int{0}
+
+	index.Skills = nil
+	index.Inventory = nil
+	index.Equipped = nil
+	index.RoomID = 0
+
+	index.ExitVerb = ""
+	index.Bamfin = ""
+	index.Bamfout = ""
+
+	index.Hitpoints = 100
+	index.MaxHitpoints = 100
+	index.Mana = 100
+	index.MaxMana = 100
+	index.Movement = 100
+	index.MaxMovement = 100
+
+	index.Armor = 1
+	index.Hitroll = 1
+	index.Damroll = 1
+
+	index.Exp = 0
+	index.Level = 1
+	index.Alignment = 0
+	index.Practices = 0
+	index.Gold = 0
+	index.Trust = 0
+
+	index.Carrying = 0
+	index.CarryMax = 0
+	index.CarryWeight = 0
+	index.CarryWeightMax = 0
+
+	index.JobID = 1
+	index.RaceID = 1
+	index.Gender = 0
+
+	index.Attributes = &attributeSet{
+		Strength:     12,
+		Intelligence: 12,
+		Wisdom:       12,
+		Dexterity:    12,
+		Charisma:     12,
+		Constitution: 12,
+	}
+	index.ModifiedAttributes = &attributeSet{
+		Strength:     0,
+		Intelligence: 0,
+		Wisdom:       0,
+		Dexterity:    0,
+		Charisma:     0,
+		Constitution: 0,
+	}
+
+	index.Status = standing
+	index.Shop = nil
+
+	index.Playable = false
+
+	m := createMob(index)
+	m.Room = mockRoom()
+	return m
+}
+
+func mockRoom() *room {
+	r := &room{Mobs: []*mob{}, Items: []*item{}, Exits: []*exit{}}
+
+	r.Name = "Some Room"
+	r.RoomFlags = 0
+	r.Light = 0
+	r.SectorType = sectorHills
+	return r
+}
+
+func resetTest() *mob {
+	gameServer.connections = []connection{}
+	var l list.List
+	mobList = &l
+	// roomList.Init()
+
+	loadJobs()
+	loadRaces()
+
+	player := mockPlayer("player")
+	player.Room = mockRoom()
+	return player
 }

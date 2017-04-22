@@ -167,6 +167,7 @@ func doGroup(player *mob, argument string) {
 					if !m.isNPC() {
 						job = m.Job.Name
 					}
+
 					player.notify("[%2d %8s] %-16s %4d/%4d hp %4d/%4d mana %4d/%4d mv %5dxp", m.Level, job, pers(m, player), m.Hitpoints, m.MaxHitpoints, m.Mana, m.MaxMana, m.Movement, m.MaxMovement, m.Exp)
 				}
 			}
@@ -181,7 +182,6 @@ func doGroup(player *mob, argument string) {
 			break
 		}
 	}
-
 	if victim == nil || victim.Room.ID != player.Room.ID {
 		player.notify("They aren't here.")
 		return
@@ -234,6 +234,7 @@ func doHide(player *mob, argument string) {
 	}
 
 	hide := player.skill("hide")
+
 	if player.isNPC() || dice().Intn(100) < int(hide.Level) {
 		player.AffectedBy = setBit(player.AffectedBy, affectHide)
 	}
@@ -347,6 +348,7 @@ func doMove(player *mob, d string) {
 	}
 	player.notify("Alas, you cannot go that way.")
 }
+
 func doPick(player *mob, argument string) {
 	if len(argument) < 1 {
 		player.notify("Pick what?")
@@ -385,11 +387,6 @@ func doPick(player *mob, argument string) {
 
 		if exit.Key < 0 {
 			player.notify("It can't be unlocked.")
-			return
-		}
-
-		if player.hasKey(exit.Key) {
-			player.notify("You don't have the key.")
 			return
 		}
 
@@ -457,7 +454,6 @@ func doPractice(player *mob, argument string) {
 			}
 		}
 
-		dump(allSkills)
 		for _, skill := range allSkills {
 			pSkill := player.skill(skill.Name)
 
@@ -541,11 +537,7 @@ func doPractice(player *mob, argument string) {
 			return
 		}
 
-		if player.isNPC() {
-			adept = 100
-		} else {
-			adept = player.Job.SkillAdept
-		}
+		adept = player.Job.SkillAdept
 
 		pSkill = player.skill(arg1)
 
@@ -903,7 +895,7 @@ func doTrain(player *mob, argument string) {
 
 	var cost int
 
-	costmap := []int{5, 6, 7, 9, 12, 13, 15}
+	costmap := []int{5, 6, 7, 9, 12, 13, 15, 18, 21, 24, 27, 32, 40}
 
 	var playerAbility int
 	var playerOutput string
@@ -953,8 +945,6 @@ func doTrain(player *mob, argument string) {
 		if !strings.HasSuffix(message, ":") {
 			buf.WriteString(".\r\n")
 			player.notify(buf.String())
-		} else {
-			player.notify("You have nothing left to train, you badass!")
 		}
 
 		return

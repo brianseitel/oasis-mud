@@ -29,11 +29,6 @@ func doAdvance(wiz *mob, argument string) {
 		return
 	}
 
-	if victim.isNPC() {
-		wiz.notify("Not on NPCs.")
-		return
-	}
-
 	if level > 99 || level < 0 {
 		wiz.notify("Level must be between 1 and 99.")
 		return
@@ -170,6 +165,7 @@ func doBan(wiz *mob, argument string) {
 		}
 	}
 
+	banList.PushBack(arg1)
 	wiz.notify("Ok.")
 }
 
@@ -183,11 +179,6 @@ func doDeny(wiz *mob, argument string) {
 	victim := getPlayerByName(arg1)
 	if victim == nil {
 		wiz.notify("They aren't here.")
-		return
-	}
-
-	if victim.isNPC() {
-		wiz.notify("You can't do this on NPCs.")
 		return
 	}
 
@@ -327,11 +318,6 @@ func doFreeze(wiz *mob, argument string) {
 		return
 	}
 
-	if victim.isNPC() {
-		wiz.notify("You can't freeze NPCs.")
-		return
-	}
-
 	if victim.getTrust() >= wiz.getTrust() {
 		wiz.notify("You failed.")
 		return
@@ -347,7 +333,8 @@ func doFreeze(wiz *mob, argument string) {
 		wiz.notify("FREEZE set.")
 	}
 
-	saveCharacter(victim)
+	// TODO: breaks during testing
+	// saveCharacter(victim)
 	return
 }
 

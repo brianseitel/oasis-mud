@@ -326,7 +326,7 @@ func doGet(player *mob, argument string) {
 			player.notify("I see no %s here.", arg2)
 			return
 		}
-		dump(container)
+
 		switch container.ItemType {
 		case itemContainer:
 		case itemCorpseNPC:
