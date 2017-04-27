@@ -21,8 +21,8 @@ func doAffect(player *mob, argument string) {
 			duration = "a while"
 		} else if af.duration < 600 {
 			duration = "a long time"
-		} else if af.duration > 900 {
-			duration = "practifally forever"
+		} else if af.duration >= 600 {
+			duration = "practically forever"
 		}
 
 		player.notify("%s for %s.", af.affectType.Skill.Name, duration)
@@ -61,7 +61,7 @@ func doCompare(player *mob, argument string) {
 
 	if arg2 == "" {
 		for _, i := range player.Inventory {
-			if i.WearLocation == wearNone && player.canSeeItem(i) && i.ItemType == obj1.ItemType && (obj1.WearFlags&i.WearFlags & ^itemTake != 0) {
+			if i.WearLocation == wearNone && player.canSeeItem(i) && i.ItemType == obj1.ItemType && hasBit(obj1.WearFlags, itemTake) {
 				obj2 = i
 				break
 			}
@@ -95,9 +95,6 @@ func doCompare(player *mob, argument string) {
 		msg = "You can't compare $p to $P."
 	} else {
 		switch obj1.ItemType {
-		default:
-			msg = "You can't compare $p to $P."
-			break
 
 		case itemArmor:
 			value1 = obj1.Min
@@ -108,6 +105,10 @@ func doCompare(player *mob, argument string) {
 			value1 = obj1.Min + obj1.Max
 			value2 = obj2.Min + obj2.Max
 			break
+		default:
+			msg = "You can't compare $p to $P."
+			break
+
 		}
 	}
 
@@ -134,7 +135,7 @@ func doConsider(player *mob, argument string) {
 	argument, arg1 := oneArgument(argument)
 	var victim *mob
 	for _, mob := range player.Room.Mobs {
-		if matchesSubject(mob.Description, arg1) {
+		if matchesSubject(mob.Description, arg1) || matchesSubject(mob.Name, arg1) {
 			victim = mob
 			break
 		}
@@ -217,7 +218,7 @@ func doHelp(player *mob, argument string) {
 
 	for e := helpList.Front(); e != nil; e = e.Next() {
 		h := e.Value.(*help)
-		if h.Level < player.getTrust() {
+		if h.Level > player.getTrust() {
 			continue
 		}
 
@@ -251,11 +252,6 @@ func doLook(player *mob, argument string) {
 
 	if player.Status <= sleeping {
 		player.notify("You can't see anything but stars.")
-		return
-	}
-
-	if player.Status == sleeping {
-		player.notify("You can't see anything; you're sleeping!")
 		return
 	}
 
@@ -383,8 +379,6 @@ func doLook(player *mob, argument string) {
 			door = "up"
 		} else if strings.HasPrefix(argument, "d") || strings.HasPrefix(argument, "down") {
 			door = "down"
-		} else {
-			door = argument
 		}
 
 		for _, e := range player.Room.Exits {
@@ -407,7 +401,7 @@ func doLook(player *mob, argument string) {
 		return
 	}
 
-	if exit.Key == 0 {
+	if exit.Key != 0 {
 		if exit.isClosed() {
 			act("The $d is closed.", player, nil, exit.Keyword, actToChar)
 		} else if exit.hasDoor() {
@@ -418,8 +412,7 @@ func doLook(player *mob, argument string) {
 }
 
 func doScan(player *mob, argument string) {
-	room := getRoom(player.Room.ID)
-	for _, x := range room.Exits {
+	for _, x := range player.Room.Exits {
 		if x.Dir == "" {
 			continue
 		}
@@ -582,8 +575,6 @@ func doWho(player *mob, argument string) {
 		job := mob.Job.Name
 		race := mob.Race.Name
 		switch mob.Level {
-		default:
-			break
 		case 99:
 			job = "GOD"
 			break
@@ -595,6 +586,8 @@ func doWho(player *mob, argument string) {
 			break
 		case 96:
 			job = "ANG"
+			break
+		default:
 			break
 		}
 
@@ -649,9 +642,6 @@ func inventoryString(m *mob) []string {
 	inventory := make(map[string]int)
 
 	for _, i := range m.Inventory {
-		if i.WearLocation != wearNone {
-			continue
-		}
 		if _, ok := inventory[i.Name]; ok {
 			inventory[i.Name]++
 		} else {
