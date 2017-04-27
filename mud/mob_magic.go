@@ -2,7 +2,6 @@ package mud
 
 import (
 	"fmt"
-	"strings"
 )
 
 func doCast(player *mob, argument string) {
@@ -33,17 +32,17 @@ func doCast(player *mob, argument string) {
 	victim = nil
 
 	switch spell.Skill.Target {
-	case "ignore":
+	case targetIgnore:
 		break
 
-	case "offensive":
+	case targetCharacterOffensive:
 		if arg2 == "" {
 			player.notify("Cast the spell on whom?\r\n")
 			return
 		}
 
 		for _, mob := range player.Room.Mobs {
-			if strings.HasPrefix(mob.Name, arg2) {
+			if matchesSubject(mob.Name, arg2) {
 				victim = mob
 				break
 			}
@@ -60,12 +59,12 @@ func doCast(player *mob, argument string) {
 		}
 		break
 
-	case "defensive":
+	case targetCharacterDefensive:
 		if arg2 == "" {
 			victim = player
 		} else {
 			for _, mob := range player.Room.Mobs {
-				if strings.HasPrefix(mob.Name, arg2) {
+				if matchesSubject(mob.Name, arg2) {
 					victim = mob
 					break
 				}
@@ -73,7 +72,7 @@ func doCast(player *mob, argument string) {
 		}
 		break
 
-	case "self":
+	case targetCharacterSelf:
 		if arg2 != "" {
 			player.notify("You cannot cast this spell on another.\r\n")
 			return
@@ -81,7 +80,7 @@ func doCast(player *mob, argument string) {
 		victim = player
 		break
 
-	case "object":
+	case targetObjectInventory:
 		break
 
 	default:

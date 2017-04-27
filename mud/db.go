@@ -810,6 +810,8 @@ func mockPlayer(name string) *mob {
 	s.Close()
 	player.client = &connection{conn: c}
 	gameServer.connections = append(gameServer.connections, *player.client)
+	player.Room = mockRoom()
+	player.Room.Mobs = append(player.Room.Mobs, player)
 
 	return player
 }
@@ -918,5 +920,6 @@ func resetTest() *mob {
 
 	player := mockPlayer("player")
 	player.Room = mockRoom()
+	player.Room.Mobs = append(player.Room.Mobs, player)
 	return player
 }
