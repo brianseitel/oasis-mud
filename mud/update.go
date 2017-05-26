@@ -174,7 +174,9 @@ func mobUpdate() {
 		door := dBits(3)
 		var exit *exit
 		if door <= 5 {
-			exit = ch.Room.Exits[door]
+
+			//	exit = ch.Room.Exits[door]
+
 		}
 
 		if ch.Hitpoints < ch.MaxHitpoints/2 && exit != nil && !hasBit(exit.Room.RoomFlags, roomNoMob) {
@@ -263,8 +265,8 @@ func updateHandler() {
 	if pulseTimerPoint <= 0 {
 		pulseTimerPoint = dice().Intn(3*pulseTick/2) + (pulseTick / 2)
 		// weather_update()
-		fmt.Printf("C")
-		charUpdate()
+		// fmt.Printf("C")
+		// charUpdate()
 		fmt.Printf("I")
 		objUpdate()
 	}

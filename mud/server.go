@@ -49,6 +49,9 @@ func (server *Server) handle(c *connection) {
 
 // Serve boots up the server
 func (server *Server) Serve(port int) {
+
+	go startAPI()
+
 	server.init()
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {

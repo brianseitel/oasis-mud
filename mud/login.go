@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 )
 
 func login(c *connection) *mob {
@@ -51,7 +52,7 @@ func login(c *connection) *mob {
 	p.client = c
 	p.Status = standing
 	p.Room.Mobs = append(p.Room.Mobs, p)
+	p.LastSeenAt = time.Now().String()
 
-	mobList.PushBack(p)
 	return p
 }

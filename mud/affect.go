@@ -149,3 +149,74 @@ func isAffected(player *mob, aff *affect) bool {
 	}
 	return false
 }
+
+func getAffectNames(bit int) []string {
+	var results []string
+
+	if bit == 0 {
+		return results
+	}
+
+	if hasBit(affectBlind, bit) {
+		results = append(results, "blind")
+	}
+	if hasBit(affectInvisible, bit) {
+		results = append(results, "invis")
+	}
+	if hasBit(affectDetectEvil, bit) {
+		results = append(results, "detect evil")
+	}
+	if hasBit(affectDetectInvisible, bit) {
+		results = append(results, "detect invis")
+	}
+	if hasBit(affectDetectMagic, bit) {
+		results = append(results, "detect magic")
+	}
+	if hasBit(affectDetectHidden, bit) {
+		results = append(results, "hidden")
+	}
+	if hasBit(affectHold, bit) {
+		results = append(results, "hold")
+	}
+	if hasBit(affectSanctuary, bit) {
+		results = append(results, "sanctuary")
+	}
+	if hasBit(affectFaerieFire, bit) {
+		results = append(results, "faerie fire")
+	}
+	if hasBit(affectInfrared, bit) {
+		results = append(results, "infrared")
+	}
+	if hasBit(affectFlaming, bit) {
+		results = append(results, "flaming")
+	}
+	if hasBit(affectPoison, bit) {
+		results = append(results, "poison")
+	}
+	if hasBit(affectProtect, bit) {
+		results = append(results, "protect")
+	}
+	if hasBit(affectParalysis, bit) {
+		results = append(results, "paralysis")
+	}
+	if hasBit(affectSneak, bit) {
+		results = append(results, "sneak")
+	}
+	if hasBit(affectHide, bit) {
+		results = append(results, "hide")
+	}
+	if hasBit(affectSleep, bit) {
+		results = append(results, "sleep")
+	}
+	if hasBit(affectCharm, bit) {
+		results = append(results, "charm")
+	}
+	if hasBit(affectFlying, bit) {
+		results = append(results, "flying")
+	}
+	if hasBit(affectPassDoor, bit) {
+		results = append(results, "pass door")
+	}
+
+	return results
+}

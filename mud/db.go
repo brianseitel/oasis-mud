@@ -98,6 +98,10 @@ func createMob(index *mobIndex) *mob {
 	m := &mob{}
 
 	m.ID = index.ID
+	m.SavedAt = index.SavedAt
+	m.CreatedAt = index.CreatedAt
+	m.LastSeenAt = index.LastSeenAt
+
 	m.index = index
 	m.Name = index.Name
 	m.Password = index.Password
@@ -187,6 +191,8 @@ func createMob(index *mobIndex) *mob {
 	if m.isNPC() && (m.Room != nil && m.Room.isDark()) {
 		m.AffectedBy = setBit(m.AffectedBy, affectInfrared)
 	}
+
+	mobList.PushBack(m)
 
 	return m
 }
@@ -618,20 +624,6 @@ func loadRooms() {
 			area.Rooms = append(area.Rooms, ro)
 		}
 
-		exitsList := list.New()
-		for e := roomList.Front(); e != nil; e = e.Next() {
-			room := e.Value.(*room)
-			for j, x := range room.Exits {
-				if x.RoomID > 0 {
-					room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
-				}
-			}
-
-			exitsList.PushBack(room)
-		}
-
-		roomList = *exitsList
-
 		areaList.PushBack(area)
 
 	}
@@ -640,6 +632,12 @@ func loadRooms() {
 		room := e.Value.(*room)
 		for _, mob := range room.Mobs {
 			mob.Room = room
+		}
+
+		for j, x := range room.Exits {
+			if x.RoomID > 0 {
+				room.Exits[j] = &exit{Dir: x.Dir, Room: getRoom(x.RoomID), RoomID: x.RoomID}
+			}
 		}
 	}
 }

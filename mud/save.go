@@ -43,8 +43,11 @@ type saveSkill struct {
 }
 
 type savePlayer struct {
-	ID       int    `json:"id"`
-	SavedAt  string `json:"saved_at"`
+	ID         int    `json:"id"`
+	SavedAt    string `json:"saved_at"`
+	CreatedAt  string `json:"created_at"`
+	LastSeenAt string `json:"last_seen_at"`
+
 	Name     string `json:"name"`
 	Password string `json:"password"`
 
@@ -121,6 +124,9 @@ func writeCharacter(character *mob, path string) {
 
 	var save savePlayer
 	save.SavedAt = time.Now().String()
+	save.CreatedAt = character.CreatedAt
+	save.LastSeenAt = character.LastSeenAt
+
 	save.ID = character.ID
 	save.Name = character.Name
 	save.Description = character.Description

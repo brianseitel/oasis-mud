@@ -7,6 +7,32 @@ const (
 	exitPickProof
 )
 
+func getExitFlags(bit int) []string {
+	var results []string
+
+	if bit == 0 {
+		return results
+	}
+
+	if hasBit(exitDoor, bit) {
+		results = append(results, "door")
+	}
+
+	if hasBit(exitClosed, bit) {
+		results = append(results, "closed")
+	}
+
+	if hasBit(exitLocked, bit) {
+		results = append(results, "locked")
+	}
+
+	if hasBit(exitPickProof, bit) {
+		results = append(results, "pick-proof")
+	}
+
+	return results
+}
+
 type exit struct {
 	ID          int
 	Keyword     string `json:"keyword"`

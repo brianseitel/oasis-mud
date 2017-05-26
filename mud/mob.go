@@ -64,6 +64,10 @@ type mobIndex struct {
 	Name     string
 	Password string
 
+	SavedAt    string
+	CreatedAt  string `json:"created_at"`
+	LastSeenAt string `json:"last_seen_at"`
+
 	Description     string
 	LongDescription string `json:"long_description"`
 	Title           string
@@ -124,8 +128,10 @@ type mobIndex struct {
 }
 
 type mob struct {
-	ID      int
-	SavedAt string
+	ID         int
+	SavedAt    string
+	CreatedAt  string
+	LastSeenAt string
 
 	index *mobIndex
 
@@ -779,6 +785,44 @@ func (m *mob) looksAt(target interface{}) string {
 		return obj.Name
 	}
 	return ""
+}
+
+func getActFlags(bit int) []string {
+	var results []string
+
+	if bit == 0 {
+		return results
+	}
+
+	if hasBit(actIsNPC, bit) {
+		results = append(results, "NPC")
+	}
+	if hasBit(actSentinel, bit) {
+		results = append(results, "sentinel")
+	}
+	if hasBit(actScavenger, bit) {
+		results = append(results, "scavenger")
+	}
+	if hasBit(actAggressive, bit) {
+		results = append(results, "aggressive")
+	}
+	if hasBit(actStayArea, bit) {
+		results = append(results, "stay in area")
+	}
+	if hasBit(actPet, bit) {
+		results = append(results, "pet")
+	}
+	if hasBit(actTrain, bit) {
+		results = append(results, "trainer")
+	}
+	if hasBit(actPractice, bit) {
+		results = append(results, "practice trainer")
+	}
+	if hasBit(actGuardian, bit) {
+		results = append(results, "guardian")
+	}
+
+	return results
 }
 
 func getPlayerByName(name string) *mob {

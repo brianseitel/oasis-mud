@@ -3,6 +3,7 @@ package mud
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 func register(c *connection, name string) *mob {
@@ -18,6 +19,7 @@ func register(c *connection, name string) *mob {
 	race := askForRace(c)
 
 	newPlayer := &mob{
+		CreatedAt:    time.Now().String(),
 		Name:         name,
 		Password:     password,
 		Job:          &job,
