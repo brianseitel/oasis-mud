@@ -1,0 +1,1556 @@
+{
+    "id": 2,
+    "name": "The Docks of St. Croix",
+    "range": "25-100",
+    "rooms": [
+        {
+            "id": 25,
+            "name": "The Dockmaster's Perch",
+            "description": "Splayed out before you are the docks of St. Croix. Most of them have ships moored, with sailors heaving to and fro, unloading goods such as sugarcane and rum. Don't worry. You can't afford them.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "Pier Six lies to the north.",
+                    "room_id": 26
+                },
+                {
+                    "direction": "east",
+                    "description": "The docks continue to the east.",
+                    "room_id": 42
+                },
+                {
+                    "direction": "west",
+                    "description": "The docks continue to the west.",
+                    "room_id": 30
+                }
+            ],
+            "items": [],
+            "mobs": [33],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 26,
+            "name": "Pier Sixteen",
+            "description": "A long wooden pier stretches out before you. At the north end, you can see a ship docked. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 27
+                },
+                {
+                    "direction": "south",
+                    "description": "The dockmaster stands atop his perch to the south.",
+                    "room_id": 25
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 27,
+            "name": "Pier Sixteen",
+            "description": "A long wooden pier stretches out before you. At the north end, you can see a ship docked. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 28
+                },
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way.",
+                    "room_id": 26
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 28,
+            "name": "Pier Sixteen",
+            "description": "A long wooden pier curves out to the right. Directly north is a small ship that appears to be transporting rum.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "A gangplank leads onto the ship.",
+                    "room_id": 85
+                },
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way",
+                    "room_id": 27
+                },
+                {
+                    "direction": "east",
+                    "description": "The dock continues this way",
+                    "room_id": 29
+                }
+            ],
+            "items": [],
+            "mobs": [26],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 29,
+            "name": "Pier Sixteen",
+            "description": "The pier ends here. To the west is the gangplank to a small ship. There is no where else to go.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The dock continues this way.",
+                    "room_id": 28
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 30,
+            "name": "Pier Eleven",
+            "description": "A long wooden pier stretches out before you to the north. There does not appear to be anything docked today. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 31
+                },
+                {
+                    "direction": "east",
+                    "description": "The dockmaster stands atop his perch to the south.",
+                    "room_id": 25
+                },
+                {
+                    "direction": "west",
+                    "description": "The dock continues this way",
+                    "room_id": 34
+                }
+            ],
+            "items": [],
+            "mobs": [27],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 31,
+            "name": "Pier Eleven",
+            "description": "A long wooden pier stretches out before you. There doesn't appear to be anything docked. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 32
+                },
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way.",
+                    "room_id": 30
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 32,
+            "name": "Pier Eleven",
+            "description": "A long wooden pier stretches out before you. There doesn't appear to be anything docked. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 33
+                },
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way.",
+                    "room_id": 31
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 33,
+            "name": "Pier Eleven",
+            "description": "A long wooden pier comes to an end. There's nothing here but a nice view of the ocean. A handful of seagulls flock around the pier, seeking food.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way.",
+                    "room_id": 32
+                }
+            ],
+            "items": [],
+            "mobs": [28],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 34,
+            "name": "Pier Five",
+            "description": "A long wooden pier stretches out to the north. At the far end appears to be a large galleon with sails flapping to and fro. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 35
+                },
+                {
+                    "direction": "east",
+                    "description": "The dock continues this way.",
+                    "room_id": 30
+                },
+                {
+                    "direction": "west",
+                    "description": "The dock continues this way.",
+                    "room_id": 41
+                }
+            ],
+            "items": [],
+            "mobs": [29],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 35,
+            "name": "Pier Five",
+            "description": "A long wooden pier stretches out before you. At the far end appears to be a large galleon with sails flapping to and fro. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 36
+                },
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way.",
+                    "room_id": 34
+                }
+            ],
+            "items": [],
+            "mobs": [30],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 36,
+            "name": "Pier Five",
+            "description": "A long wooden pier turns to the west and south. At the far end appears to be a large galleon with sails flapping to and fro. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The dock continues this way.",
+                    "room_id": 37
+                },
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way.",
+                    "room_id": 35
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 37,
+            "name": "Pier Five",
+            "description": "A long wooden pier continues to the east and west. At the far end appears to be a large galleon with sails flapping to and fro. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The dock continues this way.",
+                    "room_id": 38
+                },
+                {
+                    "direction": "east",
+                    "description": "The dock continues this way.",
+                    "room_id": 36
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 38,
+            "name": "Pier Five",
+            "description": "A long wooden pier continues to the north and east. At the far end appears to be a large galleon with sails flapping to and fro. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The dock continues this way.",
+                    "room_id": 39
+                },
+                {
+                    "direction": "east",
+                    "description": "The dock continues this way.",
+                    "room_id": 37
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 39,
+            "name": "Pier Five",
+            "description": "A long wooden pier continues to the north and east. At the far end appears to be a large galleon with sails flapping to and fro. Sailors and workers stream by you as you walk.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "The dock continues this way.",
+                    "room_id": 40
+                },
+                {
+                    "direction": "south",
+                    "description": "The dock continues this way.",
+                    "room_id": 38
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 40,
+            "name": "Pier Five",
+            "description": "You've reached the end of the pier. The way back to shore is behind you, to the west. To the north is a large galleon with sails flapping to and fro. Unfortunately, the gangplank has not been lowered, so you cannot visit.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The dock continues this way.",
+                    "room_id": 39
+                }
+            ],
+            "items": [],
+            "mobs": [26],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 41,
+            "name": "The West End of the Docks",
+            "description": "The dock comes to an end on the west side. The rest of the docks are to the east. To the south lies a small tavern with a sign titled 'Willy Lubbers'. It seems fabulous.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "The entrance Willy Lubbers tavern is this way.",
+                    "room_id": 58
+                },
+                {
+                    "direction": "east",
+                    "description": "The dock continues this way.",
+                    "room_id": 34
+                }
+            ],
+            "items": [],
+            "mobs": [31],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 58,
+            "name": "Entrance to the Tavern",
+            "description": "A cacophany of sounds and horrendous smells assault your senses. Half the patrons appear to be passed out drunk, while the rest are singing horribly out of tune sea chanteys. A kitchen wench or three thread their way through the crowd. Behind the bar is a surly barkeep.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The docks are outside to the north.",
+                    "room_id": 41
+                },
+                {
+                    "direction": "east",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 59
+                },
+                {
+                    "direction": "west",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 57
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 57,
+            "name": "Willy Lubbers Tavern",
+            "description": "In the corner is a huddle of men loudly playing dice. Every so often they shout and pat each other on the back, then call for another round of ale.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 58
+                },
+                {
+                    "direction": "south",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 62
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 59,
+            "name": "Willy Lubbers Tavern",
+            "description": "A kitchen wench sits on one patron's lap, laughing at his jokes. She loudly tells him how handsome he is, though you can't see it. He's missing a nose, after all.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 58
+                },
+                {
+                    "direction": "south",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 60
+                }
+            ],
+            "items": [],
+            "mobs": [29,29],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 60,
+            "name": "Willy Lubbers Tavern",
+            "description": "Two long benches are packed to the gills with drunken sailors, each shouting about the latest spoils they found on the high seas.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 61
+                },
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 59
+                },
+                {
+                    "direction": "south",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 65
+                }
+            ],
+            "items": [],
+            "mobs": [34,35],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 61,
+            "name": "Willy Lubbers Tavern",
+            "description": "A surly barkeep sits behind the bar, polishing a glass mug. He eyes you thoughtfully as you approach, then gestures at the taps behind him. Perhaps you want a drink?",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 62
+                },
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 58
+                },
+                {
+                    "direction": "south",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 64
+                },
+                {
+                    "direction": "east",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 60
+                }
+            ],
+            "items": [],
+            "mobs": [38],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 62,
+            "name": "Willy Lubbers Tavern",
+            "description": "A kitchen wench bumps into you as she makes her way to the noisy patrons in the back. As she does so, she winks and blows you a kiss. An empty table sits in the corner, but it's covered in vomit. Better not go there.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 57
+                },
+                {
+                    "direction": "south",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 63
+                },
+                {
+                    "direction": "east",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 61
+                }
+            ],
+            "items": [],
+            "mobs": [37],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 63,
+            "name": "Willy Lubbers Tavern",
+            "description": "Two sailors are immersed in what appears to be a serious conversation. Another sailor, dressed in all black, is leaning toward them, eavesdropping on the conversation. When he notices you, he flushes red and walks away stiffly.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 52
+                },
+                {
+                    "direction": "east",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 64
+                }
+            ],
+            "items": [],
+            "mobs": [34],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 64,
+            "name": "Willy Lubbers Tavern",
+            "description": "You're at the far end of the tavern. To the south is a small hallway. Right in front of you, a fist-fight breaks out, but nobody seems to care. In fact, the other sailors nearby start cheering in. You decide to cheer as well. Punch him!",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 61
+                },
+                {
+                    "direction": "west",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 63
+                },
+                {
+                    "direction": "east",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 65
+                },
+                {
+                    "direction": "south",
+                    "description": "A short hallway leads to the south",
+                    "room_id": 66
+                }
+            ],
+            "items": [],
+            "mobs": [35,35],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 65,
+            "name": "Willy Lubbers Tavern",
+            "description": "Two old men throw darts at the wall and sip their ale. The rest of the sailors and merchants in the bar seem to avoid them. The two men ignore you as you approach and refuse to engage at all.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 60
+                },
+                {
+                    "direction": "west",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 64
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 66,
+            "name": "Willy Lubbers Tavern",
+            "description": "A short hallway heads to the south. There's a door at the far end. Wonder where it leads?",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 64
+                },
+                {
+                    "direction": "south",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 67
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 67,
+            "name": "Willy Lubbers Tavern",
+            "description": "A short hallway heads to the south. There's a door to the east. A sign on it reads: DO NOT ENTER ON PAIN OF DEATH.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 66
+                },
+                {
+                    "direction": "east",
+                    "description": "The door is locked.",
+                    "key": 90001,
+                    "room_id": 68
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 68,
+            "name": "Willy's Office",
+            "description": "This is Willy Lubber's office. It's sparse, but there's a giant box in the center of the room. Wonder what's in it?",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The door is locked.",
+                    "key": 90001,
+                    "room_id": 67
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 42,
+            "name": "Pier Eighteen",
+            "description": "A long wooden pier extends to the north. There are other piers to the east and west.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "There are more dock ahead of you.",
+                    "room_id": 43
+                },
+                {
+                    "direction": "west",
+                    "description": "The dockmaster stands at his perch and watches traffic come in.",
+                    "room_id": 25
+                },
+                {
+                    "direction": "east",
+                    "description": "The dock continues ahead.",
+                    "room_id": 25
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 43,
+            "name": "Pier Eighteen",
+            "description": "A long wooden pier extends to the north. An old couple sits on a bench and watches the waves come in.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 44
+                },
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 42
+                }
+            ],
+            "items": [],
+            "mobs": [26],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 44,
+            "name": "Pier Eighteen",
+            "description": "A long wooden pier extends to the north. Seagulls harass the merchants and tourists nearby.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 45
+                },
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 43
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 45,
+            "name": "Pier Eighteen",
+            "description": "A long wooden pier extends to the north. Sailors and merchants do business as you pass by.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 46
+                },
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 44
+                }
+            ],
+            "items": [],
+            "mobs": [26],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 46,
+            "name": "Pier Eighteen",
+            "description": "You are at a T-intersection on the dock. There are barges to the east and west.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 48
+                },
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 47
+                },
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 45
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 47,
+            "name": "Pier Eighteen",
+            "description": "You are at one end of Pier Eighteen. To the north is a small barge.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 46
+                },
+                {
+                    "direction": "north",
+                    "description": "A small barge floats in the water.",
+                    "room_id": 80
+                }
+            ],
+            "items": [],
+            "mobs": [27],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 80,
+            "name": "A Small Barge",
+            "description": "You stand upon a small barge covered in large sacks full of sugarcane. There are no sailors to be found.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 47
+                },
+                {
+                    "direction": "east",
+                    "description": "The other half of the barge awaits",
+                    "room_id": 81
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 81,
+            "name": "A Small Barge",
+            "description": "You stand upon a small barge covered in large sacks full of sugarcane. There are no sailors to be found.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The other half of the barge awaits",
+                    "room_id": 80
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 48,
+            "name": "Pier Eighteen",
+            "description": "You are at one end of Pier Eighteen. To the north is a small barge.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 46
+                },
+                {
+                    "direction": "north",
+                    "description": "A small barge floats in the water.",
+                    "room_id": 82
+                }
+            ],
+            "items": [],
+            "mobs": [28],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 82,
+            "name": "A Small Barge",
+            "description": "You stand upon a small barge covered in large sacks full of sugarcane. There are no sailors to be found.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 48
+                },
+                {
+                    "direction": "east",
+                    "description": "The other half of the barge awaits",
+                    "room_id": 83
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 83,
+            "name": "A Small Barge",
+            "description": "You stand upon a small barge covered in large sacks full of sugarcane. There are no sailors to be found.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The other half of the barge awaits",
+                    "room_id": 82
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 49,
+            "name": "Pier Ten",
+            "description": "A long pier stretches out to the north. In the distance to the east you can see a small rocky beach. A tall lighthouse rises to the south, guiding ships into the bay.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 42
+                },
+                {
+                    "direction": "north",
+                    "description": "A small barge floats in the water.",
+                    "room_id": 50
+                },
+                {
+                    "direction": "east",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 88
+                },
+                {
+                    "direction": "south",
+                    "description": "The entrance to the lighthouse is ahead.",
+                    "room_id": 95
+                }
+            ],
+            "items": [],
+            "mobs": [28],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 50,
+            "name": "Pier Ten",
+            "description": "A long pier stretches out to the north. Two cats fight on the rail over a piece of fish. None of the sailors seem to notice. Far to the south you see a tall lighthouse.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 51
+                },
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 95
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 51,
+            "name": "Pier Ten",
+            "description": "A long pier stretches out to the east and south.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 52
+                },
+                {
+                    "direction": "south",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 50
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 52,
+            "name": "Pier Ten",
+            "description": "A long pier stretches out to the east and west.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 53
+                },
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 51
+                }
+            ],
+            "items": [],
+            "mobs": [26],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 53,
+            "name": "Pier Ten",
+            "description": "A long pier stretches out to the north and west.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 54
+                },
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 52
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 54,
+            "name": "Pier Ten",
+            "description": "The dock ends in a T-intersection. You can head east and west. A large ship is preparing to take off to the north. You probably can't board it right now.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 56
+                },
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 55
+                }
+            ],
+            "items": [],
+            "mobs": [28],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 55,
+            "name": "Pier Ten",
+            "description": "The dock ends suddenly. You can head back to the east. A large ship is preparing to take off to the north. You probably can't board it right now.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 54
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 56,
+            "name": "Pier Ten",
+            "description": "The dock ends with a small bench to watch the waves. You can head back to the west. A large ship is preparing to take off to the north. You probably can't board it right now.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 54
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 88,
+            "name": "Pathway to the Beach",
+            "description": "The dock trails off and turns into sandy gravel. To the east you can see some tourists playing in the water. Back to the west are the docks and the hustle and bustle of the St. Croix shipping industry.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "There are more of the docks ahead of you.",
+                    "room_id": 49
+                },
+                {
+                    "direction": "east",
+                    "description": "The sandy walkway lies before you.",
+                    "room_id": 89
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 89,
+            "name": "Pathway to the Beach",
+            "description": "The pathway turns into pure gravel, making it hard to walk. To the east you can see some tourists playing in the water. Back to the west are the docks and the hustle and bustle of the St. Croix shipping industry.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The sandy walkway lies before you.",
+                    "room_id": 88
+                },
+                {
+                    "direction": "east",
+                    "description": "The sandy walkway lies before you.",
+                    "room_id": 90
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 90,
+            "name": "The Beach of St. Croix",
+            "description": "Broken shells crunch under your feet as you walk across the sand. The water is cool to the touch, but warm enough to swim in. Other than that, there's not a whole lot to look at around here. You can continue to the north and east to see more of the beach, or head back west toward the docks.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The sandy walkway lies before you.",
+                    "room_id": 89
+                },
+                {
+                    "direction": "north",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 91
+                },
+                {
+                    "direction": "east",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 93
+                }
+            ],
+            "items": [],
+            "mobs": [39],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 91,
+            "name": "The Beach of St. Croix",
+            "description": "Broken shells crunch under your feet as you walk across the sand. The water is cool to the touch, but warm enough to swim in. Other than that, there's not a whole lot to look at around here.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 90
+                },
+                {
+                    "direction": "east",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 92
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 92,
+            "name": "The Beach of St. Croix",
+            "description": "Broken shells crunch under your feet as you walk across the sand. The water is cool to the touch, but warm enough to swim in. Other than that, there's not a whole lot to look at around here.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 93
+                },
+                {
+                    "direction": "east",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 95
+                },
+                {
+                    "direction": "west",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 91
+                }
+            ],
+            "items": [],
+            "mobs": [39,39],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 93,
+            "name": "The Beach of St. Croix",
+            "description": "Broken shells crunch under your feet as you walk across the sand. The water is cool to the touch, but warm enough to swim in. Other than that, there's not a whole lot to look at around here.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 92
+                },
+                {
+                    "direction": "east",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 94
+                },
+                {
+                    "direction": "west",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 90
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 94,
+            "name": "The Beach of St. Croix",
+            "description": "Broken shells crunch under your feet as you walk across the sand. The water is cool to the touch, but warm enough to swim in. Other than that, there's not a whole lot to look at around here.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 95
+                },
+                {
+                    "direction": "west",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 93
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 95,
+            "name": "The Beach of St. Croix",
+            "description": "Broken shells crunch under your feet as you walk across the sand. The water is cool to the touch, but warm enough to swim in. Other than that, there's not a whole lot to look at around here.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 94
+                },
+                {
+                    "direction": "west",
+                    "description": "The beach stretches out before you.",
+                    "room_id": 92
+                }
+            ],
+            "items": [],
+            "mobs": [39],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 96,
+            "name": "The Lighthouse of St. Croix",
+            "description": "A tall, white lighthouse built from stone towers before you. The entrance is wide open, and tourist pamphlets are scattered all about the floor. At the top, you can see a massive light swinging around, illuminating the island for miles in any direction.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "The entrance to the Lighthouse is before you.",
+                    "room_id": 69
+                },
+                {
+                    "direction": "north",
+                    "description": "The rest of the docks are this way.",
+                    "room_id": 49
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 69,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase curves up to the east.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The entrance to the Lighthouse is before you.",
+                    "room_id": 96
+                },
+                {
+                    "direction": "east",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 70
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 70,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 69
+                },
+                {
+                    "direction": "south",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 71
+                }
+            ],
+            "items": [],
+            "mobs": [39],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 71,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 72
+                },
+                {
+                    "direction": "north",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 70
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 72,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 70
+                },
+                {
+                    "direction": "north",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 73
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 73,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "south",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 72
+                },
+                {
+                    "direction": "east",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 74
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 74,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 73
+                },
+                {
+                    "direction": "south",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 75
+                }
+            ],
+            "items": [],
+            "mobs": [27],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 75,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 74
+                },
+                {
+                    "direction": "west",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 76
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 76,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 75
+                },
+                {
+                    "direction": "north",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 77
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 77,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 78
+                },
+                {
+                    "direction": "south",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 76
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 78,
+            "name": "The Lighthouse of St. Croix",
+            "description": "The interior of the lighthouse is bright and airy. The walls have been painted white, and small windows every few feet let the sunlight and fresh air. A staircase keeps curving up.",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 77
+                },
+                {
+                    "direction": "south",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 79
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 79,
+            "name": "The Top of the Lighthouse of St. Croix",
+            "description": "The top of the lighthouse is intensely bright. The walls are clear windows, allowing the enormous lamp in the center of the room to spew forth light into the sky. The only way out is to go back down.",
+            "exits": [
+                {
+                    "direction": "north",
+                    "description": "The stairs seem to go on forever.",
+                    "room_id": 78
+                }
+            ],
+            "items": [],
+            "mobs": [40],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 85,
+            "name": "A Small Ship",
+            "description": "You stand on the deck of a small ship. To the east is the poop deck and to the west is the bridge. A ladder leads downward into the hold below.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "The poop deck is over here.",
+                    "room_id": 86
+                },
+                {
+                    "direction": "west",
+                    "description": "The bridge is over here.",
+                    "room_id": 84
+                },
+                {
+                    "direction": "down",
+                    "description": "The darkened hold desk is below.",
+                    "room_id": 87
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 86,
+            "name": "A Small Ship - Poop Deck",
+            "description": "A mop and bucket lay against the mast. There are no sailors to be seen..",
+            "exits": [
+                {
+                    "direction": "west",
+                    "description": "The main deck is over here.",
+                    "room_id": 85
+                }
+            ],
+            "items": [],
+            "mobs": [],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 84,
+            "name": "A Small Ship - Bridge",
+            "description": "A large wooden wheel stands here, tied off to keep it from spinning free.",
+            "exits": [
+                {
+                    "direction": "east",
+                    "description": "The main deck is over here.",
+                    "room_id": 85
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        },
+        {
+            "id": 87,
+            "name": "A Small Ship - Hold",
+            "description": "The hold of this ship is dimly lit. There are barrels of rum stacked in the corners, as well as large wooden crates containing sugar cane.",
+            "exits": [
+                {
+                    "direction": "up",
+                    "description": "The main deck is above.",
+                    "room_id": 85
+                }
+            ],
+            "items": [],
+            "mobs": [25],
+            "sector_type": 3,
+            "light": 0
+        }
+    ]
+}
