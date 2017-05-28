@@ -439,7 +439,7 @@ func doScore(player *mob, argument string) {
 	)
 
 	username := player.Name
-	id := fmt.Sprintf("Level %d %s %s", player.Level, player.Race.Name, player.Job.Name)
+	id := fmt.Sprintf("Level %d %s %s", player.Level, player.Race.Adjective, player.Job.Name)
 	spaces := width - len(username) - len(id)
 
 	title := fmt.Sprintf("%s%s%s", username, strings.Repeat(" ", spaces), id)

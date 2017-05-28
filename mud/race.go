@@ -13,10 +13,11 @@ type raceStats struct {
 }
 
 type race struct {
-	ID    int
-	Name  string
-	Abbr  string
-	Stats raceStats
+	ID        int
+	Name      string
+	Adjective string
+	Abbr      string
+	Stats     raceStats
 }
 
 func (r race) defaultStats(s string) int {

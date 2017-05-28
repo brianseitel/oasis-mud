@@ -10,10 +10,10 @@ import (
 /* common items */
 const (
 	startingDagger = 100008
-	startingSword  = 100009
+	startingHammer = 100009
 	startingMace   = 100010
 	startingStaff  = 100011
-	startingWhip   = 100012
+	startingGun    = 100012
 )
 
 const (

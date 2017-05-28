@@ -73,7 +73,7 @@ func askForJob(c *connection) job {
 		c.SendString(fmt.Sprintf("[%s] %s%s", j.Abbr, j.Name, newline))
 	}
 	for {
-		c.SendString("Select a class from above: ")
+		c.SendString("Select a job from above: ")
 		input, _ := c.buffer.ReadString('\n')
 		input = strings.Trim(input, "\r\n")
 
@@ -96,7 +96,7 @@ func askForRace(c *connection) race {
 	}
 
 	for {
-		c.SendString("Select a race from above: ")
+		c.SendString("Select a country of origin from above: ")
 		input, _ := c.buffer.ReadString('\n')
 
 		input = strings.Trim(input, "\r\n")

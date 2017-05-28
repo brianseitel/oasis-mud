@@ -526,12 +526,11 @@ func loadItems() {
 func loadJobs() {
 	var jobs []*job
 
-	jobs = append(jobs, &job{ID: 1, Name: "Warrior", Abbr: "war", StartingWeapon: startingSword, PrimeAttribute: applyStrength, SkillAdept: 85, Thac0_00: 18, Thac0_32: 6, MinHitpoints: 11, MaxHitpoints: 15, GainsMana: false})
-	jobs = append(jobs, &job{ID: 2, Name: "Mage", Abbr: "mag", StartingWeapon: startingStaff, PrimeAttribute: applyIntelligence, SkillAdept: 95, Thac0_00: 18, Thac0_32: 10, MinHitpoints: 6, MaxHitpoints: 8, GainsMana: true})
-	jobs = append(jobs, &job{ID: 3, Name: "Cleric", Abbr: "cle", StartingWeapon: startingMace, PrimeAttribute: applyWisdom, SkillAdept: 95, Thac0_00: 18, Thac0_32: 12, MinHitpoints: 7, MaxHitpoints: 10, GainsMana: true})
-	jobs = append(jobs, &job{ID: 4, Name: "Thief", Abbr: "thi", StartingWeapon: startingDagger, PrimeAttribute: applyDexterity, SkillAdept: 85, Thac0_00: 18, Thac0_32: 8, MinHitpoints: 8, MaxHitpoints: 8, GainsMana: false})
-	jobs = append(jobs, &job{ID: 5, Name: "Ranger", Abbr: "ran", StartingWeapon: startingWhip, PrimeAttribute: applyConstitution, SkillAdept: 85, Thac0_00: 18, Thac0_32: 8, MinHitpoints: 10, MaxHitpoints: 14, GainsMana: false})
-	jobs = append(jobs, &job{ID: 6, Name: "Bard", Abbr: "bar", StartingWeapon: startingDagger, PrimeAttribute: applyCharisma, SkillAdept: 85, Thac0_00: 18, Thac0_32: 11, MinHitpoints: 7, MaxHitpoints: 9, GainsMana: true})
+	jobs = append(jobs, &job{ID: 1, Name: "Soldier", Abbr: "sol", StartingWeapon: startingGun, PrimeAttribute: applyStrength, SkillAdept: 85, Thac0_00: 18, Thac0_32: 6, MinHitpoints: 11, MaxHitpoints: 15, GainsMana: false})
+	jobs = append(jobs, &job{ID: 2, Name: "Merchant", Abbr: "mer", StartingWeapon: startingStaff, PrimeAttribute: applyWisdom, SkillAdept: 95, Thac0_00: 18, Thac0_32: 10, MinHitpoints: 6, MaxHitpoints: 8, GainsMana: true})
+	jobs = append(jobs, &job{ID: 3, Name: "Spy", Abbr: "spy", StartingWeapon: startingDagger, PrimeAttribute: applyIntelligence, SkillAdept: 95, Thac0_00: 18, Thac0_32: 12, MinHitpoints: 7, MaxHitpoints: 10, GainsMana: true})
+	jobs = append(jobs, &job{ID: 4, Name: "Sailor", Abbr: "sai", StartingWeapon: startingStaff, PrimeAttribute: applyDexterity, SkillAdept: 85, Thac0_00: 18, Thac0_32: 8, MinHitpoints: 8, MaxHitpoints: 8, GainsMana: false})
+	jobs = append(jobs, &job{ID: 5, Name: "Guard", Abbr: "law", StartingWeapon: startingHammer, PrimeAttribute: applyConstitution, SkillAdept: 85, Thac0_00: 18, Thac0_32: 8, MinHitpoints: 10, MaxHitpoints: 14, GainsMana: false})
 
 	for _, j := range jobs {
 		jobList.PushBack(j)
@@ -563,12 +562,11 @@ func loadMobs() {
 }
 
 func loadRaces() {
-	raceList.PushBack(&race{ID: 1, Name: "Human", Abbr: "hum", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
-	raceList.PushBack(&race{ID: 2, Name: "Elf", Abbr: "elf", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
-	raceList.PushBack(&race{ID: 3, Name: "Dwarf", Abbr: "dwf", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
-	raceList.PushBack(&race{ID: 4, Name: "Dark Elf", Abbr: "drw", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
-	raceList.PushBack(&race{ID: 5, Name: "Goblin", Abbr: "gob", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
-	raceList.PushBack(&race{ID: 6, Name: "Dragon", Abbr: "drg", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 1, Name: "West Indies", Adjective: "West Indian", Abbr: "wes", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 2, Name: "England", Adjective: "English", Abbr: "eng", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 3, Name: "France", Adjective: "French", Abbr: "fra", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 4, Name: "Spain", Adjective: "Spanish", Abbr: "spa", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
+	raceList.PushBack(&race{ID: 5, Name: "Portugal", Adjective: "Portuguese", Abbr: "por", Stats: raceStats{Hitpoints: 100, Mana: 100, Movement: 100, Strength: 12, Intelligence: 12, Wisdom: 12, Charisma: 12, Dexterity: 12, Constitution: 12}})
 }
 
 func loadResets() {

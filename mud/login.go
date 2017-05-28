@@ -20,6 +20,11 @@ func login(c *connection) *mob {
 			panic(err)
 		}
 		name = strings.Trim(input, "\r\n")
+
+		if strings.Contains(name, " ") {
+			c.SendString("Name cannot contain spaces!\n")
+			name = ""
+		}
 	}
 
 	file, err := ioutil.ReadFile(fmt.Sprintf("./data/players/%s.json", name))
