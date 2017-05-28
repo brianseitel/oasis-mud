@@ -147,6 +147,16 @@ func createMob(index *mobIndex) *mob {
 		m.Inventory = append(m.Inventory, i)
 	}
 
+	for _, i := range index.Equipped {
+		index := getItem(i.ID)
+		i.index = *index
+		if i.WearFlags == itemWearLight {
+			m.Room.Light++
+		}
+		m.Inventory = append(m.Inventory, i)
+		m.wear(i, false)
+	}
+
 	m.ExitVerb = index.ExitVerb
 
 	m.Hitpoints = index.Hitpoints

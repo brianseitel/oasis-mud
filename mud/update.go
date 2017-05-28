@@ -5,7 +5,7 @@ import "fmt"
 const (
 	pulsePerSecond = 4
 	pulseViolence  = 3 * pulsePerSecond
-	pulseMobile    = 4 * pulsePerSecond
+	pulseMobile    = 15 * pulsePerSecond
 	pulseTick      = 30 * pulsePerSecond
 	pulseArea      = 60 * pulsePerSecond
 )

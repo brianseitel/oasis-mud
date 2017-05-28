@@ -603,6 +603,12 @@ func (m *mob) equipItem(item *item, position int) {
 	m.Armor -= applyAC(item, int(position))
 	item.WearLocation = position
 
+	for j, i := range m.Inventory {
+		if i == item {
+			m.Inventory, m.Equipped = transferItem(j, m.Inventory, m.Equipped)
+			break
+		}
+	}
 	// TODO: item effects
 
 	if item.ItemType == itemLight && m.Room != nil {
