@@ -99,15 +99,12 @@ func doCompare(player *mob, argument string) {
 		case itemArmor:
 			value1 = obj1.Min
 			value2 = obj2.Min
-			break
 
 		case itemWeapon:
 			value1 = obj1.Min + obj1.Max
 			value2 = obj2.Min + obj2.Max
-			break
 		default:
 			msg = "You can't compare $p to $P."
-			break
 
 		}
 	}
@@ -123,7 +120,6 @@ func doCompare(player *mob, argument string) {
 	}
 
 	act(msg, player, obj1, obj2, actToChar)
-	return
 }
 
 func doConsider(player *mob, argument string) {
@@ -166,7 +162,6 @@ func doConsider(player *mob, argument string) {
 	}
 
 	act(msg, player, nil, victim, actToChar)
-	return
 }
 
 func doExamine(player *mob, argument string) {
@@ -204,9 +199,7 @@ func doExamine(player *mob, argument string) {
 		case itemCorpsePC:
 			player.notify("When you look inside you see:")
 			doLook(player, fmt.Sprintf("in %s", arg1))
-			break
 		default:
-			break
 		}
 	}
 }
@@ -310,7 +303,6 @@ func doLook(player *mob, argument string) {
 		switch item.ItemType {
 		default:
 			player.notify("That is not a container.")
-			break
 		case itemContainer:
 		case itemCorpseNPC:
 		case itemCorpsePC:
@@ -321,7 +313,6 @@ func doLook(player *mob, argument string) {
 
 			act("$p contains: ", player, item, nil, actToChar)
 			showItemsToPlayer(player.Room.Items, player)
-			break
 		}
 		return
 	}
@@ -408,7 +399,6 @@ func doLook(player *mob, argument string) {
 			act("The $d is open.", player, nil, exit.Keyword, actToChar)
 		}
 	}
-	return
 }
 
 func doScan(player *mob, argument string) {
@@ -577,18 +567,13 @@ func doWho(player *mob, argument string) {
 		switch mob.Level {
 		case 99:
 			job = "GOD"
-			break
 		case 98:
 			job = "SUP"
-			break
 		case 97:
 			job = "DEI"
-			break
 		case 96:
 			job = "ANG"
-			break
 		default:
-			break
 		}
 
 		buf.Write([]byte(fmt.Sprintf("[%2d %8s %8s] %s %s%s", mob.Level, race, job, mob.Name, mob.Title, newline)))
@@ -623,8 +608,7 @@ func itemsString(items []*item) string {
 }
 
 func mobsString(mobs []*mob, player *mob) string {
-	var output string
-	output = ""
+	output := ""
 	for _, m := range mobs {
 		if m != player {
 			if player.canSee(m) {

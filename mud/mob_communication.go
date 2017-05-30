@@ -31,7 +31,6 @@ func (player *mob) talkChannel(message string, channel int, verb string) {
 	switch channel {
 	case channelImmtalk:
 		player.notify("You: %s", message)
-		break
 	default:
 		player.notify("You %s '%s'", verb, message)
 	}

@@ -217,7 +217,6 @@ func (m *mob) addFollower(master *mob) {
 		act("$n now follows you.", m, nil, master, actToVict)
 	}
 	act("You now follow $N.", m, nil, master, actToChar)
-	return
 }
 
 func (m *mob) advanceLevel() {
@@ -404,8 +403,6 @@ func (m *mob) dieFollower() {
 			ch.leader = ch
 		}
 	}
-
-	return
 }
 
 func (m *mob) gainExp(gain int) {
@@ -569,7 +566,6 @@ func (m *mob) stopFollower() {
 
 	m.master = nil
 	m.leader = nil
-	return
 }
 
 func (m *mob) equipped(position int) string {
@@ -614,7 +610,6 @@ func (m *mob) equipItem(item *item, position int) {
 	if item.ItemType == itemLight && m.Room != nil {
 		m.Room.Light++
 	}
-	return
 }
 
 func (m *mob) equippedItem(position int) *item {
@@ -648,10 +643,8 @@ func (m *mob) regenHitpoints() int {
 		switch m.Status {
 		case sleeping:
 			gain += m.currentConstitution()
-			break
 		case resting:
 			gain += m.currentConstitution() / 2
-			break
 		}
 	}
 
@@ -672,10 +665,8 @@ func (m *mob) regenMana() int {
 		switch m.Status {
 		case sleeping:
 			gain += m.currentIntelligence()
-			break
 		case resting:
 			gain += m.currentIntelligence() / 2
-			break
 		}
 	}
 
@@ -696,10 +687,8 @@ func (m *mob) regenMovement() int {
 		switch m.Status {
 		case sleeping:
 			gain += m.currentDexterity()
-			break
 		case resting:
 			gain += m.currentDexterity() / 2
-			break
 		}
 
 	}
@@ -907,25 +896,18 @@ func showCharacterToPlayer(victim *mob, player *mob, showLongDesc bool) {
 	switch victim.Status {
 	case dead:
 		buf.Write([]byte(" is DEAD!!"))
-		break
 	case mortal:
 		buf.Write([]byte(" is mortally wounded."))
-		break
 	case incapacitated:
 		buf.Write([]byte(" is incapacitated."))
-		break
 	case stunned:
 		buf.Write([]byte(" is lying here stunned."))
-		break
 	case sleeping:
 		buf.Write([]byte(" is sleeping here."))
-		break
 	case resting:
 		buf.Write([]byte(" is resting here."))
-		break
 	case standing:
 		buf.Write([]byte(" is here."))
-		break
 	case fighting:
 		buf.Write([]byte(" is here fighting "))
 		if victim.Fight == nil {
@@ -938,7 +920,6 @@ func showCharacterToPlayer(victim *mob, player *mob, showLongDesc bool) {
 		} else {
 			buf.Write([]byte(" someone who left?"))
 		}
-		break
 	}
 
 	output := buf.String()
@@ -946,7 +927,6 @@ func showCharacterToPlayer(victim *mob, player *mob, showLongDesc bool) {
 	a[0] = unicode.ToLower(a[0])
 	output = string(a)
 	player.notify("%s%s%s", cyan, output, reset)
-	return
 }
 
 func showItemsToPlayer(items []*item, player *mob) {
@@ -1024,9 +1004,7 @@ func pers(m *mob, looker *mob) string {
 }
 
 func xpCompute(killer *mob, target *mob) int {
-	var xp int
-
-	xp = 300 - uRange(-3, killer.Level-target.Level, 6)*50
+	xp := 300 - uRange(-3, killer.Level-target.Level, 6)*50
 
 	// do align check
 	align := killer.Alignment - target.Alignment

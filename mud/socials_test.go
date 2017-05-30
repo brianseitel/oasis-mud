@@ -7,7 +7,7 @@ func TestCheckSocial(t *testing.T) {
 	loadSocials()
 
 	// fake
-	if checkSocial(player, "not a real social", "") == true {
+	if checkSocial(player, "not a real social", "") {
 		t.Error("Found invalid social")
 	}
 

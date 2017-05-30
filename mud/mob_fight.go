@@ -67,7 +67,6 @@ func doBackstab(player *mob, argument string) {
 		player.damage(victim, 0, typeBackstab)
 	}
 
-	return
 }
 
 func doDisarm(player *mob, argument string) {
@@ -102,7 +101,6 @@ func doDisarm(player *mob, argument string) {
 	} else {
 		player.notify("You failed.")
 	}
-	return
 }
 
 func doFlee(player *mob, argument string) {
@@ -148,7 +146,6 @@ func doFlee(player *mob, argument string) {
 
 	player.notify("You failed! You lose 10 experience points.")
 	player.gainExp(-10)
-	return
 }
 
 func doKick(player *mob, argument string) {
@@ -217,7 +214,6 @@ func doKill(attacker *mob, argument string) {
 	wait(attacker, 1*pulseViolence)
 	multiHit(attacker, victim, typeHit)
 
-	return
 }
 
 func doRescue(player *mob, argument string) {
@@ -282,7 +278,6 @@ func doRescue(player *mob, argument string) {
 	victim.stopFighting(false)
 	attacker.Fight = player
 	player.Fight = attacker
-	return
 }
 
 func (m *mob) damage(victim *mob, dam int, damageType int) {
@@ -358,22 +353,18 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 	case mortal:
 		act("$n is mortally wounded and will die soon if not aided.", victim, nil, nil, actToRoom)
 		victim.notify("You are mortally wounded and will die soon if not aided.")
-		break
 
 	case incapacitated:
 		act("$n is incapacitated and will slowly die if not aided.", victim, nil, nil, actToRoom)
 		victim.notify("You are incapacitated and will slowly die if not aided.")
-		break
 
 	case stunned:
 		act("$n is stunned, but will probably recover", victim, nil, nil, actToRoom)
 		victim.notify("You are stunned, but will probably recover.")
-		break
 
 	case dead:
 		act("$n is DEAD!!", victim, 0, 0, actToRoom)
 		victim.notify("You have been KILLED!!\r\n")
-		break
 
 	default:
 		if dam > victim.MaxHitpoints/4 {
@@ -382,7 +373,6 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 		if victim.Hitpoints < victim.MaxHitpoints/4 {
 			victim.notify("%sYou really are BLEEDING!%s", red, reset)
 		}
-		break
 	}
 
 	if !victim.isAwake() {
@@ -426,7 +416,6 @@ func (m *mob) damage(victim *mob, dam int, damageType int) {
 	if !victim.isNPC() && victim.Hitpoints < 0 && victim.wait == 0 {
 		doFlee(victim, "")
 	}
-	return
 }
 
 func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
@@ -529,30 +518,23 @@ func (m *mob) deathCry() {
 	switch dBits(4) {
 	case 0:
 		msg = "$n hits the ground ... DEAD."
-		break
 	case 1:
 		msg = "$n splatters blood on your armor."
-		break
 	case 2:
 		msg = "You smell $n's sphincter releasing in death."
 		drop = vnumTurd
-		break
 	case 3:
 		msg = "$n's severed head plops on the ground."
 		drop = vnumSeveredHead
-		break
 	case 4:
 		msg = "$n's heart is torn from $s chest."
 		drop = vnumTornHeart
-		break
 	case 5:
 		msg = "$n's arm is sliced from $s dead body."
 		drop = vnumSlicedArm
-		break
 	case 6:
 		msg = "$n's leg is sliced from $s dead body."
 		drop = vnumSlicedLeg
-		break
 	default:
 		msg = "You hear $n's death cry."
 	}
@@ -749,7 +731,6 @@ func (m *mob) stopFighting(both bool) {
 			fighter.updateStatus()
 		}
 	}
-	return
 }
 
 func (m *mob) takeDamage(damage int) {
@@ -767,8 +748,7 @@ func (m *mob) trip() {
 		return
 	}
 
-	var victim *mob
-	victim = m.Fight
+	victim := m.Fight
 
 	if victim.wait == 0 {
 
@@ -818,6 +798,4 @@ func (m *mob) updateStatus() {
 	} else {
 		m.Status = stunned
 	}
-
-	return
 }

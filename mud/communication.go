@@ -41,7 +41,6 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 
 	case *item:
 		obj1 = arg1.(*item)
-		break
 	case string:
 		message1 = arg1.(string)
 	default:
@@ -51,10 +50,8 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 	switch arg2.(type) {
 	case *mob:
 		victim = arg2.(*mob)
-		break
 	case *item:
 		obj2 = arg2.(*item)
-		break
 	case string:
 		message2 = arg2.(string)
 	default:

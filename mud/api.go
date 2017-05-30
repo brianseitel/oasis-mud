@@ -37,7 +37,7 @@ func uptime(w http.ResponseWriter, r *http.Request) {
 		Uptime   int
 	}
 
-	uptime := time.Now().Sub(bootTime).Seconds()
+	uptime := time.Since(bootTime).Seconds()
 	results := &result{BootedAt: bootTime, Uptime: int(uptime)}
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
@@ -482,13 +482,10 @@ func listPlayers(w http.ResponseWriter, r *http.Request) {
 				switch p.Gender {
 				case 0:
 					op.Gender = "Male"
-					break
 				case 1:
 					op.Gender = "Female"
-					break
 				default:
 					op.Gender = "Neutral"
-					break
 				}
 
 				op.Attributes = p.Attributes

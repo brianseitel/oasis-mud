@@ -116,8 +116,6 @@ func saveCharacter(character *mob) {
 
 	path := fmt.Sprintf("./data/players/%s.json", character.Name)
 	writeCharacter(character, path)
-
-	return
 }
 
 func writeCharacter(character *mob, path string) {
@@ -201,6 +199,7 @@ func writeCharacter(character *mob, path string) {
 	save.Affects = affects
 
 	save.Inventory = saveItems(character.Inventory, character)
+	save.Equipped = saveItems(character.Equipped, character)
 
 	save.CarryMax = character.CarryMax
 	save.CarryWeightMax = character.CarryWeightMax
@@ -215,8 +214,6 @@ func writeCharacter(character *mob, path string) {
 	if err != nil {
 		panic(err)
 	}
-
-	return
 }
 
 func saveItems(items []*item, character *mob) []saveItem {

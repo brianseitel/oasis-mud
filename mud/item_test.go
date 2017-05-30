@@ -91,9 +91,7 @@ func TestRemoveItemFromContainer(t *testing.T) {
 }
 
 func TestAffectBitName(t *testing.T) {
-	var result string
-
-	result = affectBitName(affectBlind)
+	result := affectBitName(affectBlind)
 	if result != "blind" {
 		t.Error("Failed to generate affect name from bit: ", affectBlind)
 	}
@@ -191,9 +189,7 @@ func TestAffectBitName(t *testing.T) {
 }
 
 func TestAffectLocationName(t *testing.T) {
-	var result string
-
-	result = affectLocationName(applyNone)
+	result := affectLocationName(applyNone)
 	if result != "none" {
 		t.Error("Failed to generate affect location name from bit: ", applyNone)
 	}

@@ -57,7 +57,6 @@ func doCast(player *mob, argument string) {
 			player.notify("You can't do that to yourself.\r\n")
 			return
 		}
-		break
 
 	case targetCharacterDefensive:
 		if arg2 == "" {
@@ -70,7 +69,6 @@ func doCast(player *mob, argument string) {
 				}
 			}
 		}
-		break
 
 	case targetCharacterSelf:
 		if arg2 != "" {
@@ -78,7 +76,6 @@ func doCast(player *mob, argument string) {
 			return
 		}
 		victim = player
-		break
 
 	case targetObjectInventory:
 		break
@@ -99,6 +96,4 @@ func doCast(player *mob, argument string) {
 		player.Mana -= mana
 		doSpell(spell, player, victim)
 	}
-
-	return
 }

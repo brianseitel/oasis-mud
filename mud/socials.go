@@ -75,7 +75,6 @@ func checkSocial(player *mob, command string, args string) bool {
 			switch dBits(4) {
 			case 0:
 				multiHit(victim, player, typeUndefined)
-				break
 			case 1:
 			case 2:
 			case 3:
@@ -87,7 +86,6 @@ func checkSocial(player *mob, command string, args string) bool {
 				act(social.OthersFound, victim, nil, player, actToNotVict)
 				act(social.CharFound, victim, nil, player, actToChar)
 				act(social.VictimFound, victim, nil, player, actToVict)
-				break
 			case 9:
 			case 10:
 			case 11:
@@ -95,7 +93,6 @@ func checkSocial(player *mob, command string, args string) bool {
 				act("$n slaps $N.", victim, nil, player, actToNotVict)
 				act("You slap $N.", victim, nil, player, actToChar)
 				act("$n slaps you.", victim, nil, player, actToVict)
-				break
 			}
 		}
 	}

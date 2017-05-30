@@ -213,19 +213,14 @@ func objUpdate() {
 		switch item.ItemType {
 		default:
 			message = "$p vanishes."
-			break
 		case itemFountain:
 			message = "$p dries up."
-			break
 		case itemCorpseNPC:
 			message = "$p crumbles into dust."
-			break
 		case itemCorpsePC:
 			message = "$p decays into dust."
-			break
 		case itemFood:
 			message = "$p decomposes."
-			break
 		}
 
 		if item.carriedBy != nil {
@@ -272,7 +267,6 @@ func updateHandler() {
 	}
 
 	aggroUpdate()
-	return
 }
 
 func wait(player *mob, npulse int) {

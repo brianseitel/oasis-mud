@@ -223,7 +223,6 @@ func doGroup(player *mob, argument string) {
 	act("$N joins $n's group.", player, nil, victim, actToNotVict)
 	act("You join $n's group.", player, nil, victim, actToVict)
 	act("$N joins your group.", player, nil, victim, actToChar)
-	return
 }
 
 func doHide(player *mob, argument string) {
@@ -238,7 +237,6 @@ func doHide(player *mob, argument string) {
 	if player.isNPC() || dice().Intn(100) < int(hide.Level) {
 		player.AffectedBy = setBit(player.AffectedBy, affectHide)
 	}
-	return
 }
 
 func doFollow(player *mob, argument string) {
@@ -281,7 +279,6 @@ func doFollow(player *mob, argument string) {
 	}
 
 	player.addFollower(victim)
-	return
 }
 
 func doLock(player *mob, argument string) {
@@ -326,7 +323,6 @@ func doLock(player *mob, argument string) {
 			}
 		}
 	}
-	return
 }
 
 func doMove(player *mob, d string) {
@@ -334,7 +330,6 @@ func doMove(player *mob, d string) {
 		switch player.Status {
 		case fighting:
 			player.notify("You can't move while fighting!")
-			break
 		}
 		return
 	}
@@ -432,22 +427,16 @@ func doPractice(player *mob, argument string) {
 			switch player.Job.Name {
 			case "Warrior":
 				maxLevel = skill.Levels.Warrior
-				break
 			case "Mage":
 				maxLevel = skill.Levels.Mage
-				break
 			case "Cleric":
 				maxLevel = skill.Levels.Cleric
-				break
 			case "Thief":
 				maxLevel = skill.Levels.Thief
-				break
 			case "Ranger":
 				maxLevel = skill.Levels.Ranger
-				break
 			case "Bard":
 				maxLevel = skill.Levels.Bard
-				break
 			}
 			if player.Level >= maxLevel {
 				allSkills = append(allSkills, skill)
@@ -514,22 +503,16 @@ func doPractice(player *mob, argument string) {
 		switch player.Job.Name {
 		case "Warrior":
 			maxLevel = skill.Levels.Warrior
-			break
 		case "Mage":
 			maxLevel = skill.Levels.Mage
-			break
 		case "Cleric":
 			maxLevel = skill.Levels.Cleric
-			break
 		case "Thief":
 			maxLevel = skill.Levels.Thief
-			break
 		case "Ranger":
 			maxLevel = skill.Levels.Ranger
-			break
 		case "Bard":
 			maxLevel = skill.Levels.Bard
-			break
 		}
 
 		if skill == nil || (!player.isNPC() && player.Level < maxLevel) {
@@ -567,7 +550,6 @@ func doPractice(player *mob, argument string) {
 			act("$n has now mastered $T.", player, nil, pSkill.Skill.Name, actToRoom)
 		}
 	}
-	return
 }
 
 func doOpen(player *mob, argument string) {
@@ -654,7 +636,6 @@ func doOpen(player *mob, argument string) {
 
 func doQui(player *mob, argument string) {
 	player.notify("If you want to quit, spell it out.")
-	return
 }
 
 func doQuit(player *mob, argument string) {
@@ -689,24 +670,19 @@ func doRest(player *mob, argument string) {
 	switch player.Status {
 	case resting:
 		player.notify("You are already resting.")
-		break
 
 	case sleeping:
 		player.notify("You sit up and rest.")
 		act("$n wakes up and rests.", player, nil, nil, actToRoom)
-		break
 
 	case standing:
 		player.notify("You rest.")
 		act("$n rests.", player, nil, nil, actToRoom)
 		player.Status = resting
-		break
 
 	case fighting:
 		player.notify("You're too busy fighting!")
-		break
 	}
-	return
 }
 
 func doSave(player *mob, argument string) {
@@ -724,13 +700,10 @@ func doSleep(player *mob, argument string) {
 		player.notify("You sleep.")
 		act("$n sleeps.", player, nil, nil, actToRoom)
 		player.Status = sleeping
-		break
 
 	case fighting:
 		player.notify("You're too busy fighting!")
-		break
 	}
-	return
 }
 
 func doSneak(player *mob, argument string) {
@@ -866,7 +839,6 @@ func doSteal(player *mob, argument string) {
 	}
 
 	player.notify("Ok.")
-	return
 }
 
 func doTrain(player *mob, argument string) {
@@ -965,26 +937,19 @@ func doTrain(player *mob, argument string) {
 	switch playerOutput {
 	case "strength":
 		player.Attributes.Strength++
-		break
 	case "intelligence":
 		player.Attributes.Intelligence++
-		break
 	case "wisdom":
 		player.Attributes.Wisdom++
-		break
 	case "dexterity":
 		player.Attributes.Dexterity++
-		break
 	case "charisma":
 		player.Attributes.Charisma++
-		break
 	case "constitution":
 		player.Attributes.Constitution++
-		break
 	}
 
 	player.notify("Your %s increases for %d practice points!", playerOutput, cost)
-	return
 }
 
 func doUnlock(player *mob, argument string) {
@@ -1030,7 +995,6 @@ func doUnlock(player *mob, argument string) {
 			}
 		}
 	}
-	return
 }
 
 func doVisible(player *mob, argument string) {
@@ -1047,23 +1011,18 @@ func doWake(player *mob, argument string) {
 	switch player.Status {
 	case standing:
 		player.notify("You're already awake!")
-		break
 
 	case sleeping:
 		player.notify("You wake up, stretch, and climb to your feet.")
 		act("$n wakes up.", player, nil, nil, actToRoom)
 		player.Status = standing
-		break
 
 	case resting:
 		player.notify("You wake up and rest.")
 		act("$n wakes up and rests.", player, nil, nil, actToRoom)
 		player.Status = standing
-		break
 
 	case fighting:
 		player.notify("You're too busy fighting!")
-		break
 	}
-	return
 }

@@ -15,12 +15,12 @@ func TestCanDropItem(t *testing.T) {
 	sword := mockObject("sword", 123)
 
 	sword.ExtraFlags = itemNoDrop
-	if player.canDropItem(sword) == true {
+	if player.canDropItem(sword) {
 		t.Error("Should not be able to drop")
 	}
 
 	player.Level = 99
-	if player.canDropItem(sword) == false {
+	if !player.canDropItem(sword) {
 		t.Error("Should be able to drop")
 	}
 }

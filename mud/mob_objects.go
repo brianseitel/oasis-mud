@@ -64,7 +64,6 @@ func doBrandish(player *mob, argument string) {
 				if victim == player {
 					continue
 				}
-				break
 
 			case targetCharacterOffensive:
 				if player.isNPC() {
@@ -74,7 +73,6 @@ func doBrandish(player *mob, argument string) {
 						continue
 					}
 				}
-				break
 
 			case targetCharacterDefensive:
 				if player.isNPC() {
@@ -84,13 +82,11 @@ func doBrandish(player *mob, argument string) {
 						continue
 					}
 				}
-				break
 
 			case targetCharacterSelf:
 				if victim != player {
 					continue
 				}
-				break
 			}
 
 			objCastSpell(staff.Skill, staff.Level, player, victim, nil)
@@ -103,7 +99,6 @@ func doBrandish(player *mob, argument string) {
 		act("Your $p blazes brightly and vanishes in a puff of rainbow sprinkles.", player, staff, nil, actToChar)
 		extractObj(staff)
 	}
-	return
 }
 
 func doDrop(player *mob, argument string) {
@@ -207,8 +202,6 @@ func doDrop(player *mob, argument string) {
 			}
 		}
 	}
-
-	return
 }
 
 func doEat(player *mob, argument string) {
@@ -245,7 +238,6 @@ func doEat(player *mob, argument string) {
 	switch obj.ItemType {
 	case itemPill:
 		objCastSpell(obj.Skill, obj.Min, player, player, nil)
-		break
 	}
 
 	extractObj(obj)
@@ -334,7 +326,6 @@ func doGet(player *mob, argument string) {
 
 		case itemCorpsePC:
 			player.notify("You can't do that.%s.")
-			return
 		default:
 			player.notify("That's not a container.")
 			return
@@ -478,7 +469,6 @@ func doGive(player *mob, argument string) {
 
 	player.notify("You give %s to %s.", item.Name, victim.Name)
 	victim.notify("%s gives you %s.", player.Name, item.Name)
-	return
 }
 
 func doPut(player *mob, argument string) {
@@ -693,7 +683,6 @@ func doRemove(player *mob, argument string) {
 	}
 
 	player.unwearItem(obj.WearLocation, true)
-	return
 }
 
 func doZap(player *mob, argument string) {
@@ -872,7 +861,6 @@ func doSacrifice(player *mob, argument string) {
 
 	act("$n sacrifices $p to the gods.", player, obj, nil, actToRoom)
 	player.removeItem(obj)
-	return
 }
 
 func (m *mob) unwearItem(location int, replace bool) bool {
@@ -919,8 +907,6 @@ func (m *mob) unequipItem(item *item) {
 	if item.ItemType == itemLight && m.Room != nil && m.Room.Light > 0 {
 		item.Room.Light--
 	}
-
-	return
 }
 
 func (m *mob) wear(wearable *item, replace bool) {

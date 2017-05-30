@@ -67,7 +67,6 @@ func doAdvance(wiz *mob, argument string) {
 
 	victim.Exp = 1000 * max(1, victim.Level)
 	victim.Trust = 0
-	return
 }
 
 func doAllow(wiz *mob, argument string) {
@@ -114,7 +113,6 @@ func doAt(wiz *mob, argument string) {
 	interpret(wiz, what)
 
 	wiz.Room = original
-	return
 }
 
 func doBamfin(wiz *mob, argument string) {
@@ -220,7 +218,6 @@ func doDisconnect(wiz *mob, argument string) {
 	}
 
 	wiz.notify("Descriptor not found.")
-	return
 }
 
 func doEcho(wiz *mob, argument string) {
@@ -233,7 +230,6 @@ func doEcho(wiz *mob, argument string) {
 		m := e.Value.(*mob)
 		m.notify(argument)
 	}
-	return
 }
 
 func (wiz *mob) findLocation(argument string) *room {
@@ -300,8 +296,6 @@ func doForce(wiz *mob, argument string) {
 	}
 
 	wiz.notify("Ok")
-	return
-
 }
 
 func doFreeze(wiz *mob, argument string) {
@@ -335,7 +329,6 @@ func doFreeze(wiz *mob, argument string) {
 
 	// TODO: breaks during testing
 	// saveCharacter(victim)
-	return
 }
 
 func doGoto(wiz *mob, argument string) {
@@ -398,7 +391,6 @@ func doInvis(wiz *mob, argument string) {
 		act("$n slowly fades out of sight.", wiz, nil, nil, actToRoom)
 		wiz.notify("You slowly vanish out of sight.")
 	}
-	return
 }
 
 func doLog(wiz *mob, argument string) {
@@ -445,8 +437,6 @@ func doMemory(wiz *mob, argument string) {
 	wiz.notify("Shops:    %5d", shopList.Len())
 	wiz.notify("Skills:   %5d", skillList.Len())
 	wiz.notify("Socials:  %5d", socialList.Len())
-
-	return
 }
 
 func doMfind(wiz *mob, argument string) {
@@ -470,7 +460,6 @@ func doMfind(wiz *mob, argument string) {
 	if !found {
 		wiz.notify("Nothing like that exists.")
 	}
-	return
 }
 
 func doMload(wiz *mob, argument string) {
@@ -496,7 +485,6 @@ func doMload(wiz *mob, argument string) {
 	victim.Room.Mobs = append(victim.Room.Mobs, victim)
 	act("$n has created $N!", wiz, nil, victim, actToRoom)
 	wiz.notify("Ok.")
-	return
 }
 
 func doMstat(wiz *mob, argument string) {
@@ -541,7 +529,6 @@ func doMstat(wiz *mob, argument string) {
 	for _, af := range victim.Affects {
 		wiz.notify("Spell: '%s' modifies %s by %d for %d with bits %s.", af.affectType.Skill.Name, af.location, af.modifier, af.duration, affectBitName(int(af.bitVector)))
 	}
-	return
 }
 
 func doMwhere(wiz *mob, argument string) {
@@ -655,7 +642,6 @@ func doOfind(wiz *mob, argument string) {
 	if !found {
 		wiz.notify("Nothing like that exists.")
 	}
-	return
 }
 
 func doOload(wiz *mob, argument string) {
@@ -707,7 +693,6 @@ func doOload(wiz *mob, argument string) {
 	}
 
 	wiz.notify("Ok.")
-	return
 }
 
 func doOstat(wiz *mob, argument string) {
@@ -757,7 +742,6 @@ func doOstat(wiz *mob, argument string) {
 	for _, af := range obj.index.Affected {
 		wiz.notify("Affects %s by %d", af.location, af.modifier)
 	}
-	return
 }
 
 func doPardon(wiz *mob, argument string) {
@@ -799,7 +783,6 @@ func doPardon(wiz *mob, argument string) {
 	}
 
 	wiz.notify("Syntax: pardon <character> <killer|thief>")
-	return
 }
 
 func doPeace(wiz *mob, argument string) {
@@ -846,13 +829,11 @@ func doPurge(wiz *mob, argument string) {
 
 func doReboo(wiz *mob, argument string) {
 	wiz.notify("If you want to reboot, spell it out.")
-	return
 }
 
 func doReboot(wiz *mob, argument string) {
 	doEcho(wiz, fmt.Sprintf("Reboot by %s", wiz.Name))
 	gameServer.Up = false
-	return
 }
 
 func doRestore(wiz *mob, argument string) {
@@ -873,7 +854,6 @@ func doRestore(wiz *mob, argument string) {
 	victim.updateStatus()
 	act("$n has restored you.", wiz, nil, victim, actToVict)
 	wiz.notify("OK.")
-	return
 }
 
 func doReturn(wiz *mob, argument string) {
@@ -891,7 +871,6 @@ func doReturn(wiz *mob, argument string) {
 	wiz.client.original = nil
 	wiz.client.mob.client = wiz.client
 	wiz.client = nil
-	return
 }
 
 func doRecho(wiz *mob, argument string) {
@@ -906,7 +885,6 @@ func doRecho(wiz *mob, argument string) {
 			m.notify(argument)
 		}
 	}
-	return
 }
 
 func doRstat(wiz *mob, argument string) {
@@ -957,7 +935,6 @@ func doRstat(wiz *mob, argument string) {
 		wiz.notify("Door: %s. To: %d. Key: %d. Exit Flags: %d.", e.Dir, e.Room.ID, e.Key, e.Flags)
 		wiz.notify("Keyword: %s. Description: %s.", e.Keyword, e.Description)
 	}
-	return
 }
 
 func doSilence(wiz *mob, argument string) {
@@ -996,7 +973,6 @@ func doSilence(wiz *mob, argument string) {
 
 func doShutdow(wiz *mob, argument string) {
 	wiz.notify("If you want to SHUTDOWN, spell it out.")
-	return
 }
 
 func doShutdown(wiz *mob, argument string) {
@@ -1006,7 +982,6 @@ func doShutdown(wiz *mob, argument string) {
 
 func doSlayIncomplete(wiz *mob, argument string) {
 	wiz.notify("If you want to SLAY someone, spell it out.")
-	return
 }
 
 func doSlay(wiz *mob, argument string) {
@@ -1036,7 +1011,6 @@ func doSlay(wiz *mob, argument string) {
 	act("You slay $N in cold blood!", wiz, nil, victim, actToChar)
 	act("$n slays you in cold blood!", wiz, nil, victim, actToVict)
 	act("$n slays $N in cold blood!", wiz, nil, victim, actToNotVict)
-	return
 }
 
 func doSlookup(wiz *mob, argument string) {
@@ -1112,7 +1086,6 @@ func doSnoop(wiz *mob, argument string) {
 
 	victim.client.snoopBy = wiz.client
 	wiz.notify("Ok.")
-	return
 }
 
 func doSwitch(wiz *mob, argument string) {
@@ -1152,7 +1125,6 @@ func doSwitch(wiz *mob, argument string) {
 	victim.client = wiz.client
 	wiz.client = nil
 	victim.notify("Ok.")
-	return
 }
 
 func doTransfer(wiz *mob, argument string) {
@@ -1249,7 +1221,6 @@ func doTrust(wiz *mob, argument string) {
 	}
 
 	victim.Trust = level
-	return
 }
 
 func doUsers(wiz *mob, argument string) {

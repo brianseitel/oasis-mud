@@ -39,24 +39,24 @@ func TestGetMob(t *testing.T) {
 func TestIsDark(t *testing.T) {
 	room := mockRoom()
 
-	if room.isDark() == true {
+	if room.isDark() {
 		t.Error("Room should not be dark")
 	}
 
 	room.Light = 1234
-	if room.isDark() == true {
+	if room.isDark() {
 		t.Error("Room should not be dark")
 	}
 
 	room.Light = 0
 	room.RoomFlags = roomDark
-	if room.isDark() == false {
+	if !room.isDark() {
 		t.Error("Room should be dark")
 	}
 
 	room.RoomFlags = 0
 	room.SectorType = sectorInside
-	if room.isDark() == false {
+	if !room.isDark() {
 		t.Error("Room should be dark")
 	}
 }
@@ -64,7 +64,7 @@ func TestIsDark(t *testing.T) {
 func TestIsPrivate(t *testing.T) {
 	room := mockRoom()
 
-	if room.isPrivate() == true {
+	if room.isPrivate() {
 		t.Error("Room should not be private.")
 	}
 
@@ -72,14 +72,14 @@ func TestIsPrivate(t *testing.T) {
 	room.Mobs = append(room.Mobs, m)
 
 	room.RoomFlags = roomSolitary
-	if room.isPrivate() == false {
+	if !room.isPrivate() {
 		t.Error("Room should be private.")
 	}
 
 	room.Mobs = append(room.Mobs, m)
 	room.Mobs = append(room.Mobs, m)
 	room.RoomFlags = roomPrivate
-	if room.isPrivate() == false {
+	if !room.isPrivate() {
 		t.Error("Room should be private.")
 	}
 }

@@ -200,8 +200,6 @@ func multiHit(attacker *mob, victim *mob, damageType int) {
 			return
 		}
 	}
-
-	return
 }
 
 func rawKill(victim *mob) {
@@ -227,6 +225,4 @@ func rawKill(victim *mob) {
 	victim.Movement = max(1, victim.Movement)
 
 	saveCharacter(victim)
-
-	return
 }

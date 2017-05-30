@@ -61,9 +61,7 @@ const (
 )
 
 func affectModify(player *mob, paf *affect, add bool) {
-	var mod int
-
-	mod = paf.modifier
+	mod := paf.modifier
 
 	if add {
 		player.Affects = append(player.Affects, paf)
@@ -102,43 +100,29 @@ func affectModify(player *mob, paf *affect, add bool) {
 		break
 	case applyStrength:
 		player.ModifiedAttributes.Strength += mod
-		break
 	case applyDexterity:
 		player.ModifiedAttributes.Dexterity += mod
-		break
 	case applyIntelligence:
 		player.ModifiedAttributes.Intelligence += mod
-		break
 	case applyWisdom:
 		player.ModifiedAttributes.Wisdom += mod
-		break
 	case applyCharisma:
 		player.ModifiedAttributes.Charisma += mod
-		break
 	case applyConstitution:
 		player.ModifiedAttributes.Constitution += mod
-		break
 	case applyMana:
 		player.Mana += mod
-		break
 	case applyHitpoints:
 		player.Hitpoints += mod
-		break
 	case applyMovement:
 		player.Movement += mod
-		break
 	case applyArmorClass:
 		player.Armor += mod
-		break
 	case applyHitroll:
 		player.Hitroll += mod
-		break
 	case applyDamroll:
 		player.Damroll += mod
-		break
 	}
-
-	return
 }
 
 func isAffected(player *mob, aff *affect) bool {

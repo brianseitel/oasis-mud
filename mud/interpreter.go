@@ -64,27 +64,20 @@ func interpret(player *mob, argument string) {
 		switch player.Status {
 		case dead:
 			player.notify("You can't do that because you're DEAD.")
-			break
 		case mortal:
 		case incapacitated:
 			player.notify("You are too wounded to do that.")
-			break
 		case stunned:
 			player.notify("You are too stunned to do that.")
-			break
 		case sleeping:
 			player.notify("In your dreams, or what?")
-			break
 		case fighting:
 			player.notify("No way, you are still fighting!")
-			break
-
 		}
 		return
 	}
 
 	cx.Callback(player, argument)
-	return
 }
 
 func oneArgument(argument string) (string, string) {

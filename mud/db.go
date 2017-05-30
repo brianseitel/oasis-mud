@@ -155,6 +155,7 @@ func createMob(index *mobIndex) *mob {
 		}
 		m.Inventory = append(m.Inventory, i)
 		m.wear(i, false)
+		fmt.Println("Wearing...")
 	}
 
 	m.ExitVerb = index.ExitVerb
@@ -751,8 +752,6 @@ func extractMob(m *mob, pull bool) {
 	if m.client != nil {
 		m.client.mob = nil
 	}
-
-	return
 }
 
 func extractObj(obj *item) {
@@ -780,8 +779,6 @@ func extractObj(obj *item) {
 
 	obj.Affected = nil
 	obj.index.count--
-
-	return
 }
 
 func mockObject(name string, id int) *item {

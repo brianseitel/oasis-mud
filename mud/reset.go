@@ -146,26 +146,19 @@ func resetArea(ar *area) {
 			switch ir.ItemType {
 			default:
 				olevel = 0
-				break
 			case itemPill:
 				olevel = dice().Intn(10)
-				break
 			case itemPotion:
 				olevel = dice().Intn(10)
-				break
 			case itemScroll:
 				olevel = dice().Intn(10) + 5
-				break
 			case itemWand:
 				olevel = dice().Intn(10) + 10
-				break
 			case itemStaff:
 				olevel = dice().Intn(10) + 15
-				break
 			case itemWeapon:
 			case itemArmor:
 				olevel = dice().Intn(10) + 5
-				break
 			}
 		}
 
@@ -210,26 +203,19 @@ func resetArea(ar *area) {
 			switch ir.ItemType {
 			default:
 				olevel = 0
-				break
 			case itemPill:
 				olevel = dice().Intn(10)
-				break
 			case itemPotion:
 				olevel = dice().Intn(10)
-				break
 			case itemScroll:
 				olevel = dice().Intn(10) + 5
-				break
 			case itemWand:
 				olevel = dice().Intn(10) + 10
-				break
 			case itemStaff:
 				olevel = dice().Intn(10) + 15
-				break
 			case itemWeapon:
 			case itemArmor:
 				olevel = dice().Intn(10) + 5
-				break
 			}
 		}
 
@@ -258,15 +244,12 @@ func resetArea(ar *area) {
 				case "open":
 					x.Flags = removeBit(x.Flags, exitClosed)
 					x.Flags = removeBit(x.Flags, exitLocked)
-					break
 				case "closed":
 					x.Flags = setBit(x.Flags, exitClosed)
 					x.Flags = removeBit(x.Flags, exitLocked)
-					break
 				case "locked":
 					x.Flags = setBit(x.Flags, exitClosed)
 					x.Flags = setBit(x.Flags, exitLocked)
-					break
 				}
 			}
 		}

@@ -27,7 +27,6 @@ func objCastSpell(spell *skill, level int, player *mob, victim *mob, obj *item) 
 	switch spell.Target {
 	case targetIgnore:
 		target = nil
-		break
 
 	case targetCharacterOffensive:
 		if victim == nil {
@@ -39,7 +38,6 @@ func objCastSpell(spell *skill, level int, player *mob, victim *mob, obj *item) 
 		}
 
 		target = victim
-		break
 
 	case targetCharacterDefensive:
 		if victim == nil {
@@ -47,11 +45,9 @@ func objCastSpell(spell *skill, level int, player *mob, victim *mob, obj *item) 
 		}
 
 		target = victim
-		break
 
 	case targetCharacterSelf:
 		target = player
-		break
 
 	}
 

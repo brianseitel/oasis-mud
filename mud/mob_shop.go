@@ -266,6 +266,4 @@ func doValue(player *mob, argument string) {
 	buf := fmt.Sprintf("$n tells you \"I'll give you %d gold coins for $p.\"", cost)
 	act(buf, keeper, obj, player, actToVict)
 	player.replyTarget = keeper
-
-	return
 }
