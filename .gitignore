@@ -1,7 +1,7 @@
 bin/*
 data/players/*
 gomud.log
-
+mud/coverage.out
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
