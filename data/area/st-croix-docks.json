@@ -384,6 +384,11 @@
                     "direction": "west",
                     "description": "This way leads to more of the tavern.",
                     "room_id": 57
+                },
+                {
+                    "direction": "south",
+                    "description": "This way leads to more of the tavern.",
+                    "room_id": 61
                 }
             ],
             "items": [],

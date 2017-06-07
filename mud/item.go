@@ -1,8 +1,6 @@
 package mud
 
 import (
-	"fmt"
-
 	"bytes"
 	"strings"
 )
@@ -408,7 +406,6 @@ func applyAC(item *item, wear int) int {
 }
 func createMoney(amount int) *item {
 	if amount <= 0 {
-		fmt.Printf("create_money: zero or negative money %d.%s", amount, newline)
 		amount = 1
 	}
 

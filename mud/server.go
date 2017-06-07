@@ -77,16 +77,12 @@ func (server *Server) Serve(port int) {
 
 func (server *Server) timing() {
 	pulse := time.NewTicker(time.Second / pulsePerSecond)
-	tick := time.NewTicker(time.Second * 5)
 
 	for {
 		select {
 		case <-pulse.C:
 			fmt.Printf(".")
 			updateHandler()
-			break
-		case <-tick.C:
-			fmt.Printf("o")
 			break
 		}
 	}

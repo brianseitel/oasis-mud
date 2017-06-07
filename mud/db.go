@@ -155,7 +155,6 @@ func createMob(index *mobIndex) *mob {
 		}
 		m.Inventory = append(m.Inventory, i)
 		m.wear(i, false)
-		fmt.Println("Wearing...")
 	}
 
 	m.ExitVerb = index.ExitVerb
@@ -467,7 +466,7 @@ func loadCommands() {
 	// commandList.PushBack(&cmd{Name: "oset", Trust: 96, Position: dead, Callback: doOset})
 	commandList.PushBack(&cmd{Name: "pardon", Trust: 96, Position: dead, Callback: doPardon})
 	commandList.PushBack(&cmd{Name: "purge", Trust: 96, Position: dead, Callback: doPurge})
-	commandList.PushBack(&cmd{Name: "restore", Trust: 96, Position: dead, Callback: doRestore})
+	commandList.PushBack(&cmd{Name: "restore", Trust: 1, Position: dead, Callback: doRestore})
 	// commandList.PushBack(&cmd{Name: "rset", Trust: 96, Position: dead, Callback: doRset})
 	commandList.PushBack(&cmd{Name: "silence", Trust: 96, Position: dead, Callback: doSilence})
 	commandList.PushBack(&cmd{Name: "sla", Trust: 96, Position: dead, Callback: doSlayIncomplete})

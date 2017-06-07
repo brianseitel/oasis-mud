@@ -23,7 +23,7 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 		return
 	}
 
-	if player.Room == nil {
+	if player == nil || player.Room == nil {
 		return
 	}
 
@@ -67,6 +67,7 @@ func act(format string, player *mob, arg1 interface{}, arg2 interface{}, target 
 	}
 
 	for _, m := range to {
+
 		if m.client == nil || !m.isAwake() {
 			continue
 		}

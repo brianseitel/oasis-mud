@@ -62,6 +62,7 @@ func login(c *connection) *mob {
 	p.Status = standing
 	p.Room.Mobs = append(p.Room.Mobs, p)
 	p.LastSeenAt = time.Now().String()
+	p.RecallRoomID = player.RecallRoomID
 
 	return p
 }

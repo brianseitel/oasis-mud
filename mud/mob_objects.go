@@ -325,7 +325,9 @@ func doGet(player *mob, argument string) {
 			break
 
 		case itemCorpsePC:
-			player.notify("You can't do that.%s.")
+			if container.Name != fmt.Sprintf("The rotting corpse of %s", player.Name) {
+				player.notify("You can't do that.")
+			}
 		default:
 			player.notify("That's not a container.")
 			return
@@ -786,7 +788,7 @@ func doEquipment(player *mob, argument string) {
 }
 
 func (m *mob) get(item *item, container *item) {
-	if !hasBit(item.ItemType, itemTake) {
+	if !hasBit(item.ItemType, itemTake) && !hasBit(item.ItemType, itemCorpseNPC) && !hasBit(item.ItemType, itemCorpsePC) {
 		m.notify("You can't take that.")
 		return
 	}
@@ -851,7 +853,7 @@ func doSacrifice(player *mob, argument string) {
 		return
 	}
 
-	if !obj.canWear(itemTake) {
+	if !obj.canWear(itemTake) && obj.ItemType != itemCorpseNPC {
 		act("$p is not an acceptable sacrifice.", player, obj, nil, actToChar)
 		return
 	}
@@ -861,6 +863,7 @@ func doSacrifice(player *mob, argument string) {
 
 	act("$n sacrifices $p to the gods.", player, obj, nil, actToRoom)
 	player.removeItem(obj)
+	player.Room.removeObject(obj)
 }
 
 func (m *mob) unwearItem(location int, replace bool) bool {

@@ -499,7 +499,9 @@ func (m *mob) move(e *exit) {
 	if len(m.Room.Mobs) > 0 {
 		for i, rm := range m.Room.Mobs {
 			if rm == m {
-				m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
+				if len(m.Room.Mobs) >= i {
+					m.Room.Mobs = append(m.Room.Mobs[0:i], m.Room.Mobs[i+1:]...)
+				}
 			} else {
 				if !rm.isAffected(affectSneak) {
 					rm.notify("%s leaves heading %s.", m.Name, e.Dir)
@@ -629,7 +631,7 @@ func (m *mob) notify(message string, a ...interface{}) {
 	if m.client != nil {
 		message = fmt.Sprintf("%s%s%s", reset, message, newline)
 		m.client.SendString(fmt.Sprintf(message, a...))
-		m.client.conn.Read([]byte{})
+		// m.client.conn.Read([]byte{})
 	}
 }
 
@@ -728,9 +730,10 @@ func (m *mob) wander() {
 		return
 	}
 
-	if m.Status != standing {
+	if m.Status != standing || m.Fight != nil {
 		return
 	}
+
 	switch c := len(m.Room.Exits); c {
 	case 0:
 		return
@@ -991,6 +994,8 @@ func formatItemToChar(item *item, player *mob) string {
 	}
 
 	buf.Write([]byte(item.Description))
+
+	buf.Write([]byte(fmt.Sprintf(" %d", item.Timer)))
 
 	return buf.String()
 }

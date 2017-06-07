@@ -204,12 +204,16 @@ func doKill(attacker *mob, argument string) {
 	}
 
 	if victim.isSafe() {
+		attacker.notify("A voice from the clouds booms, \"THOU SHALT NOT KILL!\"")
 		return
 	}
 
-	if attacker.Status == fighting {
+	if attacker.Status == fighting || attacker.Fight != nil {
 		attacker.notify("You do the best you can!")
 	}
+
+	attacker.Fight = victim
+	victim.Fight = attacker
 
 	wait(attacker, 1*pulseViolence)
 	multiHit(attacker, victim, typeHit)
@@ -478,7 +482,7 @@ func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
 		vp = "*** ANIHILIATES ***"
 	}
 
-	punct = ":"
+	punct = "!"
 	if dam <= 24 {
 		punct = "."
 	}
@@ -487,9 +491,9 @@ func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
 	var buf2 string
 	var buf3 string
 	if damageType == typeHit {
-		buf1 = fmt.Sprintf("$n %s $N%s", vp, punct)
-		buf2 = fmt.Sprintf("You %s $N%s", vs, punct)
-		buf3 = fmt.Sprintf("$n %s you%s", vp, punct)
+		buf1 = fmt.Sprintf("$n %s $N%s (%d)", vp, punct, dam)
+		buf2 = fmt.Sprintf("You %s $N%s (%d)", vs, punct, dam)
+		buf3 = fmt.Sprintf("$n %s you%s (%d)", vp, punct, dam)
 	} else {
 		// if damageType >= 0 && damageType < MAX_SKILL {
 		// 	attack = skillTable[damageType].nounDamage
@@ -498,9 +502,9 @@ func (m *mob) damageMessage(victim *mob, dam int, damageType int) {
 			attack = attackTable[damageType-typeHit]
 		}
 
-		buf1 = fmt.Sprintf("$n's %s %s $N%s", attack, vp, punct)
-		buf2 = fmt.Sprintf("Your %s %s $N%s", attack, vs, punct)
-		buf3 = fmt.Sprintf("$n's %s %s you%s", attack, vp, punct)
+		buf1 = fmt.Sprintf("$n's %s %s $N%s (%d)", attack, vp, punct, dam)
+		buf2 = fmt.Sprintf("Your %s %s $N%s (%d)", attack, vs, punct, dam)
+		buf3 = fmt.Sprintf("$n's %s %s you%s (%d)", attack, vp, punct, dam)
 	}
 
 	act(buf1, m, nil, victim, actToNotVict)
@@ -547,7 +551,8 @@ func (m *mob) deathCry() {
 
 		item.Name = strings.Replace(item.Name, "[name]", m.Name, -1)
 		item.Description = strings.Replace(item.Description, "[name]", m.Name, -1)
-
+		item.Timer = dice().Intn(5)
+		item.Room = m.Room
 		m.Room.Items = append(m.Room.Items, item)
 	}
 
@@ -662,7 +667,7 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 	if m.isNPC() {
 		dam = dice().Intn(m.Level*3/2) + (m.Level / 2)
 		if wield == nil {
-			dam += dam / 2
+			dam = dam / 2
 		}
 	} else {
 		if wield != nil {

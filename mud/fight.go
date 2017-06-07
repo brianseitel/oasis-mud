@@ -13,7 +13,6 @@ const (
 )
 
 func violenceUpdate() {
-
 	for e := mobList.Front(); e != nil; e = e.Next() {
 		attacker := e.Value.(*mob)
 
@@ -30,6 +29,9 @@ func violenceUpdate() {
 		}
 
 		for _, m := range attacker.Room.Mobs {
+			if m.ID == attacker.ID {
+				continue
+			}
 
 			if m.isAwake() && m.Fight == nil {
 				// auto-assist other players in group
@@ -88,10 +90,10 @@ func makeCorpse(victim *mob) {
 	corpse.Name = strings.Replace(corpse.Name, "[name]", name, 1)
 	corpse.Description = strings.Replace(corpse.Description, "[name]", name, 1)
 
-	for j := range victim.Inventory {
-		victim.Inventory, corpse.container = transferItem(j, victim.Inventory, corpse.container)
-	}
+	corpse.container = append(corpse.container, victim.Inventory...)
+	corpse.Room = victim.Room
 
+	victim.Inventory = nil
 	victim.Room.Items = append(victim.Room.Items, corpse)
 }
 
@@ -148,7 +150,6 @@ func multiHit(attacker *mob, victim *mob, damageType int) {
 	var chance int
 
 	attacker.oneHit(victim, damageType)
-
 	if attacker.Fight != victim || damageType == typeBackstab {
 		return
 	}
@@ -170,6 +171,7 @@ func multiHit(attacker *mob, victim *mob, damageType int) {
 			return
 		}
 	}
+
 	if attacker.isNPC() {
 		chance = attacker.Level
 	} else {
@@ -213,13 +215,15 @@ func rawKill(victim *mob) {
 	}
 
 	extractMob(victim, false)
+	victim.Room = getRoom(1)
+
 	for _, af := range victim.Affects {
 		victim.removeAffect(af)
 	}
 
 	victim.AffectedBy = 0
 	victim.Armor = 100
-	victim.Status = sitting
+	victim.Status = sleeping
 	victim.Hitpoints = max(1, victim.Hitpoints)
 	victim.Mana = max(1, victim.Mana)
 	victim.Movement = max(1, victim.Movement)
