@@ -266,7 +266,7 @@
         "movement": 100,
         "max_movement": 100,
         "hitroll": 50,
-        "damroll": 1,
+        "damroll": 125,
         "armor": -20,
         "experience": -99000,
         "level": 2,
@@ -276,12 +276,12 @@
         "race_id": 1,
         "room_id": 1,
         "attributes": {
-            "strength": 3,
-            "wisdom": 3,
-            "intelligence": 3,
-            "dexterity": 3,
-            "charisma": 3,
-            "constitution": 3
+            "strength": 18,
+            "wisdom": 15,
+            "intelligence": 12,
+            "dexterity": 12,
+            "charisma": 12,
+            "constitution": 12
         },
         "inventory": [],
         "equipped": [{
@@ -301,6 +301,23 @@
             "bonuses": {
                 "int": 1
             }
+        },
+        {
+            "id": 32,
+            "name": "brass knuckles",
+            "description": "A set of brass knuckles",
+            "short_description": "A set of brass knuckles.",
+            "item_type": 5,
+            "extra_flags": 0,
+            "wear_flags": 8193,
+            "wear_location": 0,
+            "weight": 4,
+            "cost": 10,
+            "level": 2,
+            "timer": -1,
+            "value": 10,
+            "min": 50,
+            "max": 150
         }],
         "skills": [],
         "carrying": 0,
@@ -893,7 +910,7 @@
         "damroll": 40,
         "armor": -20,
         "experience": -99000,
-        "level": 11,
+        "level": 25,
         "status": 8,
         "gender": 1,
         "job_id": 1,
@@ -921,7 +938,9 @@
             "cost": 10,
             "level": 3,
             "timer": -1,
-            "value": 25
+            "value": 25,
+            "min": 50,
+            "max": 100
         },{
             "id": 25,
             "name": "white tunic",

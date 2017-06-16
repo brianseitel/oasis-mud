@@ -665,7 +665,7 @@ func (m *mob) oneHit(victim *mob, damageType int) {
 	}
 
 	if m.isNPC() {
-		dam = dice().Intn(m.Level*3/2) + (m.Level / 2)
+		dam = dice().Intn(m.Level*5/2) + (m.Level * 3 / 2)
 		if wield == nil {
 			dam = dam / 2
 		}
@@ -720,8 +720,8 @@ func (m *mob) parry(attacker *mob) bool {
 		return false
 	}
 
-	m.notify("You parry %s's attack.", m.Name)
-	attacker.notify("%s parries your attack.", attacker.Name)
+	attacker.notify("You parry %s's attack.", attacker.Name)
+	m.notify("%s parries your attack.", m.Name)
 
 	return true
 }
