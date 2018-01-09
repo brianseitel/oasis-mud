@@ -1,15 +1,15 @@
 package mud
 
 func doSpell(spell *mobSkill, player *mob, victim *mob) {
-	var af affect
-
-	af.affectType = spell
-	af.duration = 24
-	af.modifier = -20
-	af.location = applyArmorClass
+	af := &affect{
+		affectType: spell,
+		duration:   24,
+		modifier:   -20,
+		location:   applyArmorClass,
+	}
 
 	if victim != nil {
-		victim.addAffect(&af)
+		victim.addAffect(af)
 	}
 
 	if player != victim {

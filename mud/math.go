@@ -57,16 +57,7 @@ func toggleBit(flag int, bit int) int {
 func playerActFlags(flags int) []int {
 	var results []int
 
-	var playerFlags []int
-	playerFlags = append(playerFlags, actIsNPC)
-	playerFlags = append(playerFlags, actSentinel)
-	playerFlags = append(playerFlags, actScavenger)
-	playerFlags = append(playerFlags, actAggressive)
-	playerFlags = append(playerFlags, actStayArea)
-	playerFlags = append(playerFlags, actWimpy)
-	playerFlags = append(playerFlags, actPet)
-	playerFlags = append(playerFlags, actTrain)
-	playerFlags = append(playerFlags, actPet)
+	playerFlags := []int{actIsNPC, actSentinel, actScavenger, actAggressive, actStayArea, actWimpy, actPet, actTrain}
 
 	for _, flag := range playerFlags {
 		if hasBit(flags, flag) {
@@ -81,29 +72,13 @@ func playerActFlags(flags int) []int {
 func playerAffectFlags(flags int) []int {
 	var results []int
 
-	var playerFlags []int
-
-	playerFlags = append(playerFlags, affectBlind)
-	playerFlags = append(playerFlags, affectInvisible)
-	playerFlags = append(playerFlags, affectDetectEvil)
-	playerFlags = append(playerFlags, affectDetectInvisible)
-	playerFlags = append(playerFlags, affectDetectMagic)
-	playerFlags = append(playerFlags, affectDetectHidden)
-	playerFlags = append(playerFlags, affectHold)
-	playerFlags = append(playerFlags, affectSanctuary)
-	playerFlags = append(playerFlags, affectFaerieFire)
-	playerFlags = append(playerFlags, affectInfrared)
-	playerFlags = append(playerFlags, affectCurse)
-	playerFlags = append(playerFlags, affectFlaming)
-	playerFlags = append(playerFlags, affectPoison)
-	playerFlags = append(playerFlags, affectProtect)
-	playerFlags = append(playerFlags, affectParalysis)
-	playerFlags = append(playerFlags, affectSneak)
-	playerFlags = append(playerFlags, affectHide)
-	playerFlags = append(playerFlags, affectSleep)
-	playerFlags = append(playerFlags, affectCharm)
-	playerFlags = append(playerFlags, affectFlying)
-	playerFlags = append(playerFlags, affectPassDoor)
+	playerFlags := []int{
+		affectBlind, affectInvisible, affectDetectEvil, affectDetectInvisible,
+		affectDetectMagic, affectDetectHidden, affectHold, affectSanctuary,
+		affectFaerieFire, affectInfrared, affectCurse, affectFlaming,
+		affectPoison, affectProtect, affectParalysis, affectSneak, affectHide,
+		affectSleep, affectCharm, affectFlying, affectPassDoor,
+	}
 
 	for _, flag := range playerFlags {
 		if hasBit(flags, flag) {

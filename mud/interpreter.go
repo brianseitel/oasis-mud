@@ -64,8 +64,7 @@ func interpret(player *mob, argument string) {
 		switch player.Status {
 		case dead:
 			player.notify("You can't do that because you're DEAD.")
-		case mortal:
-		case incapacitated:
+		case mortal, incapacitated:
 			player.notify("You are too wounded to do that.")
 		case stunned:
 			player.notify("You are too stunned to do that.")

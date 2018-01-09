@@ -370,35 +370,9 @@ func applyAC(item *item, wear int) int {
 	switch wear {
 	case wearBody:
 		return 3 * item.Value
-	case wearHead:
+	case wearHead, wearLegs, wearArmor:
 		return 2 * item.Value
-	case wearLegs:
-		return 2 * item.Value
-	case wearFeet:
-		return item.Value
-	case wearHands:
-		return item.Value
-	case wearArms:
-		return item.Value
-	case wearShield:
-		return item.Value
-	case wearFingerLeft:
-		return item.Value
-	case wearFingerRight:
-		return item.Value
-	case wearNeck1:
-		return item.Value
-	case wearNeck2:
-		return item.Value
-	case wearArmor:
-		return 2 * item.Value
-	case wearWaist:
-		return item.Value
-	case wearWristLeft:
-		return item.Value
-	case wearWristRight:
-		return item.Value
-	case wearHold:
+	case wearFeet, wearHands, wearArms, wearShield, wearFingerLeft, wearFingerRight, wearNeck1, wearNeck2, wearWaist, wearWristLeft, wearWristRight, wearHold:
 		return item.Value
 	}
 
